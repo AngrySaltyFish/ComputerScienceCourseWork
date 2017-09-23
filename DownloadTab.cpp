@@ -1,11 +1,7 @@
-#include "downloadTab.hpp"
+#include "DownloadTab.hpp"
 #include <QBoxLayout>
 
-#include <iostream>
-#include <fstream>
-
 #include <QWebFrame>
-
 #include <QNetworkReply>
 
 DownloadWidget::DownloadWidget(MainWidget *tabManger) :
@@ -19,7 +15,8 @@ DownloadWidget::DownloadWidget(MainWidget *tabManger) :
 void DownloadWidget::init()
 {
     videoList = new SearchList();
-    preview = new QWebView();
+    preview = new PlayerWindow(this);
+    currentVideo = new VideoYoutube();
 
     connect(videoList, SIGNAL (itemSelectionChanged()), this, SLOT (itemSelectionChanged()));
 }
@@ -31,7 +28,6 @@ void DownloadWidget::btns()
 void DownloadWidget::textBars()
 {
     searchBar = new QLineEdit();
-    manager = new QNetworkAccessManager();
 }
 void DownloadWidget::layout()
 {
@@ -41,12 +37,13 @@ void DownloadWidget::layout()
     grid->addWidget(searchBtn, 0, 1);
     grid->addWidget(videoList, 1, 0, 2, 2);
 
-    grid->addWidget(preview, 0, 2, 3, 1);  
+    grid->addWidget(preview, 0, 2, 3, 1);
 }
 void DownloadWidget::search()
 {
+    videoList->clear();
     QString text = searchBar->text();
-    videoList->searchYoutube(text, preview);
+    videoList->searchYoutube(text);
 }
 void DownloadWidget::itemSelectionChanged()
 {
@@ -54,9 +51,20 @@ void DownloadWidget::itemSelectionChanged()
 
     QString url = QString("https://www.youtube.com");
     url.append(videoList->urlMap[QString(currentItem->text())]);
-  
-    preview->load(QUrl(url));
+
+    currentVideo = new VideoYoutube();
+
+    currentVideo->setUrl(url);
+    currentVideo->analyse();
+    connect(currentVideo, SIGNAL (analysingFinished()), SLOT (getVideo()));
 }
+
+void DownloadWidget::getVideo()
+{
+    qDebug() << "Getting urls";
+    preview->openMedia(currentVideo);
+}
+
 
 SearchList::SearchList()
 {
@@ -78,7 +86,7 @@ void SearchList::requestReceived(QNetworkReply *reply)
 
 
     collection = frame->findAllElements(".yt-lockup-content");
-    foreach (QWebElement element, collection) 
+    foreach (QWebElement element, collection)
     {
 	    QString elementText = element.toPlainText();
 	    elementText = elementText.section('\n', 0, 0);
@@ -87,7 +95,7 @@ void SearchList::requestReceived(QNetworkReply *reply)
     }
 
 }
-void SearchList::searchYoutube(QString text, QWebView *preview)
+void SearchList::searchYoutube(QString text)
 {
     QString searchUrl = QString("https://www.youtube.com/results?search_query=") + text;
 

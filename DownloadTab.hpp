@@ -1,13 +1,15 @@
 #ifndef DOWNLOADTAB_H
 #define DOWNLOADTAB_H
 
-#include "window.hpp"
+#include "Window.hpp"
+#include "PlayerWindow.hpp"
+#include "VideoYoutube.hpp"
+
 #include <map>
 
 #include <QtWebKitWidgets/QWebView>
 #include <QListWidget>
 #include <QWebElementCollection>
-
 
 class SearchList : public QListWidget
 {
@@ -15,7 +17,7 @@ class SearchList : public QListWidget
 
 public:
     SearchList();
-    void searchYoutube(const QString text, QWebView *preview);
+    void searchYoutube(const QString text);
     std::map<QString, QString> urlMap;
 private slots:
     void requestReceived(QNetworkReply *reply);
@@ -36,13 +38,15 @@ public:
 private slots:
     void search();
     void itemSelectionChanged();
+    void getVideo();
 
 private:
     QPushButton *searchBtn;
     QLineEdit *searchBar;
-    QWebView *preview;
+    PlayerWindow *preview;
     QNetworkAccessManager *manager;
     QWebElementCollection collection;
+    VideoYoutube *currentVideo;
 
     SearchList *videoList;
 
