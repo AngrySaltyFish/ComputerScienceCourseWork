@@ -25,6 +25,8 @@ void PlayerWindow::init()
         return;
     }
     player->setRenderer(videoOutput);
+
+    downloadProgress = new QProgressBar();
     slider = new QSlider();
     slider->setOrientation(Qt::Horizontal);
 }
@@ -36,7 +38,10 @@ void PlayerWindow::layout()
     vl->addWidget(slider);
 
     QHBoxLayout *hb = new QHBoxLayout();
+
     vl->addLayout(hb);
+    vl->addWidget(downloadBtn);
+    vl->addWidget(downloadProgress);
 
     hb->addWidget(quality);
     hb->addWidget(playBtn);
@@ -45,12 +50,14 @@ void PlayerWindow::layout()
 
 void PlayerWindow::btns()
 {
+    downloadBtn = new QPushButton("Download");
     playBtn = new QPushButton(tr("Play/Pause"));
     stopBtn = new QPushButton(tr("Stop"));
     quality = new QComboBox();
 
     connect(playBtn, SIGNAL(clicked()), SLOT(playPause()));
     connect(stopBtn, SIGNAL(clicked()), player, SLOT(stop()));
+    connect(downloadBtn, SIGNAL(clicked()), SLOT(startDownload()));
     connect(quality, SIGNAL(currentIndexChanged(int)), this, SLOT(changeQuality(int)));
 
     connect(slider, SIGNAL(sliderMoved(int)), SLOT(seekBySlider(int)));
@@ -117,4 +124,16 @@ void PlayerWindow::updateSliderUnit()
 {
     unit = player->notifyInterval();
     updateSlider();
+}
+
+void PlayerWindow::startDownload()
+{
+    connect(currentVideo->getHandler(), SIGNAL(downloadProgress(qint64, qint64)), SLOT(changeDownloadProgress(qint64, qint64)));
+    currentVideo->download();
+}
+
+void PlayerWindow::changeDownloadProgress(qint64 currentProgress, qint64 totalBytes)
+{
+    downloadProgress->setMaximum(totalBytes);
+    downloadProgress->setValue(currentProgress);
 }

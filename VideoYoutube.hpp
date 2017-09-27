@@ -147,6 +147,7 @@ class VideoYoutube : public QObject
         bool isReady();
         QString getVideoUrl();
         QString getAudioUrl();
+        HttpHandler *getHandler();
         VideoYoutube();
 
         private slots:

@@ -141,22 +141,6 @@ void VideoYoutube::download()
     _step = 3;
     handler->clearDownloads();
 
-    //connect(handler, SIGNAL(downloadProgress(qint64, qint64)), this, SLOT(changeProgress(qint64, qint64)));
-
-    qDebug() << "About to enter if statement";
-    if (!this->_supportedQualities.at(_quality).videoUrl.isEmpty())
-    {
-        if (this->_supportedQualities.at(_quality).videoSegments.isEmpty())
-        {
-            qDebug() << "Downloading video file: " << this->_supportedQualities.at(_quality).videoUrl;
-            handler->addDownload(this->_supportedQualities.at(_quality).videoUrl, this->_supportedQualities.at(_quality).chunkedDownload);
-        }
-        else
-        {
-            qDebug() << "Downloading segmented video file: " << this->_supportedQualities.at(_quality).videoUrl;
-            handler->addDownload(this->_supportedQualities.at(_quality).videoUrl, this->_supportedQualities.at(_quality).videoSegments);
-        }
-    }
     if (!this->_supportedQualities.at(_quality).audioUrl.isEmpty())
     {
         if (this->_supportedQualities.at(_quality).audioSegments.isEmpty())
@@ -713,6 +697,12 @@ QString VideoYoutube::getAudioUrl()
 {
     return this->_supportedQualities.at(_quality).audioUrl;
 }
+
+HttpHandler *VideoYoutube::getHandler()
+{
+    return this->handler;
+}
+
 void VideoYoutube::networkError(QString message)
 {
     emit error(message, this);

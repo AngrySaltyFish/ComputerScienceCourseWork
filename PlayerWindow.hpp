@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QtAV/QtAV.h>
 #include <QComboBox>
+#include <QProgressBar>
 #include "VideoYoutube.hpp"
 
 QT_BEGIN_NAMESPACE
@@ -21,6 +22,8 @@ public Q_SLOTS:
     void seekBySlider();
     void playPause();
 private Q_SLOTS:
+    void startDownload();
+    void changeDownloadProgress(qint64, qint64);
     void changeQuality(int);
     void updateSlider(qint64 value);
     void updateSlider();
@@ -30,7 +33,9 @@ private:
     QtAV::VideoOutput *videoOutput;
     QtAV::AVPlayer *player;
     VideoYoutube *currentVideo;
+    QProgressBar *downloadProgress;
     QSlider *slider;
+    QPushButton *downloadBtn;
     QPushButton *playBtn;
     QPushButton *stopBtn;
     QComboBox *quality;
