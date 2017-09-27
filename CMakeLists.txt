@@ -3,8 +3,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 set (CMAKE_MODULE_PATH /usr/lib/cmake)
 set (CMAKE_BUILD_TYPE Debug)
 
-file(GLOB SOURCES src/*.cpp)
-file(GLOB HEADERS src/*.hpp)
+file(GLOB SOURCES *.cpp)
+file(GLOB HEADERS *.hpp)
 
 
 project(YoutubeMusicDownloader)
