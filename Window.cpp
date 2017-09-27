@@ -1,4 +1,5 @@
 #include "DownloadTab.hpp"
+#include "LibraryTab.hpp"
 
 #include <iostream>
 
@@ -62,6 +63,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     MainWidget mainWidget;
     DownloadWidget downloadWidget(&mainWidget);
+    LibraryTab libraryTab(&mainWidget);
     MainWindow window(mainWidget);
 
     return app.exec();
