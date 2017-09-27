@@ -47,6 +47,9 @@ void DownloadWidget::search()
 }
 void DownloadWidget::itemSelectionChanged()
 {
+    if (!videoList->selectedItems().size())
+        return;
+
     QListWidgetItem *currentItem = videoList->selectedItems()[0];
 
     QString url = QString("https://www.youtube.com");
