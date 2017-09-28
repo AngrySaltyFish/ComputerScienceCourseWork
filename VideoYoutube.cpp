@@ -10,21 +10,21 @@ VideoYoutube::VideoYoutube()
     handler = new HttpHandler;
     connect(handler, SIGNAL(allDownloadsFinished()), this, SLOT(handleDownloads()));
     connect(handler, SIGNAL(error(QString)), this, SLOT(networkError(QString)));
-    this->_urlRegExp << QRegExp("http[s]?://\\w*\\.youtube\\.com/watch.*v\\=.*", Qt::CaseInsensitive);
-    this->_urlRegExp << QRegExp("http[s]?://\\w*\\.youtube\\.com/view_play_list\\?p\\=.*&v\\=.*", Qt::CaseInsensitive);
-    this->_urlRegExp << QRegExp("http[s]?://youtu.be/.*", Qt::CaseInsensitive);
-    this->_urlRegExp << QRegExp("http[s]?://w*\\.youtube\\.com/embed/.*", Qt::CaseInsensitive);
+    this->urlRegExp << QRegExp("http[s]?://\\w*\\.youtube\\.com/watch.*v\\=.*", Qt::CaseInsensitive);
+    this->urlRegExp << QRegExp("http[s]?://\\w*\\.youtube\\.com/view_play_list\\?p\\=.*&v\\=.*", Qt::CaseInsensitive);
+    this->urlRegExp << QRegExp("http[s]?://youtu.be/.*", Qt::CaseInsensitive);
+    this->urlRegExp << QRegExp("http[s]?://w*\\.youtube\\.com/embed/.*", Qt::CaseInsensitive);
 }
 
 bool VideoYoutube::setUrl(QString url)
 {
-    _quality = 0;
+    currentQuality = 0;
     this->downloading = "";
-    this->_supportedQualities.clear();
+    this->supportedQualities.clear();
     url.replace("#!", "?");
     url.replace("youtube.com/embed/", "youtube.com/watch?v=");
-    this->_url = QUrl(url);
-    if (_url.isValid())
+    this->currentUrl = QUrl(url);
+    if (currentUrl.isValid())
     {
         return true;
     }
@@ -35,19 +35,19 @@ bool VideoYoutube::setUrl(QString url)
 }
 bool VideoYoutube::isReady()
 {
-    if (!this->_supportedQualities.size())
+    if (!this->supportedQualities.size())
         return true;
     return false;
 }
 
 void VideoYoutube::analyse()
 {
-    qDebug() << _url;
+    qDebug() << currentUrl;
 
-    if (this->_url.isValid())
+    if (this->currentUrl.isValid())
     {
-        _step = 1;
-        handler->addDownload(_url.toString());
+        step = 1;
+        handler->addDownload(currentUrl.toString());
         connect(this, SIGNAL(analysingFinished()), this, SLOT(slotAnalysingFinished()));
     }
     else
@@ -60,12 +60,11 @@ void VideoYoutube::analyse()
 void VideoYoutube::slotAnalysingFinished()
 {
 
-    qDebug() << "Discovered: " << _title;
-    for (int i = 0; i > _supportedQualities.size(); i++)
+    qDebug() << "Discovered: " << title;
+    for (int i = 0; i > supportedQualities.size(); i++)
     {
-        qDebug() << _supportedQualities.at(i).quality << _supportedQualities.at(i).containerName << _supportedQualities.at(i).videoUrl;
+        qDebug() << supportedQualities.at(i).quality << supportedQualities.at(i).containerName << supportedQualities.at(i).videoUrl;
     }
-    qDebug() << _supportedQualities.size();
     //handler->clearDownloads();
 }
 
@@ -94,9 +93,9 @@ QString VideoYoutube::getFmtLink(QStringList qualityLinks, QString fmt)
 QList< QPair<QString, int> > VideoYoutube::getSupportedQualities()
 {
     QList< QPair<QString, int> > result;
-    for (int i = 0; i < _supportedQualities.size(); ++i)
+    for (int i = 0; i < supportedQualities.size(); ++i)
     {
-        result << qMakePair(_supportedQualities.at(i).quality, _supportedQualities.at(i).resolution);
+        result << qMakePair(supportedQualities.at(i).quality, supportedQualities.at(i).resolution);
     }
     return result;
 }
@@ -138,27 +137,27 @@ QString VideoYoutube::getUrlFromFmtLink(QString link)
 
 void VideoYoutube::download()
 {
-    _step = 3;
+    step = 3;
     handler->clearDownloads();
 
-    if (!this->_supportedQualities.at(_quality).audioUrl.isEmpty())
+    if (!this->supportedQualities.at(currentQuality).audioUrl.isEmpty())
     {
-        if (this->_supportedQualities.at(_quality).audioSegments.isEmpty())
+        if (this->supportedQualities.at(currentQuality).audioSegments.isEmpty())
         {
-            qDebug() << "Downloading audio file: " << this->_supportedQualities.at(_quality).audioUrl;
-            handler->addDownload(this->_supportedQualities.at(_quality).audioUrl, this->_supportedQualities.at(_quality).chunkedDownload);
+            qDebug() << "Downloading audio file: " << this->supportedQualities.at(currentQuality).audioUrl;
+            handler->addDownload(this->supportedQualities.at(currentQuality).audioUrl, this->supportedQualities.at(currentQuality).chunkedDownload);
         }
         else
         {
-            qDebug() << "Downloading segmented audio file: " << this->_supportedQualities.at(_quality).audioUrl;
-            handler->addDownload(this->_supportedQualities.at(_quality).audioUrl, this->_supportedQualities.at(_quality).audioSegments);
+            qDebug() << "Downloading segmented audio file: " << this->supportedQualities.at(currentQuality).audioUrl;
+            handler->addDownload(this->supportedQualities.at(currentQuality).audioUrl, this->supportedQualities.at(currentQuality).audioSegments);
         }
     }
 }
 
 void VideoYoutube::handleDownloads()
 {
-    switch (this->_step)
+    switch (this->step)
     {
         case 1:
             {
@@ -313,32 +312,6 @@ void VideoYoutube::parseVideo(QString html)
     if (this->downloading.isEmpty() || this->downloading == "html")
     {
         this->html = html;
-        qDebug() << "Inside parse video";
-
-        //Is the access to the video restricted to authenticated users?
-        /*
-           if (html.contains("age-gate-content"))
-           {
-           expression = QRegExp("<div id=\"watch7-player-age-gate-content\">.*<button.*href=\"([^\"]+)\"");
-           expression.setMinimal(true);
-           if (expression.indexIn(html) != -1)
-           {
-           passwordDialog = new QDialog;
-
-           if (passwordDialog->exec() == QDialog::Accepted)
-           {
-           handler->addDownload(this->_url.toString());
-           }
-           else
-           {
-           emit error("This video requires you to be signed in.", this);
-           emit analysingFinished();
-           }
-
-           passwordDialog->deleteLater();
-           return;
-           }
-           }*/
 
         //Does this video support MPEG-DASH?
         expression = QRegExp("\"dashmpd\": ?\"([^\"]*)");
@@ -458,7 +431,7 @@ void VideoYoutube::parseVideo(QString html)
     expression.setMinimal(true);
     if (expression.indexIn(html) !=-1)
     {
-        _title = QString(expression.cap(1)).replace("&amp;quot;", "\"").replace("&amp;amp;", "&").replace("&#39;", "'").replace("&quot;", "\"").replace("&amp;", "&");
+        title = QString(expression.cap(1)).replace("&amp;quot;", "\"").replace("&amp;amp;", "&").replace("&#39;", "'").replace("&quot;", "\"").replace("&amp;", "&");
         QStringList qualityLinks;
 
         expression = QRegExp("\"adaptive_fmts\": ?\"(.*)\"");
@@ -625,7 +598,7 @@ void VideoYoutube::parseVideo(QString html)
 
                     newQuality.chunkedDownload = false;
 
-                    _supportedQualities.append(newQuality);
+                    supportedQualities.append(newQuality);
 
                     QMutableListIterator<fmtQuality> ii(fmtQualities);
                     while (ii.hasNext())
@@ -654,7 +627,7 @@ void VideoYoutube::parseVideo(QString html)
 #else
                 newQuality.videoUrl = QUrl::fromEncoded(QString("http://www.youtube.com/get_video?video_id=" + expression2.cap(1) + "&t=" + expression.cap(1)).toLatin1()).toString(QUrl::None);
 #endif
-                _supportedQualities.append(newQuality);
+                supportedQualities.append(newQuality);
             }
             else
             {
@@ -690,12 +663,12 @@ QString VideoYoutube::parseSignature(QString s)
 
 QString VideoYoutube::getVideoUrl()
 {
-    return this->_supportedQualities.at(_quality).videoUrl;
+    return this->supportedQualities.at(currentQuality).videoUrl;
 }
 
 QString VideoYoutube::getAudioUrl()
 {
-    return this->_supportedQualities.at(_quality).audioUrl;
+    return this->supportedQualities.at(currentQuality).audioUrl;
 }
 
 HttpHandler *VideoYoutube::getHandler()
@@ -708,15 +681,13 @@ void VideoYoutube::networkError(QString message)
     emit error(message, this);
 }
 
-void VideoYoutube::setQuality(int quality)
+void VideoYoutube::setQuality(int newQuality)
 {
-    qDebug() << quality;
-    this->_quality = quality;
-    qDebug() << "successfully set qual";
+    this->currentQuality = newQuality;
 }
 
 QString VideoYoutube::quality()
 {
-    return this->_supportedQualities.at(_quality).quality;
+    return this->supportedQualities.at(currentQuality).quality;
 }
 

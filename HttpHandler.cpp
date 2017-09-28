@@ -58,99 +58,6 @@ QNetworkReply* HttpHandler::addDownload(QString initUrl, QStringList segments)
     return this->addDownload(initUrl, false, NULL, segments);
 }
 
-//Continue the download after a redirection or successful range request
-void HttpHandler::continueDownload(download* dl)
-{
-    QNetworkRequest request;
-    dl->reply->close();
-
-    //In case of redirection
-    if (!dl->reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toString().isEmpty() && dl->redirectLevel < 16)
-    {
-        request = createRequest(dl->reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl());
-        dl->redirectLevel ++;
-    }
-
-    //In case of 206 status (successful range request)
-    //or continuing aborted chunked request
-    else if (dl->currentStatus() == 206 ||  ((dl->previousStatus() == 206) && (dl->currentStatus() == 0 || dl->currentStatus() == 5)))
-    {
-        request = createRequest(dl->reply->url());
-        dl->progress = dl->getProgress();
-        dl->currentProgress = 0;
-        dl->redirectLevel = 0;
-
-        qint64 downloadChunk = 1397760;//925696;
-        qint64 targetBytes = dl->progress+downloadChunk;
-
-
-        if (targetBytes >= dl->size-downloadChunk)
-        {
-            targetBytes = dl->size;
-        }
-
-        //If the download is complete already
-        if (targetBytes <= dl->progress)
-        {
-            emit downloadFinished(dl);
-            return;
-        }
-        //If more parts need to be downloaded
-        else
-        {
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-            request.setRawHeader("Range", QString("bytes=" + QString::number(dl->getProgress()) + "-" + QString::number(targetBytes)).toAscii());
-#else
-            request.setRawHeader("Range", QString("bytes=" + QString::number(dl->getProgress()) + "-" + QString::number(targetBytes)).toLatin1());
-#endif
-        }
-    }
-
-    //In case of continuing an aborted non-chunked request
-    else if (dl->currentStatus() == 200 || ((dl->previousStatus() == 200) && (dl->currentStatus() == 0 || dl->currentStatus() == 5)))
-    {
-        request = createRequest(dl->reply->url());
-        dl->progress = dl->getProgress();
-        dl->currentProgress = 0;
-        dl->redirectLevel = 0;
-        qint64 targetBytes = dl->size;
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-        request.setRawHeader("Range", QString("bytes=" + QString::number(dl->getProgress()) + "-" + QString::number(targetBytes)).toAscii());
-#else
-        request.setRawHeader("Range", QString("bytes=" + QString::number(dl->getProgress()) + "-" + QString::number(targetBytes)).toLatin1());
-#endif
-    }
-
-
-    if (!request.url().isEmpty())
-    {
-        //Continuing after pausing
-        dl->_previousStatus = dl->currentStatus();
-        dl->reply = networkAccessManager->get(request);
-        connect(dl->reply, SIGNAL(readyRead()), this, SLOT(dataHandler()));
-    }
-}
-
-void HttpHandler::pauseAllDownloads()
-{
-    for (int i=0; i < this->downloads.size(); i++)
-    {
-        if (downloads.at(i)->reply)
-        {
-            downloads.at(i)->reply->disconnect();
-            downloads.at(i)->reply->abort();
-        }
-    }
-}
-
-void HttpHandler::continueAllDownloads()
-{
-    for (int i=0; i < this->downloads.size(); i++)
-    {
-        continueDownload(downloads.at(i));
-    }
-}
-
 download* HttpHandler::getDownload(QNetworkReply* reply)
 {
     if (reply)
@@ -201,13 +108,7 @@ void HttpHandler::handleSSLError(QNetworkReply *reply, const QList<QSslError> &e
 void HttpHandler::handleNetworkReply(QNetworkReply* reply)
 {
     download* dl = getDownload(reply);
-
-    if ((!dl->reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl().isEmpty() && dl->redirectLevel < 16) ||  (dl->currentStatus() == 206))
-    {
-        continueDownload(dl);
-        return;
-    }
-    else if (!dl->segments.isEmpty() && dl->segmentPosition +1 < dl->segments.length())
+    if (!dl->segments.isEmpty() && dl->segmentPosition +1 < dl->segments.length())
     {
         reply->close();
 
@@ -228,14 +129,7 @@ void HttpHandler::handleNetworkReply(QNetworkReply* reply)
     else if (reply->error())
     {
         qDebug() << "Error!" << reply->errorString();
-
-        if (dl->currentStatus() <= 206 && dl->currentStatus() >= 200)
-        {
-            qDebug() << "Continuing from error";
-            continueDownload(dl);
-            return;
-        }
-        else if ((dl->previousStatus() == 200 || dl->previousStatus() == 206) && dl->currentStatus() == 403)
+        if ((dl->previousStatus() == 200 || dl->previousStatus() == 206) && dl->currentStatus() == 403)
         {
             qDebug() << "Unexpected 403 - maybe download link timed out?";
             //todo: Make video re-analyze and restart download
@@ -251,7 +145,7 @@ void HttpHandler::handleNetworkReply(QNetworkReply* reply)
         emit downloadFinished(dl);
     }
 }
-
+/*
 void HttpHandler::cancelAllDownloads()
 {
 
@@ -270,7 +164,7 @@ void HttpHandler::cancelAllDownloads()
         }
     }
     downloads.clear();
-}
+}*/
 
 void HttpHandler::dataHandler()
 {
@@ -339,7 +233,6 @@ void HttpHandler::clearDownloads()
     qDebug() << this->downloads;
     for (int i=0; i < this->downloads.size(); i++)
     {
-        qDebug() << "Entering for loop";
         if (downloads.at(i)->reply)
         {
             downloads.at(i)->reply->close();
@@ -353,41 +246,3 @@ void HttpHandler::clearDownloads()
     downloads.clear();
 }
 
-/*
-//Serializing and de-serializing cookies
-QString HttpHandler::serializeCookies(QList<QNetworkCookie> cookies)
-{
-qDebug() << "serializing Cookies" << cookies.length() << cookies;
-QStringList serializedCookies;
-for (int i = 0; i < cookies.length(); i++)
-{
-serializedCookies << QUrl::toPercentEncoding(cookies.at(i).toRawForm());
-}
-
-return serializedCookies.join(";");
-}
-
-
-QList<QNetworkCookie> HttpHandler::deserializeCookies(QString serializedCookiesString)
-{
-QStringList serializedCookies = serializedCookiesString.split(";");
-QList<QNetworkCookie> cookies;
-for (int i = 0; i < serializedCookies.length(); i++)
-{
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-QString cookieString = QUrl::fromPercentEncoding(serializedCookies.at(i).toAscii());
-#else
-QString cookieString = QUrl::fromPercentEncoding(serializedCookies.at(i).toLatin1());
-#endif
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-QList<QNetworkCookie> parsedCookies = QNetworkCookie::parseCookies(cookieString.toAscii());
-#else
-QList<QNetworkCookie> parsedCookies = QNetworkCookie::parseCookies(cookieString.toLatin1());
-#endif
-for (int j = 0; j < parsedCookies.length(); j++)
-{
-cookies.append(parsedCookies.at(j));
-}
-}
-return cookies;
-}*/

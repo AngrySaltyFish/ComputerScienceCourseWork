@@ -68,10 +68,6 @@ class HttpHandler : public QObject
 
         QNetworkReply* addDownload(QString, bool chunked=false, QByteArray postData=NULL, QStringList segments=QStringList());
         QNetworkReply* addDownload(QString initUrl, QStringList segments);
-        void continueDownload(download*);
-        void cancelAllDownloads();
-        void pauseAllDownloads();
-        void continueAllDownloads();
         void clearDownloads();
         QList<download*> downloads;
 

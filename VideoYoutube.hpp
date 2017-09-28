@@ -102,20 +102,15 @@ class VideoYoutube : public QObject
     Q_OBJECT
 
     private:
-        QString _maxfmt;
-        QList<videoQuality> _supportedQualities;
-        QList<QRegExp> _urlRegExp;
+        QList<videoQuality> supportedQualities;
+        QList<QRegExp> urlRegExp;
         HttpHandler* handler;
-        int _format;
-        int _quality;
-        int _step;
+        int currentQuality;
+        int step;
 
-        QUrl _url;
-        QUrl _urlThumbnail;
-        QString _targetPath;
-        bool _chunkedDownload;
+        QUrl currentUrl;
 
-        QString _title;
+        QString title;
 
 
         QString parseSignature(QString s);
@@ -128,7 +123,6 @@ class VideoYoutube : public QObject
         void parseDashMpd(QString);
         QList<jsMethod> jsMethods;
         QString signatureMethodName;
-        //QString loginFormError;
         QString html;
         QString js;
         QString dashmpd;
