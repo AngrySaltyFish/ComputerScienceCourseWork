@@ -19,11 +19,12 @@ QNetworkRequest HttpHandler::createRequest(QUrl url)
 }
 
 //Start a new download with the download handler
-QNetworkReply* HttpHandler::addDownload(QString url, bool chunked, QByteArray postData, QStringList segments)
+QNetworkReply* HttpHandler::addDownload(QString url, bool chunked, QByteArray postData, QStringList segments, QString title)
 {
     download* newDownload = new download;
     QNetworkRequest request = createRequest(QUrl::fromEncoded(url.toLatin1()));
-    newDownload->tempFile = new QTemporaryFile(QDir::tempPath() + "/clipgrab-download-XXXXXX");
+    newDownload->tempFile = new QTemporaryFile(QDir::tempPath() + "/download-XXXXXX");
+    newDownload->title = title;
     newDownload->size = 0;
     newDownload->redirectLevel = 0;
     newDownload->chunked = chunked;

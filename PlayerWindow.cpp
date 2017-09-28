@@ -80,6 +80,7 @@ void PlayerWindow::openMedia(VideoYoutube *video)
     player->play(video->getVideoUrl());
     player->setExternalAudio(video->getAudioUrl());
     currentVideo = video;
+    qDebug() << "Complete open media";
 }
 
 void PlayerWindow::changeQuality(int index)

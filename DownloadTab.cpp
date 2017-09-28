@@ -47,8 +47,10 @@ void DownloadWidget::search()
 }
 void DownloadWidget::itemSelectionChanged()
 {
+    qDebug() << "If lala";
     if (!videoList->selectedItems().size())
         return;
+    qDebug() << "If complete";
 
     QListWidgetItem *currentItem = videoList->selectedItems()[0];
 

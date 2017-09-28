@@ -63,7 +63,7 @@ void VideoYoutube::slotAnalysingFinished()
     qDebug() << "Discovered: " << title;
     for (int i = 0; i > supportedQualities.size(); i++)
     {
-        qDebug() << supportedQualities.at(i).quality << supportedQualities.at(i).containerName << supportedQualities.at(i).videoUrl;
+        supportedQualities.at(i).quality << supportedQualities.at(i).containerName << supportedQualities.at(i).videoUrl;
     }
     //handler->clearDownloads();
 }
@@ -138,14 +138,14 @@ QString VideoYoutube::getUrlFromFmtLink(QString link)
 void VideoYoutube::download()
 {
     step = 3;
-    handler->clearDownloads();
+    //handler->clearDownloads();
 
     if (!this->supportedQualities.at(currentQuality).audioUrl.isEmpty())
     {
         if (this->supportedQualities.at(currentQuality).audioSegments.isEmpty())
         {
             qDebug() << "Downloading audio file: " << this->supportedQualities.at(currentQuality).audioUrl;
-            handler->addDownload(this->supportedQualities.at(currentQuality).audioUrl, this->supportedQualities.at(currentQuality).chunkedDownload);
+            qDebug() << handler->addDownload(this->supportedQualities.at(currentQuality).audioUrl, this->supportedQualities.at(currentQuality).chunkedDownload);
         }
         else
         {
@@ -157,19 +157,36 @@ void VideoYoutube::download()
 
 void VideoYoutube::handleDownloads()
 {
-    switch (this->step)
+    if (this->step == 1)
     {
-        case 1:
-            {
-                handler->downloads.at(0)->tempFile->close();
+        handler->downloads.at(0)->tempFile->close();
                 handler->downloads.at(0)->tempFile->open();
                 QByteArray data = handler->downloads.at(0)->tempFile->readAll();
                 handler->downloads.at(0)->tempFile->close();
                 QString html = QString::fromUtf8(data, data.size());
                 handler->clearDownloads();
                 parseVideo(html);
-                break;
+
+    }
+    else
+    {
+        for (int i = 0; i < handler->downloads.size(); ++i)
+        {
+            if (handler->downloads.at(i)->tempFile->isOpen())
+            {
+                handler->downloads.at(i)->tempFile->flush();
+                handler->downloads.at(i)->tempFile->close();
             }
+            handler->downloads.at(i)->tempFile->open();
+
+            QByteArray data = handler->downloads.at(i)->tempFile->readAll();
+
+            QSaveFile *fileSave = new QSaveFile(handler->downloads.at(i)->title);
+            fileSave->open(QIODevice::WriteOnly);
+            fileSave->write(data.constData(), data.size());
+            fileSave->commit();
+        }
+
     }
 }
 

@@ -10,6 +10,7 @@ struct download
 
     download()
     {
+        title = "";
         size = 0;
         currentProgress = 0;
         progress = 0;
@@ -24,6 +25,8 @@ struct download
     QNetworkReply* reply;
 
     QTemporaryFile* tempFile;
+
+    QString title;
 
     qint64 size;
     qint64 progress;
@@ -66,7 +69,7 @@ class HttpHandler : public QObject
         HttpHandler();
 
 
-        QNetworkReply* addDownload(QString, bool chunked=false, QByteArray postData=NULL, QStringList segments=QStringList());
+        QNetworkReply* addDownload(QString, bool chunked=false, QByteArray postData=NULL, QStringList segments=QStringList(), QString title="");
         QNetworkReply* addDownload(QString initUrl, QStringList segments);
         void clearDownloads();
         QList<download*> downloads;
