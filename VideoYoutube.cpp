@@ -63,7 +63,7 @@ void VideoYoutube::slotAnalysingFinished()
     qDebug() << "Discovered: " << title;
     for (int i = 0; i > supportedQualities.size(); i++)
     {
-        supportedQualities.at(i).quality << supportedQualities.at(i).containerName << supportedQualities.at(i).videoUrl;
+        qDebug() << supportedQualities.at(i).quality << supportedQualities.at(i).containerName << supportedQualities.at(i).videoUrl;
     }
     //handler->clearDownloads();
 }
