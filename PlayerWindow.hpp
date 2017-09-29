@@ -44,6 +44,7 @@ private:
     void init();
     void btns();
     void layout();
+    void refresh();
 };
 
 #endif // PLAYERWINDOW_H

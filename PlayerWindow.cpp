@@ -69,6 +69,7 @@ void PlayerWindow::btns()
 
 void PlayerWindow::openMedia(VideoYoutube *video)
 {
+    this->currentVideo = NULL;
     QList< QPair<QString, int> > qualities = video->getSupportedQualities();
 
     quality->clear();
@@ -80,15 +81,23 @@ void PlayerWindow::openMedia(VideoYoutube *video)
     player->play(video->getVideoUrl());
     player->setExternalAudio(video->getAudioUrl());
     currentVideo = video;
-    qDebug() << "Complete open media";
 }
 
 void PlayerWindow::changeQuality(int index)
 {
-    //TODO::Fix this so no seg fault and jump to appropiate time
-    //qDebug() << index;
-    //currentVideo->setQuality(index);
+    if (currentVideo)
+    {
+        currentVideo->setQuality(index);
+        refresh();
+    }
 }
+
+void PlayerWindow::refresh()
+{
+    player->play(currentVideo->getVideoUrl());
+    player->setAudioStream(currentVideo->getAudioUrl(), 1);
+}
+
 void PlayerWindow::seekBySlider(int value)
 {
     if (!player->isPlaying())
