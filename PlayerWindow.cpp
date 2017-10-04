@@ -146,4 +146,7 @@ void PlayerWindow::changeDownloadProgress(qint64 currentProgress, qint64 totalBy
 {
     downloadProgress->setMaximum(totalBytes);
     downloadProgress->setValue(currentProgress);
+
+    if (currentProgress == totalBytes)
+        downloadProgress->setValue(0);
 }
