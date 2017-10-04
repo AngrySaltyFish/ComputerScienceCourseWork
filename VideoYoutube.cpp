@@ -159,13 +159,14 @@ void VideoYoutube::handleDownloads()
 {
     if (this->step == 1)
     {
-        handler->downloads.at(0)->tempFile->close();
-                handler->downloads.at(0)->tempFile->open();
-                QByteArray data = handler->downloads.at(0)->tempFile->readAll();
-                handler->downloads.at(0)->tempFile->close();
-                QString html = QString::fromUtf8(data, data.size());
-                handler->clearDownloads();
-                parseVideo(html);
+        int index = handler->downloads.size()-1;
+        handler->downloads.at(index)->tempFile->close();
+        handler->downloads.at(index)->tempFile->open();
+        QByteArray data = handler->downloads.at(index)->tempFile->readAll();
+        handler->downloads.at(index)->tempFile->close();
+        QString html = QString::fromUtf8(data, data.size());
+        handler->clearDownloads();
+        parseVideo(html);
 
     }
     else

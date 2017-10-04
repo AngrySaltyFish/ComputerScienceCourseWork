@@ -28,6 +28,10 @@ QNetworkReply* HttpHandler::addDownload(QString url, bool chunked, QByteArray po
     newDownload->size = 0;
     newDownload->redirectLevel = 0;
     newDownload->chunked = chunked;
+
+    if (url.contains("mime=audio"))
+        newDownload->async = true;
+
     if (newDownload->chunked)
     {
         request.setRawHeader("Range", QString("bytes=0-1397760").toLatin1());
@@ -218,7 +222,7 @@ void HttpHandler::handleFinishedDownload(download* dl)
     bool allFinished = true;
     for (int i=0; i < this->downloads.size(); i++)
     {
-        if (!this->downloads.at(i)->finished)
+        if (!this->downloads.at(i)->finished && !this->downloads.at(i)->async)
         {
             allFinished = false;
         }
@@ -231,15 +235,15 @@ void HttpHandler::handleFinishedDownload(download* dl)
 
 void HttpHandler::clearDownloads()
 {
-    qDebug() << this->downloads;
+    //qDebug() << this->downloads;
     for (int i=0; i < this->downloads.size(); i++)
     {
-        if (downloads.at(i)->reply)
+        if (downloads.at(i)->reply && !downloads.at(i)->async)
         {
             downloads.at(i)->reply->close();
             downloads.at(i)->reply->deleteLater();
         }
-        if (downloads.at(i)->tempFile)
+        if (downloads.at(i)->tempFile && !downloads.at(i)->async)
         {
             downloads.at(i)->tempFile->deleteLater();
         }

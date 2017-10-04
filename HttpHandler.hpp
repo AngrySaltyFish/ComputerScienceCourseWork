@@ -16,6 +16,7 @@ struct download
         progress = 0;
         chunked = false;
         finished = false;
+        async = false;
         redirectLevel = 0;
         tempFile = NULL;
         reply = NULL;
@@ -39,6 +40,7 @@ struct download
 
     int redirectLevel;
     bool finished;
+    bool async;
 
     qint64 getProgress()
     {
