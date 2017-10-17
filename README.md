@@ -2,10 +2,12 @@
 Creating a Application that can find and download music from online and burn to a disk
 ===================================================
 
-###Background
+Background
+----------
 The main goal of this software to satisfy the client and their needs so in order to do this successfully I need explain the situation my client is in. My current client is a primary school teacher who would like to use certain music during performances by the students. An example of a song that would be needed by my client would a nursery rhyme like "if your happy and you know in clap your hands". The current system in place in virtually non existent by getting a couple of songs from online and CD. It should be noted that the current method of playing this music is through a CD player and the program needs to be adapted to this.
 
-###The problem
+The problem
+-----------
 Given this information the problem that I need to solve with this application is to be able to get music from online and burn it to a disk for my client to use. With this I can start to outline some objectives I want this program to achieve. 
 
  + To be able to download music and store it
