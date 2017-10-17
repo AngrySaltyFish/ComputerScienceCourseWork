@@ -23,7 +23,8 @@ Following the previous item we have to make sure that this application will work
 
 Finally for the last item on the list I need to consider what libraries would be need to perform the action and how they would work on different platforms which leads nicely onto the next topic.
 
-###What language and APIs will I be using?
+What language and APIs will I be using?
+---------------------------------------
 For the application to be able to run across multiple platforms I decided to use an language that would be able to compile. This meant instead of choosing a language like python which is interpreter and needs python pre-installed; instead I have decided to use C++ as a language. This would allow me to create executable easily which would be easier to  port to other systems helping achieve one of the original objectives. The next thing that I should consider is what libraries or APIs I will be using and the conclusion that I arrived at was Qt. The reasoning behind this is that Qt is an expansive library that contains many of the elements that I need to make this project work such as network and database capabilities and I have had past experience with the library making me more familiar with the class that I could make use of.
 
 > Written with [StackEdit](https://stackedit.io/).
