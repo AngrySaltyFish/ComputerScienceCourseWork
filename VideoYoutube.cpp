@@ -331,21 +331,10 @@ void VideoYoutube::parseVideo(QString html)
     {
         this->html = html;
 
-        //Does this video support MPEG-DASH?
-        expression = QRegExp("\"dashmpd\": ?\"([^\"]*)");
-        expression.setMinimal(false);
-        bool hasMPDSignature = false;
-        if (this->dashmpd.isEmpty() && expression.indexIn(html) != -1)
-        {
-            QString url = expression.cap(1).replace("\\", "");
-            this->requiredDownloads["dashmpd"] = url;
-            hasMPDSignature = url.split("/").contains("s");
-        }
-
         //Is signature parsing required?
         expression = QRegExp("\"url_encoded_fmt_stream_map\": ?\"[^\"]*([^a-z])(s=)");
         expression.setMinimal(true);
-        if (this->js.isEmpty() && (hasMPDSignature || expression.indexIn(html) != -1))
+        if (this->js.isEmpty() && (expression.indexIn(html) != -1))
         {
             this->html = html;
             QString html5PlayerUrl;
@@ -401,12 +390,6 @@ void VideoYoutube::parseVideo(QString html)
             this->js.append(jsMethods.at(i).code).append(";");
         }
     }
-    //Parse MPEG-DASH MPD
-    else if (this->downloading == "dashmpd")
-    {
-        parseDashMpd(html);
-        this->dashmpd = html;
-    }
 
     //Check if additional urls need to be downloaded
     if (!this->requiredDownloads.empty()) {
@@ -420,17 +403,6 @@ void VideoYoutube::parseVideo(QString html)
         else {
             key = this->requiredDownloads.begin().key();
             url = this->requiredDownloads.begin().value();
-        }
-
-        //Signature parsing for MPEG-DASH MPD
-        if (key == "dashmpd") {
-            QStringList urlFragments = url.split("/");
-            int signaturePosition = urlFragments.indexOf("s");
-            if (signaturePosition > -1) {
-                urlFragments.replace(signaturePosition, "signature");
-                urlFragments.replace(signaturePosition + 1, this->parseSignature(urlFragments.at(signaturePosition + 1)));
-                url = urlFragments.join("/");
-            }
         }
 
         this->downloading = key;
@@ -522,53 +494,6 @@ void VideoYoutube::parseVideo(QString html)
                     else if (q.audio == "172")
                     {
                         audioLink = getFmtLink(qualityLinks, "171");
-                    }
-                }
-
-                //Try MPEG-Dash if Fmt link wasn’t found
-                if (videoLink.isEmpty() || (!q.audio.isEmpty() && audioLink.isEmpty()))
-                {
-                    QRegExp itagExpression = QRegExp("[/]?itag/([^/]+)");
-
-                    for (int j = 0; j < this->dashQualityLinks.length(); j++) {
-                        if (!(itagExpression.indexIn(dashQualityLinks.at(j).at(0)) > -1))
-                        {
-                            continue;
-                        }
-
-                        if (videoLink.isEmpty() && itagExpression.cap(1) == q.video)
-                        {
-                            videoLink = dashQualityLinks.at(j).at(0);
-                            videoLinkSegments = QStringList(dashQualityLinks.at(j));
-                            videoLinkSegments.removeFirst();
-                            videoIsFmt = false;
-                        }
-                        else if (audioLink.isEmpty() && itagExpression.cap(1) == q.audio)
-                        {
-                            audioLink = dashQualityLinks.at(j).at(0);
-                            audioLinkSegments = QStringList(dashQualityLinks.at(j));
-                            audioLinkSegments.removeFirst();
-                            audioIsFmt = false;
-                        }
-                    }
-
-                    //Look for alternative lower-quality audio
-                    if (!videoLink.isEmpty() && !q.audio.isEmpty() && audioLink.isEmpty()) {
-                        for (int j = 0; j < this->dashQualityLinks.length(); j++) {
-                            if (!(itagExpression.indexIn(dashQualityLinks.at(j).at(0)) > -1))
-                            {
-                                continue;
-                            }
-
-                            if (q.audio == "141" && itagExpression.cap(1) == "140")
-                            {
-                                audioLink = dashQualityLinks.at(j).at(0);
-                                audioLinkSegments = QStringList(dashQualityLinks.at(j));
-                                audioLinkSegments.removeFirst();
-                                audioIsFmt = false;
-                            }
-                        }
-
                     }
                 }
 
