@@ -1,0 +1,428 @@
+\documentclass{article}
+
+\usepackage{hyperref}
+\usepackage{tikz}
+\usepackage{rotating}
+\usepackage{floatflt}
+\usepackage{marginnote}
+\usepackage[pscoord]{eso-pic}% The zero point of the coordinate systemis the lower left corner of the page (the default).
+
+\usetikzlibrary{calc,positioning,shapes,shadows,arrows}
+
+% tikz custom stuff
+\tikzstyle{decision} = [diamond, draw, fill=blue!20, 
+    text width=4.5em, text badly centered, node distance=3cm, inner sep=0pt]
+\tikzstyle{block} = [rectangle, draw, fill=blue!20, 
+    text width=5em, text centered, rounded corners, minimum height=4em]
+\tikzstyle{TextBox} = [rectangle, draw, fill=blue!20, 
+    right, text width=6em, rounded corners]
+\tikzstyle{line} = [draw, -latex']
+\tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=3cm,
+    minimum height=2em]
+
+\hypersetup{
+    colorlinks=true, %set true if you want colored links
+    linktoc=all,     %set to all if you want both sections and subsections linked
+    linkcolor=black,  %choose some color if you want links to stand out
+}
+
+\title{Computer Science Coursework}
+\date{}
+\author{James Rand}
+
+\def\tightlist{}
+
+\newcommand{\placetextbox}[3]{% \placetextbox{<horizontal pos>}{<vertical pos>}{<stuff>}
+    \setbox0=\hbox{#3}% Put <stuff> in a box
+  \AddToShipoutPictureFG*{% Add <stuff> to current page foreground
+      \put(\LenToUnit{#1\paperwidth},\LenToUnit{#2\paperheight}){\vtop{{\null}\makebox[0pt][c]{#3}}}%
+  }%
+}%
+
+\makeatletter
+\def\@seccntformat#1{%
+    \expandafter\ifx\csname c@#1\endcsname\c@section\else
+  \csname the#1\endcsname\quad
+  \fi}
+\makeatother
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\setcounter{tocdepth}{5}
+
+\newpage
+
+\section{Analysis}\label{analysis}
+
+\subsection{Background}\label{background}
+
+The main goal of this software to satisfy the client and their needs so
+in order to do this successfully I need explain the situation my client
+is in. My current client is a primary school teacher who would like to
+use certain music during performances by the students. An example of a
+song that would be needed by my client would a nursery rhyme like ``if
+your happy and you know in clap your hands''. The cur	rent system in
+place in virtually non existent by getting songs from online
+and from CDs. It should be noted that the current method of playing this music
+is through a CD player and that this application needs to be able to
+burn the new music onto a CD so it can still be played through the CD
+player.
+
+Since the user is going to have little technical knowledge the program
+needs to be easy to use which means I will need to have a GUI interface
+instead of a CLI one. So far there is only demand by a single client but
+I think that it should be able to have multiple users use it if need be.
+
+
+\subsection{The problem}\label{the-problem}
+
+Given this information the problem that I need to solve with this
+application is to be able to get music from online and burn it to a disk
+for my client to use. With this I can start to outline some objectives I
+want this program to achieve.
+
+\begin{itemize}
+        \tightlist
+    \item
+        To be able to download music and store it
+    \item
+        Create playlists of these songs that my client can burn onto different
+        disks
+    \item
+        Being able to burn these disks within the application
+    \item
+        Must be able to work on almost any environment without programs being
+        pre-install 
+\end{itemize}
+
+For the first item on the list I need to consider where I get the music
+from and whether it has copy right protection on it. My original thought
+on this was to use YouTube as this by far has the most variety of music
+on it and it would be familiar to people who use my application. The big
+problem with this was copyright but after a little research I managed to
+find that by editing the URL of the search you can search only for
+copyright free videos which makes YouTube my preferred choice.
+
+Next on the list I need to think how I would store this download music
+into playlists. The most simple solution to this would be to use folders
+where the folder name would be the name of the playlist and all of the
+contents the song within the playlist. The problem with this is that it
+would end up being slow and could take up considerable space as one song
+could be in multiple playlists meaning that it would have to be copied
+or use symlinks. Considering these factors it would be much more
+efficient to use a database where all of the songs would be in a single
+download folder where the database could organise them into different
+playlists. This also means memory consumption would be at a minimum as I
+could use ids to reference items in other table so there is little
+repeated data. I also need to take into account that after a period of time
+there could be a large number of songs meaning that I need to be able to store
+them in a efficient manner.
+
+Following the previous item we have to make sure that this application
+will work on computers without being dependent on other programs. This
+is critical for my client. The reasoning behind this is that this
+application may be run upon a work computer where installing additional
+programs is not feasible. Furthermore being able to transfer this
+program using a USB and have it work on to. This also means I need to consider
+network restrictions of when I run the program in school and how some websites
+that I may use could be blocked.
+
+
+
+\section{Design}\label{design}
+
+This section will begin to explain how I plan to create this application.
+
+\subsection{Outline}\label{outline}
+
+The Qt library which is the library that I am using uses widgets which are window
+like objects that can be emebeded into one another to create a GUI. The bullets 
+points below show how I plan to embed each of these widgets.
+
+\begin{itemize}
+    \item Main Window
+        \begin{itemize}
+            \item TabWidget
+                \begin{itemize}
+                    \item Download Tab
+                        \begin{itemize}
+                            \item search
+                            \item preview
+                        \end{itemize}
+                    \item LibraryTab
+                        \begin{itemize}
+                            \item playlist list
+                            \item tableview
+                        \end{itemize}
+                \end{itemize}
+        \end{itemize}
+
+\end{itemize}
+
+The widget at the top of the hierarchy will be a child class of QMainWindow. This
+allows me to use some of the functionality of QMainWindow like adding a menu bar
+and shortcuts. I will then set the tabwidget as the central widget of this
+allowing me to add tabs to my window. The next two bullet points Are the widgets
+that the user will interact with to download and play music. The DownloadTab will
+contain the an iterface to preview the youtube video and then download it while
+the LibraryTab will allow the user create playlists and organise the music. Figure 1
+below illustrates this hirachy graphically.
+
+\begin{figure}
+    \centering
+    \begin{tikzpicture}[node distance = 2cm, auto]
+        % Place nodes
+        \node [block] (init) {Main Window};
+        \node [block, below of=init] (TabWidget) {Tab Widget};
+        \node [block, below left=of TabWidget] (DownloadTab) {DownloadTab};
+        \node [block, below right=of TabWidget] (LibraryTab) {LibraryTab};
+        \node [block, below left=of DownloadTab] (Preview) {Preview};
+        \node [block, fill=none, draw=none, below right=of DownloadTab] (PlaceHolder) {};
+        \node [block, left of=PlaceHolder] (Search) {Search};
+        \node [block, right of=PlaceHolder] (PlaylistList) {Playlist list};
+        \node [block, below right=of LibraryTab] (PlaylistView) {Playlist View};
+        % Draw edges \path [line] (init) -- (identify);
+        \path [line] (init) -- (TabWidget);
+        \path [line] (TabWidget) -- (DownloadTab);
+        \path [line] (TabWidget) -- (LibraryTab);
+        \path [line] (DownloadTab) -- (Preview);
+        \path [line] (DownloadTab) -- (Search);
+        \path [line] (LibraryTab) -- (PlaylistList);
+        \path [line] (LibraryTab) -- (PlaylistView);
+    \end{tikzpicture}
+    \caption{Layer Model} \label{fig:Layer Model}
+\end{figure}
+
+The two item on the graph above which has the most visual significance would be DownloadTab
+and LibraryTab as they are the direct descendants of the Tab Widget. Due to this fact I 
+think that it is important to layout how I intend this two item to look. The first that we
+will look at will be the Download Tab which is shown as Figure ~\ref{fig:DownloadTab Diagram}.
+There are quite a few objects on this diagram which are not in the layer model (Fig ~\ref{fig:Layer Model})
+these objects are to interact with the two main widgets on the DownloadTab which are preview
+and searchlist. As the name suggestests the preview is to allow the user to view the video before
+downloading while 
+
+\begin{figure}
+    \centering
+    \begin{tikzpicture}[]
+        \draw [fill=white] (0,0) rectangle (\textwidth,10) node[pos=0.5] (DownloadTab) {};
+        \draw [] (3.9, 8.5) rectangle (1, 9) node[pos=0.5] (SearchBar) {}; %serch bar
+        \draw [] (4, 8.5) rectangle (5, 9) node[pos=0.5] (SearchBtn) {}; %search btn
+        \draw [] (1, 1) rectangle (5, 8) node[pos=0.5] (SearchList) {}; %search list
+        \draw [] (11, 5) rectangle (6, 9) node[pos=0.5] (Preview) {}; %preview
+        \draw [] (11, 4.5) rectangle (6, 4.6); %slider body
+        \draw [fill=white] (9, 4.4) rectangle (8.8, 4.7) node[pos=0.5] (Slider) {}; %slider handle
+        \draw [] (7.5, 3) rectangle (6, 3.5) node[pos=0.5] (QualitySelector) {}; %qualitySelector
+        \draw [] (9.25, 3) rectangle (7.75, 3.5) node[pos=0.5] (PlayPauseBtn) {}; %play/pause
+        \draw [] (11, 3) rectangle (9.5, 3.5) node[pos=0.5] (StopBtn) {}; %StopBtn
+        \draw [] (11, 2) rectangle (6, 2.5) node[pos=0.5] (DownloadBtn) {}; %download btn
+        \draw [] (11, 1.5) rectangle (6, 1) node[pos=.5] (ProgressBar) {}; %Progress Bar
+
+        \draw (ProgressBar) -- (14, 0) node[TextBox, pos=1] {
+            This is a Progress bar that will display the progress of downloading a Video
+        };
+        \draw (DownloadBtn) -- (12, 2.5) node[TextBox, pos=1] {
+            This is a button to initiate the download process
+        };
+        \draw (StopBtn) -- (11, -1) node[TextBox, pos=1] {
+            This will stop the playback of preview
+        };
+        \draw (PlayPauseBtn) -- (8, -1) node[TextBox, pos=1] {
+            This will pause or play the playback of preview
+        };
+        \draw (QualitySelector) -- (5, -1) node[TextBox, pos=1] {
+            This will change the quality of video to be dowloaded or played back
+        };
+        \draw (SearchList) -- (1, -1) node[TextBox, pos=1] {
+            This is to display search results from Youtube
+        };
+        \draw (Slider) -- (14, 5) node[TextBox, pos=1] {
+            This will alow the user to navigate through the playback video
+        };
+        \draw (Preview) -- (14, 10) node[TextBox, pos=1] {
+            This is a preview of the video currently selected in search list
+        };
+        \draw (SearchBtn) -- (6, 13) node[TextBox, pos=1] {
+            This is the button to initate the search with the text in the search bar
+        };
+        \draw (SearchBar) -- (0, 13) node[TextBox, pos=1] {
+            This is a text to enter the terms to search youtube for
+        };
+    \end{tikzpicture}
+    \caption{DownloadTab Diagram} \label{fig:DownloadTab Diagram}
+\end{figure}
+
+
+\begin{figure}
+    \centering
+    \begin{tikzpicture}[]
+        \draw [] (0,0) rectangle (\textwidth, 10);
+        \draw [] (1, 9) rectangle (4, 4.1) node[pos=0.5] (PlaylistListing) {}; %Playlist listing
+        \draw [] (4.5, 9) rectangle (11, 4.1) node[pos=0.5] (SongSelector) {}; %Song selector
+        \draw [] (11, 3.75) rectangle (1, 3.85); %slider body
+        \draw [fill=white] (9, 3.65) rectangle (8.8, 3.95) node[pos=0.5] (Slider) {}; %slider handle    
+        \draw [] (4, 3) rectangle (1, 3.5) node[pos=0.5] (Prev) {}; %prev Btn
+        \draw [] (4.5, 3) rectangle (7.5, 3.5) node[pos=0.5] (PlayPause) {}; %play/pause
+        \draw [] (11, 3) rectangle (8, 3.5) node[pos=0.5] (Next) {}; %next btn
+        \draw [] (11, 2) rectangle (1, 2.5) node[pos=0.5] (BurnBtn) {}; %Burn btn        
+        \draw [] (11, 1.5) rectangle (1, 1) node[pos=.5] (ProgressBar) {}; %Progress Bar         
+
+        \draw (ProgressBar) -- (0, -2) node[TextBox, pos=1] {
+            This is the progress bar that will display the progress of burning
+        };
+        \draw (BurnBtn) -- (7, -2) node[TextBox, pos=1] {
+            This is the button that will initiate the process of burning the selected playlist to a disk
+        };
+        \draw (Prev) -- (12, 1) node[TextBox, pos=1] {
+            This is to play the previous song
+        };
+        \draw (PlayPause) -- (12, 3) node[TextBox, pos=1] {
+            This is to play or pause the current song
+        }; 
+        \draw (Next) -- (12, 5) node[TextBox, pos=1] {
+            This is to skip to the next song
+        };
+        \draw (Slider) -- (12, 8) node[TextBox, pos=1] {
+            This is a slider to change your position in the current song
+        };
+        \draw (SongSelector) -- (12, 12) node[TextBox, pos=1] {
+            This is to change the song in current playlist and view info about that song
+        };
+        \draw (PlaylistListing) -- (6, 12) node[TextBox, pos=1] {
+            This is to list and select the playlist you want to interact with
+        };
+    \end{tikzpicture}
+    \caption{LibraryTab Diagram} \label{fig:LibraryTab Diagram} 
+\end{figure}
+
+
+\begin{figure}
+    \centering
+    \begin{tikzpicture}
+        \begin{sideways}
+            \node [] (tree) at (4, 4) {\includegraphics[width=\textheight]{classPdfs/classPlayerWindow_a88bd0544109c4b49dbba0adc29c16943_cgraph.pdf}};
+        \end{sideways}
+        \node [right of = tree] (inherit) {\includegraphics[]{classPdfs/classPlayerWindow.pdf}};
+        \node [TextBox, above=0cm of inherit, text width = 30em] (textbox) {
+            The class will be used to play media selected by the user and provide controls. This
+            will be on both DownloadTab and LibraryTab. The tree on the left describes what happens
+            when you call the constructor. Since this is a class that will be visually displayed
+            to the user this class inherits the QWidget.
+        };
+    \end{tikzpicture}
+    \caption{PlayWindow class layout} \label{fig:PlayWindow class layout}
+\end{figure}
+
+
+\begin{figure}
+    \centering
+    \begin{tikzpicture}
+        \begin{sideways}
+            \node [] (tree) at (4, 4) {\includegraphics[width=\textheight]{classPdfs/classDownloadWidget_a623f84423fc0163ff5cd6b75000fffd5_cgraph.pdf}};
+        \end{sideways}
+        \node [right of = tree] (inherit) {\includegraphics[]{classPdfs/classDownloadWidget.pdf}};
+        \node [TextBox, above=0cm of inherit, text width = 30em] (textbox) {
+            This class will provide a canvas to add all of controls to download and preview videos.
+            It will also act as a middle man for many of the classes so that if need be they can acess
+            each other. The tree shows it's constructor which is initiated from the MainWindow class.
+            Another note worthy feature is the fact it is inherited from TabWidget. This is so that it
+            is automatically added as a tab.
+        };
+    \end{tikzpicture}
+    \caption{DownloadWidget class layout} \label{fig:DownloadWidget class layout}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \begin{tikzpicture}
+        \begin{sideways}
+            \node [] (tree) at (4, 4) {\includegraphics[width=\textheight]{classPdfs/classHttpHandler_ade64572cb953620fd483bc669c1e9178_cgraph.pdf};
+        \end{sideways}
+        \node [right of = tree] (inherit) {\includegraphics[]{classPdfs/classHttpHandler.pdf}};
+        \node [TextBox, above=0cm of inherit, text width = 30em] (textbox) {
+           This class handles all of the network request with the exception of searching for
+           videos meaining that this class is completely backend. This means the user should
+           never know about this class. I putting all of the networking into this class as 
+           there are lots of problems that can occur and if this is setup correctly I will
+           not need to repeat to handle errors. Due to the nature of networking this class
+           has numerous signal and slots to make this a asychronous as possible.
+        };
+    \end{tikzpicture}
+    \caption{HttpHandler class layout} \label{fig:HttpHandler class layout}
+\end{figure}
+
+
+
+
+
+
+\begin{figure}
+    \begin{sideways}
+        \centering
+        \includegraphics[width=\textheight]{classPdfs/classHttpHandler_ade64572cb953620fd483bc669c1e9178_cgraph.pdf} 
+    \end{sideways}
+    \includegraphics[]{classPdfs/classHttpHandler.pdf}
+\end{figure}
+
+\begin{figure}
+    \begin{sideways}
+        \centering
+        \includegraphics[width=\textheight]{classPdfs/classLibraryTab_a928c981ca174c41d75e5296d4623d5a2_cgraph.pdf} 
+    \end{sideways}
+    \includegraphics[]{classPdfs/classLibraryTab.pdf}
+    \caption{LibraryTab class layout} \label{fig:LibraryTab class layout}
+\end{figure}
+
+\begin{figure}
+    \begin{sideways}
+        \centering
+        \includegraphics[width=\textheight]{classPdfs/classLibraryTab_a928c981ca174c41d75e5296d4623d5a2_cgraph.pdf} 
+    \end{sideways}
+    \includegraphics[]{classPdfs/classLibraryTab.pdf}
+    \caption{LibraryTab class layout} \label{fig:LibraryTab class layout}
+\end{figure}
+
+\begin{figure}
+    \begin{sideways}
+        \centering
+        \includegraphics[width=\textheight]{classPdfs/classPlayListView_ac84c4c57fc29e6b775c2bc8bc5fed55e_cgraph.pdf} 
+    \end{sideways}
+    \includegraphics[]{classPdfs/classPlayListView.pdf}
+    \caption{PlaylistView class layout} \label{fig:PlaylistView class layout}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[]{classPdfs/classTabWidget.pdf}
+    \caption{TabWidget class layout} \label{fig:TabWidget class layout}
+\end{figure}
+
+\begin{figure}
+    \begin{sideways}
+        \centering
+        \includegraphics[width=\textheight]{classPdfs/classVideoYoutube_a80afcc31ca007b32108976d2158be9ce_cgraph.pdf} 
+    \end{sideways}
+    \includegraphics[]{classPdfs/classVideoYoutube.pdf}
+    \caption{VideoYoutube class layout} \label{fig:VideoYoutube class layout}
+\end{figure}
+
+\begin{figure}
+    \begin{sideways}
+        \centering
+        \includegraphics[width=\textheight]{classPdfs/classDatabaseHandler_a6f3d7ae8a73f534059dc5667b29eb0d2_cgraph.pdf} 
+    \end{sideways}
+    \includegraphics[]{classPdfs/classVideoYoutube.pdf}
+    \caption{DatabaseHandler class layout} \label{fig:DatabaseHandler class layout}
+\end{figure}
+
+\begin{figure}
+    \begin{tikzpicture}[node distance=\textwidth /3]
+        \node [] (download) {\includegraphics{classPdfs/structdownload}};
+        \node [right of=download] (fmtQuality) {\includegraphics{classPdfs/structfmtQuality}};
+        \node [below=0.0mm of  download.south] (videoQuality) {\includegraphics{classPdfs/structvideoQuality}};
+        \node [right of=videoQuality] (jsMethod) {\includegraphics{classPdfs/structjsMethod}};
+    \end{tikzpicture}
+\end{figure}
+\end{document}
