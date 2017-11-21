@@ -3,9 +3,6 @@
 \usepackage{hyperref}
 \usepackage{tikz}
 \usepackage{rotating}
-\usepackage{floatflt}
-\usepackage{marginnote}
-\usepackage[pscoord]{eso-pic}% The zero point of the coordinate systemis the lower left corner of the page (the default).
 
 \usetikzlibrary{calc,positioning,shapes,shadows,arrows}
 
@@ -64,7 +61,7 @@ in order to do this successfully I need explain the situation my client
 is in. My current client is a primary school teacher who would like to
 use certain music during performances by the students. An example of a
 song that would be needed by my client would a nursery rhyme like ``if
-your happy and you know in clap your hands''. The cur	rent system in
+your happy and you know in clap your hands''. The current system in
 place in virtually non existent by getting songs from online
 and from CDs. It should be noted that the current method of playing this music
 is through a CD player and that this application needs to be able to
@@ -139,7 +136,7 @@ This section will begin to explain how I plan to create this application.
 \subsection{Outline}\label{outline}
 
 The Qt library which is the library that I am using uses widgets which are window
-like objects that can be emebeded into one another to create a GUI. The bullets 
+like objects that can be embedded into one another to create a GUI. The bullets 
 points below show how I plan to embed each of these widgets.
 
 \begin{itemize}
@@ -167,9 +164,9 @@ allows me to use some of the functionality of QMainWindow like adding a menu bar
 and shortcuts. I will then set the tabwidget as the central widget of this
 allowing me to add tabs to my window. The next two bullet points Are the widgets
 that the user will interact with to download and play music. The DownloadTab will
-contain the an iterface to preview the youtube video and then download it while
+contain the an interface to preview the youtube video and then download it while
 the LibraryTab will allow the user create playlists and organise the music. Figure 1
-below illustrates this hirachy graphically.
+below illustrates this hierarchy graphically.
 
 \begin{figure}
     \centering
@@ -196,14 +193,24 @@ below illustrates this hirachy graphically.
     \caption{Layer Model} \label{fig:Layer Model}
 \end{figure}
 
-The two item on the graph above which has the most visual significance would be DownloadTab
-and LibraryTab as they are the direct descendants of the Tab Widget. Due to this fact I 
-think that it is important to layout how I intend this two item to look. The first that we
-will look at will be the Download Tab which is shown as Figure ~\ref{fig:DownloadTab Diagram}.
-There are quite a few objects on this diagram which are not in the layer model (Fig ~\ref{fig:Layer Model})
-these objects are to interact with the two main widgets on the DownloadTab which are preview
-and searchlist. As the name suggestests the preview is to allow the user to view the video before
-downloading while 
+The two item on the graph above which has the most visual significance would be
+DownloadTab and LibraryTab as they are the direct descendants of the Tab Widget.
+Due to this fact I think that it is important to layout how I intend this two item to
+look. The first that we will look at will be the Download Tab which is shown as Figure
+~\ref{fig:DownloadTab Diagram}. There are quite a few objects on this diagram which are
+not in the layer model (Fig ~\ref{fig:Layer Model}) these objects are to interact with
+the two main widgets on the DownloadTab which are preview and searchlist. As the name
+suggestests the preview is to allow the user to view the video before downloading while.\\
+
+Within GUI and network programming you often want one object to be notified when an event
+happens to another. Fortunately Qt recognises this problem and has signals and slots to
+solve it. To use these you need to use the emit to create a signal and the you can use 
+a slot to listen out for that signal and run a procedure when that signal is received.
+This is vital when interacting with the user as when the user clicks a button or interacts
+with the interface a signal is emitted and I need to connect a slot up to these signals
+to make the application work. \\
+
+With this knowledge 
 
 \begin{figure}
     \centering
@@ -307,10 +314,14 @@ downloading while
         \end{sideways}
         \node [right of = tree] (inherit) {\includegraphics[]{classPdfs/classPlayerWindow.pdf}};
         \node [TextBox, above=0cm of inherit, text width = 30em] (textbox) {
-            The class will be used to play media selected by the user and provide controls. This
-            will be on both DownloadTab and LibraryTab. The tree on the left describes what happens
-            when you call the constructor. Since this is a class that will be visually displayed
-            to the user this class inherits the QWidget.
+            The class will be used to play media selected by the user and provide
+            controls. This will be on both DownloadTab and LibraryTab meaning that
+            the constructor will be called in both of these classes. The tree on the
+            left describes what happens when you call the constructor. Since this is a
+            class that will be visually displayed to the user this class inherits the
+            QWidget. It also has the openMedia() procedure which is call by downloadtab
+            to set the media after extracting the URL. Finally the seekBySlider and
+            playPause are for the user to control the media.
         };
     \end{tikzpicture}
     \caption{PlayWindow class layout} \label{fig:PlayWindow class layout}
@@ -325,11 +336,13 @@ downloading while
         \end{sideways}
         \node [right of = tree] (inherit) {\includegraphics[]{classPdfs/classDownloadWidget.pdf}};
         \node [TextBox, above=0cm of inherit, text width = 30em] (textbox) {
-            This class will provide a canvas to add all of controls to download and preview videos.
-            It will also act as a middle man for many of the classes so that if need be they can acess
-            each other. The tree shows it's constructor which is initiated from the MainWindow class.
-            Another note worthy feature is the fact it is inherited from TabWidget. This is so that it
-            is automatically added as a tab.
+        	The DownloadWidget class will be used to create the DownloadTab object. This
+        	object will provide a canvas to put all of the features described in the
+        	downloadTab diagram (Fig ~\ref{fig:DownloadTab Diagram}). It should be noted
+        	this inherits from the TabWidget meaning it will be added as a tab 
+        	automatically. The constructor will be called from the MainWindow. Finally
+        	this class will act as a middle man for other classes like PlayerWindow
+        	(Fig ~\ref{fig:PlayWindow class layout}).
         };
     \end{tikzpicture}
     \caption{DownloadWidget class layout} \label{fig:DownloadWidget class layout}
@@ -339,81 +352,121 @@ downloading while
     \centering
     \begin{tikzpicture}
         \begin{sideways}
-            \node [] (tree) at (4, 4) {\includegraphics[width=\textheight]{classPdfs/classHttpHandler_ade64572cb953620fd483bc669c1e9178_cgraph.pdf};
+            \node [] (tree) at (4, 4) {\includegraphics[width=\textheight]{classPdfs/classHttpHandler_ade64572cb953620fd483bc669c1e9178_cgraph.pdf}};
         \end{sideways}
+        
         \node [right of = tree] (inherit) {\includegraphics[]{classPdfs/classHttpHandler.pdf}};
         \node [TextBox, above=0cm of inherit, text width = 30em] (textbox) {
-           This class handles all of the network request with the exception of searching for
-           videos meaining that this class is completely backend. This means the user should
-           never know about this class. I putting all of the networking into this class as 
-           there are lots of problems that can occur and if this is setup correctly I will
-           not need to repeat to handle errors. Due to the nature of networking this class
-           has numerous signal and slots to make this a asychronous as possible.
+        	For this class the first thing that you know is that it inherits from QObject
+        	instead of QWidget or a derivative of QWidget. This means that this class
+        	has no visual representation but completely backend. The point of this class
+        	is to perform all of the networking required. I decided to put all of it
+        	into a seperate class because many errors can occur with network requests
+        	so proper error handling is a must. Due to the fact that you often have to
+        	wait for network requests to finished this class has numerous slots like
+        	dataHandler to process the the finshed download. The final two things that
+        	should be noted is the data members downloads and networkAcessManager.
+        	The member downloads is a QList of the download struct, see (Fig ). The
+        	networkAcessManager is a QNetworkManager which is Qt class that allows
+        	you to make network requests.
         };
     \end{tikzpicture}
     \caption{HttpHandler class layout} \label{fig:HttpHandler class layout}
 \end{figure}
 
-
-
-
-
-
 \begin{figure}
-    \begin{sideways}
-        \centering
-        \includegraphics[width=\textheight]{classPdfs/classHttpHandler_ade64572cb953620fd483bc669c1e9178_cgraph.pdf} 
-    \end{sideways}
-    \includegraphics[]{classPdfs/classHttpHandler.pdf}
-\end{figure}
-
-\begin{figure}
-    \begin{sideways}
-        \centering
-        \includegraphics[width=\textheight]{classPdfs/classLibraryTab_a928c981ca174c41d75e5296d4623d5a2_cgraph.pdf} 
-    \end{sideways}
-    \includegraphics[]{classPdfs/classLibraryTab.pdf}
+    \centering
+    \begin{tikzpicture}
+        \begin{sideways}
+            \node [] (tree) at (4, 4) {\includegraphics[width=\textheight]{classPdfs/classLibraryTab_a928c981ca174c41d75e5296d4623d5a2_cgraph.pdf}};
+        \end{sideways}
+        
+        \node [right of = tree] (inherit) {\includegraphics[]{classPdfs/classLibraryTab.pdf}};
+        \node [TextBox, above=0cm of inherit, text width = 30em] (textbox) {
+        	Similarly to DownloadWidget this is a child of TabWidget meaning it is one
+        	of the two tabs and provides a canvas to put widgets on. Fig
+        	\ref{fig:LibraryTab Diagram} shows how inten it to look. This class
+        	will be the middle man for all of the data handling. Within the 
+        	constructor all of the objects shown in Fig \ref{fig:LibraryTab Diagram}
+        	will be initialized and then layed out in the layout procedure.
+        };
+    \end{tikzpicture}
     \caption{LibraryTab class layout} \label{fig:LibraryTab class layout}
 \end{figure}
 
 \begin{figure}
-    \begin{sideways}
-        \centering
-        \includegraphics[width=\textheight]{classPdfs/classLibraryTab_a928c981ca174c41d75e5296d4623d5a2_cgraph.pdf} 
-    \end{sideways}
-    \includegraphics[]{classPdfs/classLibraryTab.pdf}
-    \caption{LibraryTab class layout} \label{fig:LibraryTab class layout}
-\end{figure}
-
-\begin{figure}
-    \begin{sideways}
-        \centering
-        \includegraphics[width=\textheight]{classPdfs/classPlayListView_ac84c4c57fc29e6b775c2bc8bc5fed55e_cgraph.pdf} 
-    \end{sideways}
-    \includegraphics[]{classPdfs/classPlayListView.pdf}
+    \centering
+    \begin{tikzpicture}
+        \begin{sideways}
+            \node [] (tree) at (4, 4) {\includegraphics[width=\textheight]{classPdfs/classPlayListView_ac84c4c57fc29e6b775c2bc8bc5fed55e_cgraph.pdf}};
+        \end{sideways}
+        
+        \node [right of = tree] (inherit) {\includegraphics[]{classPdfs/classPlayListView.pdf}};
+        \node [TextBox, above=0cm of inherit, text width = 30em] (textbox) {
+			This class is called by LibraryWidget and is used to list the playlists
+			that the user has and allow the user to place songs and edit the playlists.
+			It should be noted that instead of a standard QWidget being used a QListWidget
+			is used. This still has a visual representation but instead of being a blank
+			canvas it lists items that you can add with the addItem procudure.
+        };
+    \end{tikzpicture}
     \caption{PlaylistView class layout} \label{fig:PlaylistView class layout}
 \end{figure}
 
 \begin{figure}
-    \includegraphics[]{classPdfs/classTabWidget.pdf}
+    \centering
+    \begin{tikzpicture}
+        \node [right of = tree] (inherit) {\includegraphics[]{classPdfs/classTabWidget.pdf}};
+        \node [TextBox, above=0cm of inherit, text width = 30em] (textbox) {
+			Unlike the other class this class is abstract. This means that it should
+			always be a parent class in use and never called directly. The reasoning
+			behind this is that I want a way that I could add classes automatically.
+			This would also mean that if in the future I want to style my tabs I can
+			easily do so by applying styles to this which would apply to the children.
+        };
+    \end{tikzpicture}
     \caption{TabWidget class layout} \label{fig:TabWidget class layout}
 \end{figure}
 
 \begin{figure}
-    \begin{sideways}
-        \centering
-        \includegraphics[width=\textheight]{classPdfs/classVideoYoutube_a80afcc31ca007b32108976d2158be9ce_cgraph.pdf} 
-    \end{sideways}
-    \includegraphics[]{classPdfs/classVideoYoutube.pdf}
+    \centering
+    \begin{tikzpicture}
+        \begin{sideways}
+            \node [] (tree) at (4, 4) {\includegraphics[width=\textheight]{classPdfs/classVideoYoutube_a80afcc31ca007b32108976d2158be9ce_cgraph.pdf}};
+        \end{sideways}
+        
+        \node [right of = tree] (inherit) {\includegraphics[]{classPdfs/classVideoYoutube.pdf}};
+        \node [TextBox, above=0cm of inherit, text width = 30em] (textbox) {
+			This class is used to represent the currently selected video from the
+			search on the download tab. The main objective of this class is with the
+			use of HttpHandler (Fig \ref{fig:HttpHandler class layout}) to extract the
+			url of the actual youtube video which is done in the parseVideo procedure.
+			Once the url has been retrived the getVideoUrl and the getAudioUrl functions
+			provide objects like preview the url to play the video. The download procedure
+			will pass the audio url onto the HttpHandler so that it can be downloaded
+			and added to the database. Finally to repeat the process you need to set
+			a new webpage url with setUrl and call the analyse procedure.
+        };
+    \end{tikzpicture}
     \caption{VideoYoutube class layout} \label{fig:VideoYoutube class layout}
 \end{figure}
 
 \begin{figure}
-    \begin{sideways}
-        \centering
-        \includegraphics[width=\textheight]{classPdfs/classDatabaseHandler_a6f3d7ae8a73f534059dc5667b29eb0d2_cgraph.pdf} 
-    \end{sideways}
-    \includegraphics[]{classPdfs/classVideoYoutube.pdf}
+    \centering
+    \begin{tikzpicture}
+        \begin{sideways}
+            \node [] (tree) at (4, 4) {\includegraphics[width=\textheight]{classPdfs/classDatabaseHandler_a6f3d7ae8a73f534059dc5667b29eb0d2_cgraph.pdf}};
+        \end{sideways}
+        
+        \node [right of = tree] (inherit) {\includegraphics[]{classPdfs/classDatabaseHandler.pdf}};
+        \node [TextBox, above=0cm of inherit, text width = 30em] (textbox) {
+			This class is meant to handle all of the database function and is called
+			by the LibraryWidget class. The should create all of the tables needed to
+			represent the tables and organise everything. Like the HttpHandler class
+			this class is a child of QObject showing that it is completely backend
+			and has no visual representation.
+        };
+    \end{tikzpicture}
     \caption{DatabaseHandler class layout} \label{fig:DatabaseHandler class layout}
 \end{figure}
 
