@@ -200,7 +200,7 @@ look. The first that we will look at will be the Download Tab which is shown as 
 ~\ref{fig:DownloadTab Diagram}. There are quite a few objects on this diagram which are
 not in the layer model (Fig ~\ref{fig:Layer Model}) these objects are to interact with
 the two main widgets on the DownloadTab which are preview and searchlist. As the name
-suggestests the preview is to allow the user to view the video before downloading while.\\
+suggests the preview is to allow the user to view the video before downloading while.
 
 Within GUI and network programming you often want one object to be notified when an event
 happens to another. Fortunately Qt recognises this problem and has signals and slots to
@@ -208,9 +208,44 @@ solve it. To use these you need to use the emit to create a signal and the you c
 a slot to listen out for that signal and run a procedure when that signal is received.
 This is vital when interacting with the user as when the user clicks a button or interacts
 with the interface a signal is emitted and I need to connect a slot up to these signals
-to make the application work. \\
+to make the application work. 
 
-With this knowledge 
+With this knowledge I can start to explain how all of the classes come together and
+function with the figures shown below. All of these figures are annotated and should
+explain them in detail. It is important to know that the diagrams only show the
+public procedures and functions currently. This is because I want to clearly line
+out how they interact with one another. The only figure without this annotation is
+figure ~\ref{fig:Struct layout} so I will explain it here. All of the structs that I
+am describing occur in the classes VideoYoutube (Fig ~\ref{fig:VideoYoutube class layout})
+and HttpHandler (Fig ~\ref{fig:HttpHandler class layout}) and the first to dive into is
+download. This struct is to store information about the current downloaded video. The
+first property "reply" is to store the response from the http request which will
+especially important for checking for errors and making sure it has the right thing. The
+next property "tempfile" is important for insurance reasons as the download may be
+interrupted causing the file to be corrupt. In order to prevent this I thought it would
+be best to create a temporary file that will be automatically deleted by the operating
+system after a period of time. This means I can continually put data into this temporary
+file and when the download file is finished save it into a permanent file. To have the
+correct name to save the file to I have the title property. The "progress", 
+"currentProgress" and "getProgress" are used to keep track of progress for the download
+progress bar. The "segments" and "segmentPosition" is to allow the functionality to
+download the video if it is cut into segments. "CurrentStatus" is to get the http status
+code. Finally the "download()" procedure is to initiate the download process. 
+
+The "fmtQuality" and "videoQuality" structs store the qualities and there relevant
+urls. The first property of the "fmtQuality" struct is "quality" which stores the quality
+that is listed by youtube. The "resolution", "video" and "audio" properties are to store
+their qualities respectively. The procedure "fmtQuality" is the constructor to initialise 
+all of these properties. The "videoQuality" has the same "quailty" property but also has
+"audioUrl" and "videoUrl". These actually store the url to download the video. It should be 
+noted that I put this property in "videoQuality" instead of "download" because there 
+multiple urls for a video each different due to the quality. The "videoQuality" procedure
+is different ways of initialising the properties and the operator is to compare the 
+different qualities.
+
+Finally the "jsMethod" struct is to store the the JavaScript code from youtubes code in
+order to parse signatures to make the urls valid.
+
 
 \begin{figure}
     \centering
@@ -477,5 +512,7 @@ With this knowledge
         \node [below=0.0mm of  download.south] (videoQuality) {\includegraphics{classPdfs/structvideoQuality}};
         \node [right of=videoQuality] (jsMethod) {\includegraphics{classPdfs/structjsMethod}};
     \end{tikzpicture}
+    \caption{Struct layout} \label{fig:Struct layout}
 \end{figure}
+
 \end{document}
