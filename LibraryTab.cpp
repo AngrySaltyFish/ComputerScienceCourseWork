@@ -23,6 +23,7 @@ void LibraryTab::layout()
 
     hbox->addWidget(new PlayListView(dataHandler, tableView));
     hbox->addWidget(tableView);
+    hbox->setStretchFactor(tableView, 3);
 }
 
 PlayListView::PlayListView(DatabaseHandler *dataHandler, QStackedWidget *tableView) :
@@ -37,14 +38,11 @@ PlayListView::PlayListView(DatabaseHandler *dataHandler, QStackedWidget *tableVi
 void PlayListView::extractFromDB(QStackedWidget *tableView)
 {
     QList <std::shared_ptr<Playlist>> playlists = handler->getPlaylists();
-    qDebug() << playlists.at(0)->getName();
 
     for (int i = 0; i < playlists.size(); ++i) 
     {
         this->addItem(playlists.at(i)->getName());
-        QTableView *view = new QTableView();
-        view->setModel(playlists.at(i).get());
-        tableView->addWidget(view);
+        stack->addWidget(playlists.at(i)->getView());
     }
 }
 void PlayListView::changePlaylist(int index)

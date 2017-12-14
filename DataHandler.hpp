@@ -38,15 +38,17 @@ class Playlist : public QSqlRelationalTableModel
 {
     Q_OBJECT;
     public:
-        explicit Playlist(QString name);
+    explicit Playlist(QString name, QObject *parent=0, QSqlDatabase db=QSqlDatabase());
 
-        //Qt::ItemFlags flags(const QModelIndex&) const;
-        //QStringList mimeTypes() const;
-        //QMimeData mimeData(const QModelIndexList&);
-        //bool dropMimeData(const QMimeData*, Qt::DropAction, int, int, const QModelIndex&);
-        QString getName() const;
+    //Qt::ItemFlags flags(const QModelIndex&) const;
+    //QStringList mimeTypes() const;
+    //QMimeData mimeData(const QModelIndexList&);
+    //bool dropMimeData(const QMimeData*, Qt::DropAction, int, int, const QModelIndex&);
+    QString getName() const;
+    QTableView* getView();
     private:
-        const QString name;
+    const QString name;
+    QTableView *view;
 };
 
 #endif
