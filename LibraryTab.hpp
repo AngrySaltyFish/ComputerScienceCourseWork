@@ -18,7 +18,7 @@ private:
     DatabaseHandler *dataHandler;
     QStackedWidget *tableView;
     
-    void init();
+    void init(MainWidget *);
     void layout();
 };
 

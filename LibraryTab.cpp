@@ -5,13 +5,15 @@
 LibraryTab::LibraryTab(MainWidget *tabManager) :
     TabWidget(*tabManager, "Library")
 {
-    init();
+    init(tabManager);
 }
-void LibraryTab::init()
+void LibraryTab::init(MainWidget *tabManager)
 {
     dataHandler = new DatabaseHandler("Database.db");
     tableView = new QStackedWidget();
     playlistView = new QListWidget();
+
+    tabManager->setFileManger(dataHandler);
 
     layout();
 }

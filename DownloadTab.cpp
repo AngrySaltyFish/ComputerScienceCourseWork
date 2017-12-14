@@ -11,6 +11,8 @@ DownloadWidget::DownloadWidget(MainWidget *tabManger) :
     btns();
     textBars();
     layout();
+
+    parent = tabManger;
 }
 void DownloadWidget::init()
 {
@@ -19,6 +21,8 @@ void DownloadWidget::init()
     currentVideo = new VideoYoutube();
 
     connect(videoList, SIGNAL (itemSelectionChanged()), this, SLOT (itemSelectionChanged()));
+    connect(currentVideo, SIGNAL (analysingFinished()), SLOT (showVideo()));
+    connect(currentVideo, SIGNAL (audioDownloadFinished(QString)), SLOT(processDownloadVideo(QString)));
 }
 void DownloadWidget::btns()
 {
@@ -57,13 +61,17 @@ void DownloadWidget::itemSelectionChanged()
 
     currentVideo->setUrl(url);
     currentVideo->analyse();
-    connect(currentVideo, SIGNAL (analysingFinished()), SLOT (getVideo()));
 }
 
-void DownloadWidget::getVideo()
+void DownloadWidget::showVideo()
 {
     qDebug() << "Getting urls";
     preview->openMedia(currentVideo);
+}
+
+void DownloadWidget::processDownloadVideo(QString filename)
+{
+    parent->getFileManger().insertSong(filename);
 }
 
 

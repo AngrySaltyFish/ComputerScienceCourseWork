@@ -8,6 +8,8 @@
 #include <QMenu>
 
 #include <map>
+#include "DataHandler.hpp"
+
 
 class MainWindow : public QMainWindow
 {
@@ -32,9 +34,14 @@ class MainWidget : public QTabWidget
 public:
     MainWidget();
 
+    void setFileManger(DatabaseHandler *);
+    DatabaseHandler& getFileManger();
+
 private:
     void addTabs();
     void btns();
+
+    DatabaseHandler *handler;
 };
 
 class TabWidget : public QWidget
@@ -43,9 +50,9 @@ class TabWidget : public QWidget
 
 public:
     TabWidget(MainWidget &tabManger, const char *tabName);
+
 private:
     void autoAdd(MainWidget &tabManger, const char *tabName);
-    //void styling();
 };
 
 #endif

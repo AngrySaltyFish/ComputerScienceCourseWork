@@ -7,7 +7,7 @@
 #include <QMenuBar>
 #include <QBoxLayout>
 
-
+#include "Window.hpp"
 
 MainWindow::MainWindow(QWidget &widget)
 {
@@ -21,6 +21,7 @@ void MainWindow::createMenus()
     //menuBars = {"file"};
     //menus["file"] = {std::make_pair("Exit", exitApp())};
 }
+
 void MainWindow::addMenuBars()
 {
     QMenuBar *bar = menuBar();
@@ -44,17 +45,27 @@ int MainWindow::exitApp()
 
 MainWidget::MainWidget()
 {
-    //btns();
+
+}
+void MainWidget::setFileManger(DatabaseHandler *fileHandler)
+{
+    handler = fileHandler;
+}
+DatabaseHandler& MainWidget::getFileManger()
+{
+    return *handler;
 }
 
 TabWidget::TabWidget(MainWidget &tabManger, const char *tabName)
 {
     autoAdd(tabManger, tabName);
-    //styling();
+
 }
+
 void TabWidget::autoAdd(MainWidget &tabManger, const char *tabName)
 {
     tabManger.addTab(this, QString(tabName));
+
 }
 
 

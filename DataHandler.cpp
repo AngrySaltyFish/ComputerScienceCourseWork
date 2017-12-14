@@ -27,6 +27,16 @@ void DatabaseHandler::init()
     }
 
 }
+void DatabaseHandler::insertSong(QString filename)
+{
+    QString query = "INSERT INTO AllSongs (trackName) VALUES ('" + filename + "')";
+    db.open();
+    qDebug() << query;
+    db.exec(query);
+    db.commit();
+    db.close();
+}
+
 void DatabaseHandler::createTable(QHash <QString, QList <QString> > *table, bool id)
 {
     QHashIterator< QString, QList <QString> > i(*table);
