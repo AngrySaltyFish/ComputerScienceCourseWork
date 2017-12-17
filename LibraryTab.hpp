@@ -30,12 +30,30 @@ public:
 
 private slots:
     void changePlaylist(int);
+public slots:
+    void extractFromDB();
 
 private:
     DatabaseHandler *handler;
     QStackedWidget *stack;
 
-    void extractFromDB(QStackedWidget*);
+};
+
+class PlaylistAdder : public QWidget
+{
+    Q_OBJECT;
+
+    public:
+    explicit PlaylistAdder();
+
+    private:
+    QLineEdit *text;
+
+    signals:
+        void createPlaylist(QString);
+
+    private slots:
+        void btnPressed();
 };
 
 #endif

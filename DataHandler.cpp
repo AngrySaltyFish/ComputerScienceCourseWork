@@ -3,6 +3,7 @@
 #include <QDataStream>
 #include <QDir>
 #include <QSqlQuery>
+#include <QSqlRecord>
 #include <QDebug>
 
 DatabaseHandler::DatabaseHandler(QString name)
@@ -15,9 +16,9 @@ DatabaseHandler::DatabaseHandler(QString name)
 }
 void DatabaseHandler::init()
 {
-    QString defaultTables[] = {"artists", "albums"};
+    QList <QString> defaultTables = {"artists", "albums"};
 
-    for (int i = 0; i < sizeof(defaultTables)/sizeof(QString); i++)
+    for (int i = 0; i < defaultTables.size(); i++)
     {
         QHash < QString, QList <QString> > table;
         table[QString(defaultTables[i])] = {defaultTables[i] + " TEXT"};
@@ -25,15 +26,18 @@ void DatabaseHandler::init()
     }
 
     db.open();
-    QSqlQuery query = db.exec("SELECT name FROM sqlite_master WHERE type = 'table'");
-    db.close();
+    QSqlQuery query = db.exec("SELECT name FROM sqlite_master WHERE type = 'table';");
 
     while (query.next()) {
         QString playlist = query.value(0).toString();
+        qDebug() << "The playslist grabeed: " << playlist;
 
         playlist.replace('"', "");
-        playlists.append(std::shared_ptr < Playlist > (new Playlist(playlist, 0, db)));
+        if (!defaultTables.contains(playlist) && playlist != "sqlite_sequence")
+            playlists.append(std::shared_ptr < Playlist > (new Playlist(playlist, 0, db)));
     }
+    db.close();
+    allSongs = createPlaylist("AllSongs", false);
 
 }
 void DatabaseHandler::insertSong(QString filename)
@@ -43,6 +47,7 @@ void DatabaseHandler::insertSong(QString filename)
     qDebug() << query;
     db.exec(query);
     db.commit();
+    allSongs->select();
     db.close();
 }
 
@@ -90,13 +95,17 @@ void DatabaseHandler::createTable(QHash <QString, QList <QString> > *table, bool
         db.close();
     }
 }
-std::shared_ptr< Playlist >  DatabaseHandler::createPlaylist(const QString &name)
+std::shared_ptr< Playlist >  DatabaseHandler::createPlaylist(const QString &name, bool autoAdd)
 {
     QHash <QString, QList <QString> > playlistColumns;
     playlistColumns[name] = {"trackName TEXT", "artist INTEGER", "Genere INTEGER", "Duration DOUBLE"};
 
     createTable(&playlistColumns);
-    playlists.append(std::shared_ptr < Playlist > (new Playlist(name, 0, db)));
+
+    if (autoAdd)
+        playlists.append(std::shared_ptr < Playlist > (new Playlist(name, 0, db)));
+
+    emit playlistCreated();
 
     return playlists.last();
 }
@@ -113,8 +122,13 @@ Playlist::Playlist(QString name, QObject *parent, QSqlDatabase db) :
     this->setHeaderData(0, Qt::Horizontal, tr("ID"));
 
     view = new QTableView;
+
     view->setModel(this);
     view->hideColumn(0);
+    view->setEditTriggers(QAbstractItemView::NoEditTriggers); 
+    view->setSelectionBehavior(QAbstractItemView::SelectRows);
+    view->setSelectionMode(QAbstractItemView::SingleSelection);
+    view->resizeRowsToContents();
 }
 QTableView* Playlist::getView()
 {

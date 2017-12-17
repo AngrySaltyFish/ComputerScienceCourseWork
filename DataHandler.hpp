@@ -22,6 +22,12 @@ class DatabaseHandler : public QObject
 
     void insertSong(QString);
 
+    public slots:
+    std::shared_ptr< Playlist > createPlaylist(const QString&, bool autoAdd=true);
+
+signals:
+    void playlistCreated();
+
     private:
     QString dbName;
     QSqlDatabase db;
@@ -31,7 +37,7 @@ class DatabaseHandler : public QObject
     void setupDb();
     void createTable(QHash <QString, QList <QString> >*, bool id=true);
 
-    std::shared_ptr< Playlist > createPlaylist(const QString&);
+    std::shared_ptr< Playlist > allSongs;
 };
 
 class Playlist : public QSqlRelationalTableModel
