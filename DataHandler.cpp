@@ -37,7 +37,7 @@ void DatabaseHandler::init()
             playlists.append(std::shared_ptr < Playlist > (new Playlist(playlist, 0, db)));
     }
     db.close();
-    allSongs = createPlaylist("AllSongs", false);
+    allSongs = createPlaylist("AllSongs", true);
 
 }
 void DatabaseHandler::insertSong(QString filename)
@@ -95,14 +95,18 @@ void DatabaseHandler::createTable(QHash <QString, QList <QString> > *table, bool
         db.close();
     }
 }
-std::shared_ptr< Playlist >  DatabaseHandler::createPlaylist(const QString &name, bool autoAdd)
+std::shared_ptr< Playlist >  DatabaseHandler::createPlaylist(const QString &name, bool allSongs)
 {
     QHash <QString, QList <QString> > playlistColumns;
-    playlistColumns[name] = {"trackName TEXT", "artist INTEGER", "Genere INTEGER", "Duration DOUBLE"};
+
+    playlistColumns[name] = {"TrackId INTEGER"};
+
+    if(allSongs)
+        playlistColumns[name] = {"trackName TEXT", "artist INTEGER", "Genere INTEGER", "Duration DOUBLE"};
 
     createTable(&playlistColumns);
 
-    if (autoAdd)
+    if (allSongs)
         playlists.append(std::shared_ptr < Playlist > (new Playlist(name, 0, db)));
 
     emit playlistCreated();
@@ -117,10 +121,21 @@ QList <std::shared_ptr<Playlist> > DatabaseHandler::getPlaylists()
 Playlist::Playlist(QString name, QObject *parent, QSqlDatabase db) :
     name(name)
 {
-    this->setTable(name);
-    this->select();
-    this->setHeaderData(0, Qt::Horizontal, tr("ID"));
+    this->setJoinMode(QSqlRelationalTableModel::LeftJoin);
 
+    if (name != "AllSongs")
+    {
+        QSqlQuery query = db.exec(
+                "SELECT AllSongs.id, trackName, artist, Genere, Duration FROM AllSongs JOIN " + name + " ON AllSongs.id = " + name + ".TrackId;"
+                );
+        this->setQuery(query);
+
+    }
+    else
+        this->setTable(name);
+
+
+    this->select();
     view = new QTableView;
 
     view->setModel(this);

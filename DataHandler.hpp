@@ -23,7 +23,7 @@ class DatabaseHandler : public QObject
     void insertSong(QString);
 
     public slots:
-    std::shared_ptr< Playlist > createPlaylist(const QString&, bool autoAdd=true);
+    std::shared_ptr< Playlist > createPlaylist(const QString&, bool allSongs=false);
 
 signals:
     void playlistCreated();
