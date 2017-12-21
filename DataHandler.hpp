@@ -8,6 +8,9 @@
 #include <QModelIndexList>
 #include <QTableView>
 #include <QListWidget>
+#include <QDragEnterEvent>
+#include <QDragMoveEvent>
+
 
 #include <memory>
 
@@ -40,21 +43,43 @@ signals:
     std::shared_ptr< Playlist > allSongs;
 };
 
+class PlaylistView : public QTableView
+{
+    Q_OBJECT;
+
+    public:
+    explicit PlaylistView();
+
+    private:
+    QPoint mouseStartPos;
+    bool isDragging;
+
+    void dragEnterEvent(QDragEnterEvent *);
+    void dragMoveEvent(QDragMoveEvent *);
+    void dropEvent(QDropEvent *);
+    void mousePressEvent(QMouseEvent *);
+    void mouseMoveEvent(QMouseEvent *);
+
+};
+
 class Playlist : public QSqlRelationalTableModel
 {
     Q_OBJECT;
     public:
     explicit Playlist(QString name, QObject *parent=0, QSqlDatabase db=QSqlDatabase());
 
-    //Qt::ItemFlags flags(const QModelIndex&) const;
+    Qt::ItemFlags flags(const QModelIndex&);
+    QMimeData* mimeData(const QModelIndexList&) const;
+    QStringList mimeTypes() const;
     //QStringList mimeTypes() const;
     //QMimeData mimeData(const QModelIndexList&);
     //bool dropMimeData(const QMimeData*, Qt::DropAction, int, int, const QModelIndex&);
     QString getName() const;
-    QTableView* getView();
+    PlaylistView* getView();
     private:
     const QString name;
-    QTableView *view;
+    Qt::DropActions supportedDropActions() const;
+    PlaylistView *view;
 };
 
 #endif

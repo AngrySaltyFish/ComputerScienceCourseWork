@@ -30,13 +30,15 @@ public:
 
 private slots:
     void changePlaylist(int);
+    void dropEvent(QDropEvent *);
 public slots:
     void extractFromDB();
 
 private:
     DatabaseHandler *handler;
     QStackedWidget *stack;
-
+    QStringList mimeTypes() const;
+    QMimeData* mimeData(const QModelIndexList&) const;
 };
 
 class PlaylistAdder : public QWidget

@@ -38,6 +38,9 @@ PlayListView::PlayListView(DatabaseHandler *dataHandler, QStackedWidget *tableVi
 {
     extractFromDB();
 
+    this->viewport()->setAcceptDrops(true);
+    this->setDragDropMode(QAbstractItemView::DragDrop);
+
     connect(this, SIGNAL(currentRowChanged(int)), this, SLOT(changePlaylist(int)));
 }
 
@@ -59,7 +62,19 @@ void PlayListView::changePlaylist(int index)
     qDebug() << "The current index: " << index;
     stack->setCurrentIndex(index);
 }
-
+void PlayListView::dropEvent(QDropEvent *event)
+{
+    qDebug() << event->mimeData()->data("application/vnd.text.list");
+    event->accept();
+}
+QStringList PlayListView::mimeTypes() const
+{
+    return handler->getPlaylists().at(0)->mimeTypes();
+}
+QMimeData* PlayListView::mimeData(const QModelIndexList &index) const
+{
+    return handler->getPlaylists().at(0)->mimeData(index);
+}
 
 PlaylistAdder::PlaylistAdder()
 {

@@ -1,10 +1,12 @@
 #include "DataHandler.hpp"
 
+#include <QDrag>
 #include <QDataStream>
 #include <QDir>
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QDebug>
+#include <QStringListModel>
 
 DatabaseHandler::DatabaseHandler(QString name)
 {
@@ -77,10 +79,10 @@ void DatabaseHandler::createTable(QHash <QString, QList <QString> > *table, bool
                 {
                     columns += "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE ";
                 }
-            }            
+            }
 
             columns +=  ", " + columnsList[x];
-        
+
             if (x == columnSize - 1)
             {
                 columns += ")";
@@ -90,7 +92,7 @@ void DatabaseHandler::createTable(QHash <QString, QList <QString> > *table, bool
         qDebug() << "CREATE TABLE IF NOT EXISTS " + name + columns;
 
         db.open();
-        db.exec("CREATE TABLE IF NOT EXISTS " + name + columns); 
+        db.exec("CREATE TABLE IF NOT EXISTS " + name + columns);
         db.commit();
         db.close();
     }
@@ -122,6 +124,7 @@ Playlist::Playlist(QString name, QObject *parent, QSqlDatabase db) :
     name(name)
 {
     this->setJoinMode(QSqlRelationalTableModel::LeftJoin);
+    qDebug() << this->supportedDragActions();
 
     if (name != "AllSongs")
     {
@@ -136,7 +139,7 @@ Playlist::Playlist(QString name, QObject *parent, QSqlDatabase db) :
 
 
     this->select();
-    view = new QTableView;
+    view = new PlaylistView();
 
     view->setModel(this);
     view->hideColumn(0);
@@ -145,7 +148,12 @@ Playlist::Playlist(QString name, QObject *parent, QSqlDatabase db) :
     view->setSelectionMode(QAbstractItemView::SingleSelection);
     view->resizeRowsToContents();
 }
-QTableView* Playlist::getView()
+
+Qt::DropActions Playlist::supportedDropActions() const
+{
+    return Qt::CopyAction | Qt::MoveAction;
+}
+PlaylistView* Playlist::getView()
 {
     return view;
 }
@@ -153,79 +161,84 @@ QString Playlist::getName() const
 {
     return name;
 }
-/*
-   QStringList Playlist::mimeTypes() const
-   {
-   QStringList types;
-   types << "application/vnd.text.list";
-   return types;
-   }
-
-/*
-QMimeData Playlist::mimeData(const QModelIndexList &indexes) const
+Qt::ItemFlags Playlist::flags(const QModelIndex &index)
 {
-QMimeData *mimeData = new QMimeData();
-QByteArray encodedData;
+    QStringListModel *def = new QStringListModel();
+    Qt::ItemFlags defaultFlags = def->flags(index);
 
-QDataStream stream(&encodedData, QIODevice::WriteOnly);
-
-foreach (QModelIndex index, indexes)
-{
-if (index.isValid())
-{
-QString text = data(index, Qt::DisplayRole).toString();
-stream << text;
+    if (index.isValid())
+    {
+        return Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+    }
+    else
+        return Qt::ItemIsDropEnabled;
 }
+QStringList Playlist::mimeTypes() const
+{
+    QStringList types;
+    types << "application/vnd.text.list";
+    return types;
 }
 
-mimeData->setData("application/vnd.text.list", encodedData);
-return mimeData;
-}*/
+QMimeData *Playlist::mimeData(const QModelIndexList &indexes) const
+{
+    QMimeData *mimeData = new QMimeData();
+    QByteArray encodedData;
 
-/*
-   bool Playlist::dropMimeData(const QMimeData *data, Qt::DropAction action,
-   int row, int column, const QModelIndex &parent)
-   {
-   if (action == Qt::IgnoreAction)
-   return true;
-   else if (!data->hasFormat("application/vnd.text.list"))
-   return false;
-   else if (column > 0)
-   return false;
+    QDataStream stream(&encodedData, QIODevice::WriteOnly);
 
-   int beginRow;
+    foreach (const QModelIndex &index, indexes) {
+        if (index.isValid()) {
+            QString text = data(index, Qt::DisplayRole).toString();
+            stream << text;
+        }
+    }
 
-   if (row != -1)
-   beginRow = row;
-   else if (parent.isValid())
-   beginRow = parent.row();
-   else
-   beginRow = rowCount(QModelIndex());
+    mimeData->setData("application/vnd.text.list", encodedData);
+    return mimeData;
+}
 
-   QByteArray encodedData = data->data("application/vnd.text.list");
-   QDataStream stream(&encodedData, QIODevice::ReadOnly);
-   QStringList newItems;
-   int rows = 0;
+PlaylistView::PlaylistView()
+{
+    this->setSelectionMode(QAbstractItemView::SingleSelection);
+    this->setDragDropMode(QAbstractItemView::DragDrop);
+    this->setDragEnabled(true);
+    this->setAcceptDrops(true);
+    this->setDropIndicatorShown(true);
+}
+void PlaylistView::dragEnterEvent(QDragEnterEvent *e)
+{
+    e->accept();
+}
+void PlaylistView::dragMoveEvent(QDragMoveEvent *e)
+{
+    e->accept();
+}
+void PlaylistView::dropEvent(QDropEvent *event)
+{
+    isDragging = false;
+}
+void PlaylistView::mousePressEvent(QMouseEvent *event)
+{
+    mouseStartPos = event->pos();
+    QTableView::mousePressEvent(event);
 
-   while (!stream.atEnd())
-   {
-   QString text;
-   stream >> text;
-   newItems << text;
-   ++rows;
-   }
+}
+void PlaylistView::mouseMoveEvent(QMouseEvent *event)
+{
+    if (event->pos() != mouseStartPos && event->buttons() ==  Qt::LeftButton && !isDragging)
+    {
+        //Init draggin
+        isDragging = true;
 
-   insertRows(beginRow, rows, QModelIndex());
+        QDrag *drag = new QDrag(this);
 
-   foreach (QString text, newItems)
-   {
-   QModelIndex idx = index(beginRow, 0, QModelIndex());
-   setData(idx, text);
-   ++beginRow;
-   }
-   return true;
-   }
-   */
+        QMimeData *data = new QMimeData;
+        data->setData("application/vnd.text.list", QByteArray::number(1));
+        drag->setMimeData(data);
 
+        Qt::DropAction dropAction = drag->exec(Qt::MoveAction, Qt::MoveAction);
 
+    }
+}
 
