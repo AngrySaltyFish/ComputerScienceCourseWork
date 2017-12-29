@@ -52,6 +52,13 @@ void DatabaseHandler::insertSong(QString filename)
     allSongs->select();
     db.close();
 }
+void DatabaseHandler::addToPlaylist(QString tableName, QString trackid)
+{
+    db.open();
+    db.exec("INSERT INTO " + tableName + " (TrackId) VALUES (" + trackid + ")");
+    db.commit();
+    db.close();
+}
 
 void DatabaseHandler::createTable(QHash <QString, QList <QString> > *table, bool id)
 {
@@ -120,25 +127,22 @@ QList <std::shared_ptr<Playlist> > DatabaseHandler::getPlaylists()
     return playlists;
 }
 
-Playlist::Playlist(QString name, QObject *parent, QSqlDatabase db) :
-    name(name)
+Playlist::Playlist(QString name, QObject *parent, QSqlDatabase database) :
+    name(name),
+    db(database)
 {
     this->setJoinMode(QSqlRelationalTableModel::LeftJoin);
-    qDebug() << this->supportedDragActions();
 
     if (name != "AllSongs")
     {
-        QSqlQuery query = db.exec(
-                "SELECT AllSongs.id, trackName, artist, Genere, Duration FROM AllSongs JOIN " + name + " ON AllSongs.id = " + name + ".TrackId;"
-                );
-        this->setQuery(query);
-
+        this->update();
     }
     else
+    {
         this->setTable(name);
+        this->select();
+    }
 
-
-    this->select();
     view = new PlaylistView();
 
     view->setModel(this);
@@ -151,7 +155,7 @@ Playlist::Playlist(QString name, QObject *parent, QSqlDatabase db) :
 
 Qt::DropActions Playlist::supportedDropActions() const
 {
-    return Qt::CopyAction | Qt::MoveAction;
+    return Qt::MoveAction;
 }
 PlaylistView* Playlist::getView()
 {
@@ -198,6 +202,17 @@ QMimeData *Playlist::mimeData(const QModelIndexList &indexes) const
     return mimeData;
 }
 
+void Playlist::update()
+{
+    db.open();
+    QSqlQuery query = db.exec(
+            "SELECT AllSongs.id, trackName, artist, Genere, Duration FROM AllSongs JOIN " + name + " ON AllSongs.id = " + name + ".TrackId;"
+            );
+    this->setQuery(query);
+    this->select();
+    db.close();
+}
+
 PlaylistView::PlaylistView()
 {
     this->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -206,6 +221,7 @@ PlaylistView::PlaylistView()
     this->setAcceptDrops(true);
     this->setDropIndicatorShown(true);
 }
+
 void PlaylistView::dragEnterEvent(QDragEnterEvent *e)
 {
     e->accept();
@@ -216,13 +232,28 @@ void PlaylistView::dragMoveEvent(QDragMoveEvent *e)
 }
 void PlaylistView::dropEvent(QDropEvent *event)
 {
-    isDragging = false;
+    qDebug() << event->mimeData()->data("application/vnd.text.list");
+    event->setDropAction(Qt::MoveAction);
+
+    //TODO:Allow reordering of the songs in the database
+    int rowId = getRowId(event->pos().y());
+
+    event->accept();
 }
 void PlaylistView::mousePressEvent(QMouseEvent *event)
 {
     mouseStartPos = event->pos();
     QTableView::mousePressEvent(event);
+    isDragging = false;
 
+    qDebug() << "List gen";
+    yPos.clear();
+    int i = 0;
+    while (this->rowViewportPosition(i) != -1)
+    {
+        yPos.append(this->rowViewportPosition(i));
+        i++;
+    }
 }
 void PlaylistView::mouseMoveEvent(QMouseEvent *event)
 {
@@ -234,11 +265,21 @@ void PlaylistView::mouseMoveEvent(QMouseEvent *event)
         QDrag *drag = new QDrag(this);
 
         QMimeData *data = new QMimeData;
-        data->setData("application/vnd.text.list", QByteArray::number(1));
+        data->setData("application/vnd.text.list", QByteArray::number(getRowId(event->pos().y())));
         drag->setMimeData(data);
 
         Qt::DropAction dropAction = drag->exec(Qt::MoveAction, Qt::MoveAction);
 
     }
 }
-
+int PlaylistView::getRowId(int pos)
+{
+    int i = 0;
+    while (pos > yPos.at(i))
+    {
+        i++;
+        if (i == yPos.size())
+            break;
+    }
+    return i;
+}

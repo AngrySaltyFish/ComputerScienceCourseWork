@@ -59,13 +59,20 @@ void PlayListView::extractFromDB()
 }
 void PlayListView::changePlaylist(int index)
 {
-    qDebug() << "The current index: " << index;
     stack->setCurrentIndex(index);
 }
 void PlayListView::dropEvent(QDropEvent *event)
 {
-    qDebug() << event->mimeData()->data("application/vnd.text.list");
+    QString trackId(event->mimeData()->data("application/vnd.text.list"));
+    QString tableName = this->itemAt(event->pos())->text();
+
+    handler->addToPlaylist(tableName, trackId);
+    int index = this->row(this->findItems(tableName, Qt::MatchFixedString).at(0));
+
+    handler->getPlaylists().at(index)->update();
+
     event->accept();
+    QListWidget::dropEvent(event);
 }
 QStringList PlayListView::mimeTypes() const
 {

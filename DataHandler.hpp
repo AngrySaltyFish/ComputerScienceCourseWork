@@ -24,6 +24,7 @@ class DatabaseHandler : public QObject
     QList <std::shared_ptr<Playlist>>  getPlaylists();
 
     void insertSong(QString);
+    void addToPlaylist(QString, QString);
 
     public slots:
     std::shared_ptr< Playlist > createPlaylist(const QString&, bool allSongs=false);
@@ -51,8 +52,11 @@ class PlaylistView : public QTableView
     explicit PlaylistView();
 
     private:
+    QList <int> yPos;
     QPoint mouseStartPos;
+
     bool isDragging;
+    int getRowId(int);
 
     void dragEnterEvent(QDragEnterEvent *);
     void dragMoveEvent(QDragMoveEvent *);
@@ -71,13 +75,13 @@ class Playlist : public QSqlRelationalTableModel
     Qt::ItemFlags flags(const QModelIndex&);
     QMimeData* mimeData(const QModelIndexList&) const;
     QStringList mimeTypes() const;
-    //QStringList mimeTypes() const;
-    //QMimeData mimeData(const QModelIndexList&);
-    //bool dropMimeData(const QMimeData*, Qt::DropAction, int, int, const QModelIndex&);
     QString getName() const;
     PlaylistView* getView();
+
+    void update();
     private:
     const QString name;
+    QSqlDatabase db;
     Qt::DropActions supportedDropActions() const;
     PlaylistView *view;
 };
