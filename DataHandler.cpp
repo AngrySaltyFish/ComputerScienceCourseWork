@@ -145,6 +145,7 @@ Playlist::Playlist(QString name, QObject *parent, QSqlDatabase database) :
 
     view = new PlaylistView();
     connect(view, SIGNAL (deleteRow(int)), this, SLOT(removeRow(int)));
+    connect(view, SIGNAL (reorderSong(int, int)), this, SLOT(reorderRow(int, int)));
 
     view->setModel(this);
     view->hideColumn(0);
@@ -155,13 +156,32 @@ Playlist::Playlist(QString name, QObject *parent, QSqlDatabase database) :
 }
 void Playlist::removeRow(int id)
 {
-    //QString query("DELETE FROM " + name + " WHERE id=" + QByteArray::number(id));
     QString query("DELETE FROM " + name + " WHERE id  IN (SELECT id FROM " + name + " ORDER BY id LIMIT 1 OFFSET " + QByteArray::number(id) + ")");
     qDebug() << query;
     db.open();
     db.exec(query);
     db.close();
     update();
+}
+void Playlist::reorderRow(int startId, int destinationId)
+{
+    startId--;
+    db.open();
+
+    QSqlQuery destquery = db.exec("SELECT id FROM " + name + " ORDER BY id LIMIT 1 OFFSET " + QByteArray::number(destinationId));
+    destquery.next();
+    int destId = destquery.value(0).toInt();
+
+    QSqlQuery startquery = db.exec("SELECT id FROM " + name + " ORDER BY id LIMIT 1 OFFSET " + QByteArray::number(startId));
+    startquery.next();
+    int originalId = startquery.value(0).toInt();
+
+    db.exec("UPDATE " + name + " SET id = 0 " + "WHERE id = " + QByteArray::number(destId));
+    db.exec("UPDATE " + name + " SET id = " + QByteArray::number(destId)  + " WHERE id = " + QByteArray::number(originalId));
+    db.exec("UPDATE " + name + " SET id = " + QByteArray::number(originalId) +  " WHERE id = 0");
+    db.close();
+    update();
+
 }
 
 Qt::DropActions Playlist::supportedDropActions() const
@@ -248,6 +268,7 @@ void PlaylistView::dropEvent(QDropEvent *event)
 
     //TODO:Allow reordering of the songs in the database
     int rowId = getRowId(event->pos().y());
+    emit reorderSong(rowId, this->selectionModel()->selection().indexes().at(0).row());
 
     event->accept();
 }
