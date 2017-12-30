@@ -29,16 +29,19 @@ void DatabaseHandler::init()
 
     db.open();
     QSqlQuery query = db.exec("SELECT name FROM sqlite_master WHERE type = 'table';");
+    QList < QString > playlistNames;
 
     while (query.next()) {
         QString playlist = query.value(0).toString();
-        qDebug() << "The playslist grabeed: " << playlist;
-
         playlist.replace('"', "");
         if (!defaultTables.contains(playlist) && playlist != "sqlite_sequence")
-            playlists.append(std::shared_ptr < Playlist > (new Playlist(playlist, 0, db)));
+            playlistNames.append(playlist);
     }
     db.close();
+
+    for (int i = 0; i < playlistNames.size(); ++i)
+        playlists.append(std::shared_ptr < Playlist > (new Playlist(playlistNames.at(i), 0, db)));
+
     allSongs = createPlaylist("AllSongs", true);
 
 }
@@ -115,7 +118,7 @@ std::shared_ptr< Playlist >  DatabaseHandler::createPlaylist(const QString &name
 
     createTable(&playlistColumns);
 
-    if (allSongs)
+    if (!allSongs || playlists.size() == 0)
         playlists.append(std::shared_ptr < Playlist > (new Playlist(name, 0, db)));
 
     emit playlistCreated();
