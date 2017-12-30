@@ -144,6 +144,7 @@ Playlist::Playlist(QString name, QObject *parent, QSqlDatabase database) :
     }
 
     view = new PlaylistView();
+    connect(view, SIGNAL (deleteRow(int)), this, SLOT(removeRow(int)));
 
     view->setModel(this);
     view->hideColumn(0);
@@ -151,6 +152,16 @@ Playlist::Playlist(QString name, QObject *parent, QSqlDatabase database) :
     view->setSelectionBehavior(QAbstractItemView::SelectRows);
     view->setSelectionMode(QAbstractItemView::SingleSelection);
     view->resizeRowsToContents();
+}
+void Playlist::removeRow(int id)
+{
+    //QString query("DELETE FROM " + name + " WHERE id=" + QByteArray::number(id));
+    QString query("DELETE FROM " + name + " WHERE id  IN (SELECT id FROM test ORDER BY id LIMIT 1 OFFSET " + QByteArray::number(id) + ")");
+    qDebug() << query;
+    db.open();
+    db.exec(query);
+    db.close();
+    update();
 }
 
 Qt::DropActions Playlist::supportedDropActions() const
@@ -255,6 +266,18 @@ void PlaylistView::mousePressEvent(QMouseEvent *event)
         i++;
     }
 }
+void PlaylistView::keyPressEvent(QKeyEvent *key)
+{
+    qDebug() << "method is called!";
+    if (key->key() == Qt::Key_Delete)
+    {
+        qDebug() << "delete triggered";
+        int rowId = this->selectionModel()->selection().indexes().at(0).row();
+        qDebug() << "rowid is " << rowId;
+
+        emit deleteRow(rowId);
+    }
+}
 void PlaylistView::mouseMoveEvent(QMouseEvent *event)
 {
     if (event->pos() != mouseStartPos && event->buttons() ==  Qt::LeftButton && !isDragging)
@@ -281,5 +304,6 @@ int PlaylistView::getRowId(int pos)
         if (i == yPos.size())
             break;
     }
+    qDebug() << "Row id is: " << i;
     return i;
 }
