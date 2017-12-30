@@ -51,13 +51,18 @@ class PlaylistView : public QTableView
     public:
     explicit PlaylistView();
 
+signals:
+    void deleteRow(int);
+
     private:
     QList <int> yPos;
     QPoint mouseStartPos;
 
     bool isDragging;
+
     int getRowId(int);
 
+    void keyPressEvent(QKeyEvent *);
     void dragEnterEvent(QDragEnterEvent *);
     void dragMoveEvent(QDragMoveEvent *);
     void dropEvent(QDropEvent *);
@@ -77,8 +82,10 @@ class Playlist : public QSqlRelationalTableModel
     QStringList mimeTypes() const;
     QString getName() const;
     PlaylistView* getView();
-
     void update();
+
+    private slots:
+        void removeRow(int);
     private:
     const QString name;
     QSqlDatabase db;
