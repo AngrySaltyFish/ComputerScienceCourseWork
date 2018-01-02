@@ -146,7 +146,7 @@ void PlayerWindow::updateSliderUnit()
 
 void PlayerWindow::startDownload()
 {
-    connect(currentVideo->getHandler(), SIGNAL(progressBar(qint64, qint64)), SLOT(changeDownloadProgress(qint64, qint64)));
+    connect(currentVideo->getHandler(), SIGNAL(downloadProgress(qint64, qint64)), SLOT(changeDownloadProgress(qint64, qint64)));
     currentVideo->download();
 }
 
@@ -162,7 +162,6 @@ void PlayerWindow::changeDownloadProgress(qint64 currentProgress, qint64 totalBy
 
 AudioPlayer::AudioPlayer()
 {
-
     setupOutput();
     btns();
     layout();
