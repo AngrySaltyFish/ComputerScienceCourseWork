@@ -22,14 +22,21 @@ void LibraryTab::layout()
     QGridLayout *grid = new QGridLayout(this);
     PlaylistAdder *adder = new PlaylistAdder();
     PlayListView *playlistView = new PlayListView(dataHandler, tableView);
+    AudioPlayer *audioPlayer = new AudioPlayer();
 
     connect(adder, SIGNAL(createPlaylist(QString)), dataHandler, SLOT(createPlaylist(QString)));
     connect(dataHandler, SIGNAL(playlistCreated()), playlistView, SLOT(extractFromDB()));
 
+
+    QList <std::shared_ptr<Playlist>> playlists = dataHandler->getPlaylists();
+
+    for (int i = 0; i < playlists.size(); ++i)
+        connect(playlists.at(i).get(), SIGNAL (playTrack(QString)), audioPlayer, SLOT (openMedia(QString)));
+
     grid->addWidget(playlistView, 0, 0);
     grid->addWidget(adder, 1, 0);
     grid->addWidget(tableView, 0, 1, 2, 1);
-    grid->addWidget(new AudioPlayer(), 2, 0, -1, 0);
+    grid->addWidget(audioPlayer, 2, 0, -1, 0);
     grid->setColumnStretch(1, 2);
 }
 

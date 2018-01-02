@@ -10,6 +10,7 @@
 #include <QListWidget>
 #include <QDragEnterEvent>
 #include <QDragMoveEvent>
+#include <QVariant>
 
 
 #include <memory>
@@ -54,6 +55,7 @@ class PlaylistView : public QTableView
 signals:
     void deleteRow(int);
     void reorderSong(int, int);
+    void playSong(int);
 
     private:
     QList <int> yPos;
@@ -68,6 +70,7 @@ signals:
     void dragMoveEvent(QDragMoveEvent *);
     void dropEvent(QDropEvent *);
     void mousePressEvent(QMouseEvent *);
+    void mouseDoubleClickEvent(QMouseEvent *);
     void mouseMoveEvent(QMouseEvent *);
 
 };
@@ -85,14 +88,19 @@ class Playlist : public QSqlRelationalTableModel
     PlaylistView* getView();
     void update();
 
+    signals:
+        void playTrack(QString);
+
     private slots:
         void reorderRow(int, int);
         void removeRow(int);
+        void playSong(int);
     private:
     const QString name;
     QSqlDatabase db;
     Qt::DropActions supportedDropActions() const;
     PlaylistView *view;
+    QVariant rowIdToSongData(int, QString column="id");
 };
 
 #endif

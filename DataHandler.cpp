@@ -7,6 +7,7 @@
 #include <QSqlRecord>
 #include <QDebug>
 #include <QStringListModel>
+#include <QSqlError>
 
 DatabaseHandler::DatabaseHandler(QString name)
 {
@@ -149,6 +150,7 @@ Playlist::Playlist(QString name, QObject *parent, QSqlDatabase database) :
     view = new PlaylistView();
     connect(view, SIGNAL (deleteRow(int)), this, SLOT(removeRow(int)));
     connect(view, SIGNAL (reorderSong(int, int)), this, SLOT(reorderRow(int, int)));
+    connect(view, SIGNAL (playSong(int)), this, SLOT (playSong(int)));
 
     view->setModel(this);
     view->hideColumn(0);
@@ -169,22 +171,49 @@ void Playlist::removeRow(int id)
 void Playlist::reorderRow(int startId, int destinationId)
 {
     startId--;
+
+    int destId = rowIdToSongData(destinationId).toInt();
+    int originalId = rowIdToSongData(startId).toInt();
+
     db.open();
-
-    QSqlQuery destquery = db.exec("SELECT id FROM " + name + " ORDER BY id LIMIT 1 OFFSET " + QByteArray::number(destinationId));
-    destquery.next();
-    int destId = destquery.value(0).toInt();
-
-    QSqlQuery startquery = db.exec("SELECT id FROM " + name + " ORDER BY id LIMIT 1 OFFSET " + QByteArray::number(startId));
-    startquery.next();
-    int originalId = startquery.value(0).toInt();
-
     db.exec("UPDATE " + name + " SET id = 0 " + "WHERE id = " + QByteArray::number(destId));
     db.exec("UPDATE " + name + " SET id = " + QByteArray::number(destId)  + " WHERE id = " + QByteArray::number(originalId));
     db.exec("UPDATE " + name + " SET id = " + QByteArray::number(originalId) +  " WHERE id = 0");
     db.close();
     update();
 
+}
+void Playlist::playSong(int rowId)
+{
+    QString songName;
+
+    if (name == "AllSongs")
+        songName = rowIdToSongData(rowId, QString("trackName")).toString();
+    else
+    {
+        QString songId = rowIdToSongData(rowId, QString("TrackId")).toString();
+
+        db.open();
+
+        QSqlQuery query = db.exec("SELECT tracKName FROM AllSongs WHERE id = " + songId);
+        query.first();
+        songName = query.value(0).toString();
+
+        db.close();
+    }
+    emit playTrack(songName);
+}
+QVariant Playlist::rowIdToSongData(int rowId, QString column)
+{
+    db.open();
+    
+    QSqlQuery query = db.exec("SELECT " + column + " FROM " + name + " ORDER BY id LIMIT 1 OFFSET " + QByteArray::number(rowId));
+    query.first();
+
+    QVariant result = query.value(0);
+    db.close();
+
+    return result;
 }
 
 Qt::DropActions Playlist::supportedDropActions() const
@@ -288,6 +317,19 @@ void PlaylistView::mousePressEvent(QMouseEvent *event)
     {
         yPos.append(this->rowViewportPosition(i));
         i++;
+    }
+}
+void PlaylistView::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton)
+    {
+        int rowId;
+
+        if (this->selectionModel()->selection().indexes().size())
+            rowId = this->selectionModel()->selection().indexes().at(0).row();
+        else
+            return;
+        emit playSong(rowId);
     }
 }
 void PlaylistView::keyPressEvent(QKeyEvent *key)

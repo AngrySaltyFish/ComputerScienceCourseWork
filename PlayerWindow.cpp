@@ -169,7 +169,7 @@ AudioPlayer::AudioPlayer()
 }
 void AudioPlayer::openMedia(QString file)
 {
-    player->setFile(file);
+    player->setFile("Downloads/" + file);
     player->play();
 }
 void AudioPlayer::btns()
