@@ -28,8 +28,9 @@ void LibraryTab::layout()
 
     grid->addWidget(playlistView, 0, 0);
     grid->addWidget(adder, 1, 0);
-    grid->addWidget(tableView, 0, 1, 0, 2);
-    grid->setColumnStretch(1, 3);
+    grid->addWidget(tableView, 0, 1, 2, 1);
+    grid->addWidget(new AudioPlayer(), 2, 0, -1, 0);
+    grid->setColumnStretch(1, 2);
 }
 
 PlayListView::PlayListView(DatabaseHandler *dataHandler, QStackedWidget *tableView) :

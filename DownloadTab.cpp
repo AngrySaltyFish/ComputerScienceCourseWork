@@ -20,6 +20,8 @@ void DownloadWidget::init()
     preview = new PlayerWindow(this);
     currentVideo = new VideoYoutube();
 
+    preview->init();
+
     connect(videoList, SIGNAL (itemSelectionChanged()), this, SLOT (itemSelectionChanged()));
     connect(currentVideo, SIGNAL (analysingFinished()), SLOT (showVideo()));
     connect(currentVideo, SIGNAL (audioDownloadFinished(QString)), SLOT(processDownloadVideo(QString)));

@@ -6,6 +6,7 @@
 
 #include "Window.hpp"
 #include "DataHandler.hpp"
+#include "PlayerWindow.hpp"
 
 class LibraryTab : public TabWidget
 {
