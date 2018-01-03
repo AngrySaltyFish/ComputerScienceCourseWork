@@ -31,7 +31,7 @@ void LibraryTab::layout()
     QList <std::shared_ptr<Playlist>> playlists = dataHandler->getPlaylists();
 
     for (int i = 0; i < playlists.size(); ++i)
-        connect(playlists.at(i).get(), SIGNAL (playTrack(QString)), audioPlayer, SLOT (openMedia(QString)));
+        connect(playlists.at(i).get(), SIGNAL (playTrack(QList < QString >, int)), audioPlayer, SLOT (openMedia(QList < QString >, int)));
 
     grid->addWidget(playlistView, 0, 0);
     grid->addWidget(adder, 1, 0);

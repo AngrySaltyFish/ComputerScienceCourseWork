@@ -66,11 +66,18 @@ class AudioPlayer : public PlayerWindow
     explicit AudioPlayer();
 
     public Q_SLOTS:
-        void openMedia(QString);
+        void openMedia(QList < QString >, int);
+
+    private Q_SLOTS:
+        void nextSong();
+        void previousSong();
     private:
     QPushButton *backBtn;
     QPushButton *forwardBtn;
     QPushButton *burnBtn;
+
+    QList < QString > trackList;
+    int index;
 
     protected:
     void layout();

@@ -166,9 +166,12 @@ AudioPlayer::AudioPlayer()
     btns();
     layout();
 }
-void AudioPlayer::openMedia(QString file)
+void AudioPlayer::openMedia(QList < QString > trackList, int index)
 {
-    player->setFile("Downloads/" + file);
+    this->trackList = trackList; 
+    this->index = index;
+
+    player->setFile(trackList.at(index));
     player->play();
 }
 void AudioPlayer::btns()
@@ -179,6 +182,27 @@ void AudioPlayer::btns()
     burnBtn = new QPushButton("Burn");
 
     connect(playBtn, SIGNAL(clicked()), SLOT(playPause()));
+    connect(forwardBtn, SIGNAL(clicked()), SLOT(nextSong()));
+    connect(backBtn, SIGNAL(clicked()), SLOT(previousSong()));
+}
+void AudioPlayer::nextSong()
+{
+    index++;
+    
+    if (index == trackList.size())
+        index = 0;
+
+    player->setFile(trackList.at(index));
+    player->play();
+}
+void AudioPlayer::previousSong()
+{
+    index--;
+
+    if (index == -1)
+        index = 0;
+    player->setFile(trackList.at(index));
+    player->play();
 }
 void AudioPlayer::layout()
 {

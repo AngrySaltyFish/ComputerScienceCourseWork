@@ -136,16 +136,7 @@ Playlist::Playlist(QString name, QObject *parent, QSqlDatabase database) :
     db(database)
 {
     this->setJoinMode(QSqlRelationalTableModel::LeftJoin);
-
-    if (name != "AllSongs")
-    {
-        this->update();
-    }
-    else
-    {
-        this->setTable(name);
-        this->select();
-    }
+    update();
 
     view = new PlaylistView();
     connect(view, SIGNAL (deleteRow(int)), this, SLOT(removeRow(int)));
@@ -185,23 +176,47 @@ void Playlist::reorderRow(int startId, int destinationId)
 }
 void Playlist::playSong(int rowId)
 {
-    QString songName;
+    QList < QString > trackList;
 
     if (name == "AllSongs")
-        songName = rowIdToSongData(rowId, QString("trackName")).toString();
-    else
     {
-        QString songId = rowIdToSongData(rowId, QString("TrackId")).toString();
 
         db.open();
+        QSqlQuery query = db.exec("SELECT trackName FROM AllSongs");
 
-        QSqlQuery query = db.exec("SELECT tracKName FROM AllSongs WHERE id = " + songId);
-        query.first();
-        songName = query.value(0).toString();
-
+        while (query.next())
+        {
+            trackList.append("Downloads/" + query.value(0).toString());
+        }
         db.close();
+
     }
-    emit playTrack(songName);
+    else
+    {
+        int i = 0;
+        QString songId = rowIdToSongData(i, QString("TrackId")).toString();
+
+        while (songId != "")
+        {
+            songId = rowIdToSongData(i, QString("TrackId")).toString();
+
+            db.open();
+            QSqlQuery query = db.exec("SELECT tracKName FROM AllSongs WHERE id = " + songId);
+
+            if (query.record().isEmpty())
+                break;
+
+            query.first();
+            trackList.append("Downloads/" + query.value(0).toString());
+
+            songId = rowIdToSongData(i, QString("TrackId")).toString();
+            db.close();
+            i++;
+        }
+    }
+
+
+    emit playTrack(trackList, rowId);
 }
 QVariant Playlist::rowIdToSongData(int rowId, QString column)
 {
@@ -267,13 +282,22 @@ QMimeData *Playlist::mimeData(const QModelIndexList &indexes) const
 
 void Playlist::update()
 {
-    db.open();
-    QSqlQuery query = db.exec(
-            "SELECT AllSongs.id, trackName, artist, Genere, Duration FROM AllSongs JOIN " + name + " ON AllSongs.id = " + name + ".TrackId;"
-            );
-    this->setQuery(query);
-    this->select();
-    db.close();
+    if (name == "AllSongs")
+    {
+        qDebug() << "triggered!!";
+        this->setTable(name);
+        this->select();
+    }
+    else
+    {
+        db.open();
+        QSqlQuery query = db.exec(
+                "SELECT AllSongs.id, trackName, artist, Genere, Duration FROM AllSongs JOIN " + name + " ON AllSongs.id = " + name + ".TrackId;"
+                );
+        this->setQuery(query);
+        this->select();
+        db.close();
+    }
 }
 
 PlaylistView::PlaylistView()
@@ -298,7 +322,6 @@ void PlaylistView::dropEvent(QDropEvent *event)
     qDebug() << event->mimeData()->data("application/vnd.text.list");
     event->setDropAction(Qt::MoveAction);
 
-    //TODO:Allow reordering of the songs in the database
     int rowId = getRowId(event->pos().y());
     emit reorderSong(rowId, this->selectionModel()->selection().indexes().at(0).row());
 
@@ -329,6 +352,7 @@ void PlaylistView::mouseDoubleClickEvent(QMouseEvent *event)
             rowId = this->selectionModel()->selection().indexes().at(0).row();
         else
             return;
+
         emit playSong(rowId);
     }
 }

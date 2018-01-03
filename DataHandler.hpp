@@ -89,7 +89,7 @@ class Playlist : public QSqlRelationalTableModel
     void update();
 
     signals:
-        void playTrack(QString);
+        void playTrack(QList < QString >, int);
 
     private slots:
         void reorderRow(int, int);
