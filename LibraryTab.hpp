@@ -6,6 +6,7 @@
 
 #include "Window.hpp"
 #include "DataHandler.hpp"
+#include "PlayerWindow.hpp"
 
 class LibraryTab : public TabWidget
 {
@@ -18,7 +19,7 @@ private:
     DatabaseHandler *dataHandler;
     QStackedWidget *tableView;
     
-    void init();
+    void init(MainWidget *);
     void layout();
 };
 
@@ -30,12 +31,32 @@ public:
 
 private slots:
     void changePlaylist(int);
+    void dropEvent(QDropEvent *);
+public slots:
+    void extractFromDB();
 
 private:
     DatabaseHandler *handler;
     QStackedWidget *stack;
+    QStringList mimeTypes() const;
+    QMimeData* mimeData(const QModelIndexList&) const;
+};
 
-    void extractFromDB(QStackedWidget*);
+class PlaylistAdder : public QWidget
+{
+    Q_OBJECT;
+
+    public:
+    explicit PlaylistAdder();
+
+    private:
+    QLineEdit *text;
+
+    signals:
+        void createPlaylist(QString);
+
+    private slots:
+        void btnPressed();
 };
 
 #endif

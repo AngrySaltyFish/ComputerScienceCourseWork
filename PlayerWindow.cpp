@@ -9,16 +9,32 @@ using namespace QtAV;
 
 PlayerWindow::PlayerWindow(QWidget *parent) : QWidget(parent)
 {
-    init();
-    btns();
-    layout();
+    unit = 1000;
+
+    player = new AVPlayer(this);
+    player->setBufferValue(1);
+
+    slider = new QSlider();
+    slider->setOrientation(Qt::Horizontal);
+
+    progressBar = new QProgressBar();
+
+    connect(slider, SIGNAL(sliderMoved(int)), SLOT(seekBySlider(int)));
+    connect(slider, SIGNAL(sliderPressed()), SLOT(seekBySlider()));
+    connect(player, SIGNAL(positionChanged(qint64)), SLOT(updateSlider(qint64)));
+    connect(player, SIGNAL(started()), SLOT(updateSlider()));
+    connect(player, SIGNAL(notifyIntervalChanged()), SLOT(updateSliderUnit()));
 }
 
 void PlayerWindow::init()
 {
-    unit = 1000;
-    player = new AVPlayer(this);
-    player->setBufferValue(1);
+    setupOutput();
+    btns();
+    layout();
+}
+
+void PlayerWindow::setupOutput()
+{
     videoOutput = new VideoOutput(this);
     if (!videoOutput->widget()) {
         QMessageBox::warning(0, QString::fromLatin1("QtAV error"), tr("Can not create video renderer"));
@@ -26,9 +42,6 @@ void PlayerWindow::init()
     }
     player->setRenderer(videoOutput);
 
-    downloadProgress = new QProgressBar();
-    slider = new QSlider();
-    slider->setOrientation(Qt::Horizontal);
 }
 
 void PlayerWindow::layout()
@@ -41,7 +54,7 @@ void PlayerWindow::layout()
 
     vl->addLayout(hb);
     vl->addWidget(downloadBtn);
-    vl->addWidget(downloadProgress);
+    vl->addWidget(progressBar);
 
     hb->addWidget(quality);
     hb->addWidget(playBtn);
@@ -60,11 +73,6 @@ void PlayerWindow::btns()
     connect(downloadBtn, SIGNAL(clicked()), SLOT(startDownload()));
     connect(quality, SIGNAL(currentIndexChanged(int)), this, SLOT(changeQuality(int)));
 
-    connect(slider, SIGNAL(sliderMoved(int)), SLOT(seekBySlider(int)));
-    connect(slider, SIGNAL(sliderPressed()), SLOT(seekBySlider()));
-    connect(player, SIGNAL(positionChanged(qint64)), SLOT(updateSlider(qint64)));
-    connect(player, SIGNAL(started()), SLOT(updateSlider()));
-    connect(player, SIGNAL(notifyIntervalChanged()), SLOT(updateSliderUnit()));
 }
 
 void PlayerWindow::openMedia(VideoYoutube *video)
@@ -138,15 +146,54 @@ void PlayerWindow::updateSliderUnit()
 
 void PlayerWindow::startDownload()
 {
-    connect(currentVideo->getHandler(), SIGNAL(downloadProgress(qint64, qint64)), SLOT(changeDownloadProgress(qint64, qint64)));
+    connect(currentVideo->getHandler(), SIGNAL(progressBar(qint64, qint64)), SLOT(changeDownloadProgress(qint64, qint64)));
     currentVideo->download();
 }
 
 void PlayerWindow::changeDownloadProgress(qint64 currentProgress, qint64 totalBytes)
 {
-    downloadProgress->setMaximum(totalBytes);
-    downloadProgress->setValue(currentProgress);
+    progressBar->setMaximum(totalBytes);
+    progressBar->setValue(currentProgress);
 
     if (currentProgress == totalBytes)
-        downloadProgress->setValue(0);
+        progressBar->setValue(0);
+}
+
+
+AudioPlayer::AudioPlayer()
+{
+
+    setupOutput();
+    btns();
+    layout();
+}
+void AudioPlayer::openMedia(QString file)
+{
+    player->setFile("Downloads/" + file);
+    player->play();
+}
+void AudioPlayer::btns()
+{
+    backBtn = new QPushButton("<--");
+    playBtn = new QPushButton("Play/Pause");
+    forwardBtn = new QPushButton("-->");
+    burnBtn = new QPushButton("Burn");
+
+    connect(playBtn, SIGNAL(clicked()), SLOT(playPause()));
+}
+void AudioPlayer::layout()
+{
+
+    QVBoxLayout *vl = new QVBoxLayout(this);
+    vl->addWidget(slider);
+
+    QHBoxLayout *hb = new QHBoxLayout();
+
+    vl->addLayout(hb);
+    vl->addWidget(burnBtn);
+    vl->addWidget(progressBar);
+
+    hb->addWidget(backBtn);
+    hb->addWidget(playBtn);
+    hb->addWidget(forwardBtn);
 }

@@ -152,6 +152,7 @@ signals:
         void error(QString);
         void error(QString, VideoYoutube*);
         void analysingFinished();
+        void audioDownloadFinished(QString);
 };
 
 #endif

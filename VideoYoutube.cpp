@@ -138,19 +138,13 @@ QString VideoYoutube::getUrlFromFmtLink(QString link)
 void VideoYoutube::download()
 {
     step = 3;
-    //handler->clearDownloads();
 
     if (!this->supportedQualities.at(currentQuality).audioUrl.isEmpty())
     {
         if (this->supportedQualities.at(currentQuality).audioSegments.isEmpty())
         {
             qDebug() << "Downloading audio file: " << this->supportedQualities.at(currentQuality).audioUrl;
-            qDebug() << handler->addDownload(this->supportedQualities.at(currentQuality).audioUrl, this->supportedQualities.at(currentQuality).chunkedDownload);
-        }
-        else
-        {
-            qDebug() << "Downloading segmented audio file: " << this->supportedQualities.at(currentQuality).audioUrl;
-            handler->addDownload(this->supportedQualities.at(currentQuality).audioUrl, this->supportedQualities.at(currentQuality).audioSegments);
+            handler->addDownload(this->supportedQualities.at(currentQuality).audioUrl, this->supportedQualities.at(currentQuality).chunkedDownload, QByteArray(), QStringList(), title);
         }
     }
 }
@@ -178,14 +172,18 @@ void VideoYoutube::handleDownloads()
                 handler->downloads.at(i)->tempFile->flush();
                 handler->downloads.at(i)->tempFile->close();
             }
+
+            QString filename = handler->downloads.at(i)->title;
             handler->downloads.at(i)->tempFile->open();
 
             QByteArray data = handler->downloads.at(i)->tempFile->readAll();
 
-            QSaveFile *fileSave = new QSaveFile(handler->downloads.at(i)->title);
+            QSaveFile *fileSave = new QSaveFile("Downloads/" + filename);;
             fileSave->open(QIODevice::WriteOnly);
             fileSave->write(data.constData(), data.size());
             fileSave->commit();
+
+            emit audioDownloadFinished(filename);
         }
 
     }

@@ -38,7 +38,8 @@ public:
 private slots:
     void search();
     void itemSelectionChanged();
-    void getVideo();
+    void showVideo();
+    void processDownloadVideo(QString);
 
 private:
     QPushButton *searchBtn;
@@ -49,6 +50,8 @@ private:
     VideoYoutube *currentVideo;
 
     SearchList *videoList;
+
+    MainWidget *parent;
 
     void init();
     void btns();

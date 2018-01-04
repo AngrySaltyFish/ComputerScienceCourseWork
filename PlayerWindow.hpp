@@ -16,35 +16,66 @@ class PlayerWindow : public QWidget
     Q_OBJECT
 public:
     explicit PlayerWindow(QWidget *parent = 0);
+
+    void init();
+
 public Q_SLOTS:
-    void openMedia(VideoYoutube*);
+    virtual void openMedia(VideoYoutube*);
     void seekBySlider(int value);
     void seekBySlider();
     void playPause();
+
 private Q_SLOTS:
     void startDownload();
-    void changeDownloadProgress(qint64, qint64);
     void changeQuality(int);
+
+protected Q_SLOTS:
+    void changeDownloadProgress(qint64, qint64);
     void updateSlider(qint64 value);
     void updateSlider();
     void updateSliderUnit();
 
 private:
     QtAV::VideoOutput *videoOutput;
-    QtAV::AVPlayer *player;
     VideoYoutube *currentVideo;
-    QProgressBar *downloadProgress;
-    QSlider *slider;
     QPushButton *downloadBtn;
-    QPushButton *playBtn;
     QPushButton *stopBtn;
     QComboBox *quality;
+
+    void refresh();
+
+protected:
+    QtAV::AVPlayer *player;
+    QPushButton *playBtn;
+    QSlider *slider;
+    QProgressBar *progressBar;
     int unit;
 
-    void init();
-    void btns();
+    void setupOutput();
+
+    virtual void btns();
+    virtual void layout();
+
+};
+
+class AudioPlayer : public PlayerWindow
+{
+    Q_OBJECT;
+
+    public:
+    explicit AudioPlayer();
+
+    public Q_SLOTS:
+        void openMedia(QString);
+    private:
+    QPushButton *backBtn;
+    QPushButton *forwardBtn;
+    QPushButton *burnBtn;
+
+    protected:
     void layout();
-    void refresh();
+    void btns();
+
 };
 
 #endif // PLAYERWINDOW_H
