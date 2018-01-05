@@ -7,8 +7,6 @@
 \usetikzlibrary{calc,positioning,shapes,shadows,arrows}
 
 % tikz custom stuff
-\tikzstyle{decision} = [diamond, draw, fill=blue!20, 
-    text width=4.5em, text badly centered, node distance=3cm, inner sep=0pt]
 \tikzstyle{block} = [rectangle, draw, fill=blue!20, 
     text width=5em, text centered, rounded corners, minimum height=4em]
 \tikzstyle{TextBox} = [rectangle, draw, fill=blue!20, 
@@ -16,6 +14,21 @@
 \tikzstyle{line} = [draw, -latex']
 \tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=3cm,
     minimum height=2em]
+
+
+\tikzstyle{startstop} = [rectangle, rounded corners,
+    minimum width=3cm, minimum height=1cm,text centered,
+    draw=black, fill=red!30]
+
+\tikzstyle{decision} = [diamond, minimum width=3cm, 
+    minimum height=1cm, text centered, draw=black, fill=green!30]
+
+
+\tikzstyle{process} = [rectangle, minimum width=3cm,
+    minimum height=1cm, text centered, draw=black, fill=orange!30]
+
+\tikzstyle{arrow} = [thick,->,>=stealth]
+
 
 \hypersetup{
     colorlinks=true, %set true if you want colored links
@@ -541,8 +554,8 @@ me to set up various variables and features embbeded in qt which is described
     \caption{Struct layout} \label{fig:Struct layout}
 \end{figure}
 
-
-\subsection{DatabaseHandling}\label{outline}
+\break
+\subsection{DatabaseHandling}\label{DatabaseHandling}
 
 As mention previously I decided that I would use a database to keep track of the
 downloaded music. To do this I will have one main table that will have any
@@ -569,6 +582,44 @@ be able to grab all data that has the same id.
 A requirement by my client is the ability to reorder the songs. My approach
 to this is to switch the id of the two songs to switch them in the view.
 Due to both id's having the uniqure property I will need to use the id as
-0 for a temp value.
+0 for a temp value. This should be relatively simple with sql update statements
+
+Another database quirk that I need to take into consideration is when the user
+deletes a song in the playlist as this will cause there to be gaps in the
+ids of tables. This is probolmatic as I cannot get the right id by getting 
+the rowid. There are two ways I could solve this: I update all of the ids
+greater that the deleted item so there are no gaps or allow gaps and find
+a way of selecting a row of data in the database by how far down it is.
+The first option is a bad idea as this means changing id which are going
+to be used as relations and it may become time consuming for large
+amount of rows. The second option is much better but I was original unsoure
+of how to acheive it untill I discovered the "OFFSET" clause. With this
+I can offset a select statement n rows down the table making this task
+trivial.
+
+\subsection{NetworkHandling}\label{NetworkHandling}
+
+As remarked previously a key part to this project is the process
+of extracting the video url from youtube so it can be previewed
+and the sound be downloaded. This section describes this process.
+
+\begin{figure}
+    \begin{tikzpicture}[node distance=3cm]
+
+        \node (start) [startstop] {Start to ParseVideo};
+
+        \node (ifHtml) [decision, below of=start] {is the response 
+                                                    empty or is html};
+
+        \node (ifSigparse) [decision, below of=ifHtml] {Is signature
+                                                        parsing needed};
+
+        \node (ifJs) [decision, right of=ifHtml] {Is the response js};
+        
+        \draw [arrow] (ifHtml) -- node {Yes} (ifSigparse);
+        \draw [arrow] (ifHtml) -- node {No} (ifJs);
+    \end{tikzpicture}
+\end{figure}
+
 
 \end{document}
