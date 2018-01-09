@@ -21,7 +21,7 @@
     draw=black, fill=red!30]
 
 \tikzstyle{decision} = [diamond, minimum width=3cm, 
-    minimum height=1cm, text centered, draw=black, fill=green!30]
+    text width=5em, minimum height=1cm, text centered, draw=black, fill=green!30]
 
 
 \tikzstyle{process} = [rectangle, minimum width=3cm,
@@ -604,14 +604,13 @@ of extracting the video url from youtube so it can be previewed
 and the sound be downloaded. This section describes this process.
 
 \begin{figure}
-    \begin{tikzpicture}[node distance=3cm]
+    \begin{tikzpicture}[node distance=5m]
 
         \node (start) [startstop] {Start to ParseVideo};
 
-        \node (ifHtml) [decision, below of=start] {is the response 
-                                                    empty or is html};
+        \node (ifHtml) [decision, below of=start] {empty or is html};
 
-        \node (ifSigparse) [decision, below of=ifHtml] {Is signature
+        \node (ifSigparse) [decision, below of=ifHtml] {signature//
                                                         parsing needed};
 
         \node (ifJs) [decision, right of=ifHtml] {Is the response js};
