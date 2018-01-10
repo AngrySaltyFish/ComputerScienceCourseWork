@@ -7,8 +7,6 @@
 \usetikzlibrary{calc,positioning,shapes,shadows,arrows}
 
 % tikz custom stuff
-\tikzstyle{decision} = [diamond, draw, fill=blue!20, 
-    text width=4.5em, text badly centered, node distance=3cm, inner sep=0pt]
 \tikzstyle{block} = [rectangle, draw, fill=blue!20, 
     text width=5em, text centered, rounded corners, minimum height=4em]
 \tikzstyle{TextBox} = [rectangle, draw, fill=blue!20, 
@@ -16,6 +14,21 @@
 \tikzstyle{line} = [draw, -latex']
 \tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=3cm,
     minimum height=2em]
+
+
+\tikzstyle{startstop} = [rectangle, rounded corners,
+    minimum width=3cm, minimum height=1cm,text centered,
+    draw=black, fill=red!30]
+
+\tikzstyle{decision} = [diamond, minimum width=3cm, 
+    text width=5em, minimum height=1cm, text centered, draw=black, fill=green!30]
+
+
+\tikzstyle{process} = [rectangle, minimum width=3cm,
+    minimum height=1cm, text centered, draw=black, fill=orange!30]
+
+\tikzstyle{arrow} = [thick,->,>=stealth]
+
 
 \hypersetup{
     colorlinks=true, %set true if you want colored links
@@ -245,6 +258,33 @@ different qualities.
 
 Finally the "jsMethod" struct is to store the the JavaScript code from youtubes code in
 order to parse signatures to make the urls valid.
+
+I need to also consider the data structure I am going to use for controlling the order of
+the songs that will be played through LibraryTab. There are two data structures which
+I am currently considering: Linkedlist and an array. A comparison table is shown in
+Fig \ref{fig:Data structure table}. Based on the comparison and the ease of use it
+belive that the easier and more efficient option would be to use an array.
+
+
+%\break
+
+\begin{figure}[h]
+    \begin{center}
+	\begin{tabular}{c | c}
+	    LinkedList & Array \\ \hline
+	    
+    	\end{tabular}
+    \end{center}
+    \caption{Linkedlist vs array table} \label{fig:Data structure table}
+\end{figure}
+
+
+Another key design feature I need to implement is making the use of the program as
+intuative as possible. Because of this I think the best way for the user to insert
+songs and reorder them would be through a drag and drop system. This would require
+me to set up various variables and features embbeded in qt which is described 
+\href{http://doc.qt.io/qt-5/model-view-programming.html#using-drag-and-drop-with-item-views}
+{here}.
 
 \begin{figure}
     \centering
@@ -513,5 +553,72 @@ order to parse signatures to make the urls valid.
     \end{tikzpicture}
     \caption{Struct layout} \label{fig:Struct layout}
 \end{figure}
+
+\break
+\subsection{DatabaseHandling}\label{DatabaseHandling}
+
+As mention previously I decided that I would use a database to keep track of the
+downloaded music. To do this I will have one main table that will have any
+downloaded song automatically inserted into it. This table will be called "AllSongs"
+. This "AllSongs" table with contain 5 columns which I will describe here.
+The first column is the "id" columns which will be use to order the data
+and to refrence the data inside "AllSongs". Because of this id will be an
+integear with each one being unique and auto increment. The second column
+is "TrackName" which as the title suggest will be a text field containing
+the name of the download song. The next two columns will be "artists" and
+"genre" which will both be integears to reference values in the artist and
+genere tables. This will avoid duplicates. These tables will have an id field
+identical to the AllSongs table and the artist and genere columns will
+reference values using this field. Finally there will be the duration
+file which is a double that will hold the length of the song in mineuts.
+
+To further avoid duplications any playlist created by the user will refrence
+the songs in "AllSongs".In order to allow these refrences I will need to use join
+statements in sql. I need to use this statement as I still want the artist and 
+genere columns in the users playlist without having to create this additional columns.
+By using select with these join statement along with the where clause I should
+be able to grab all data that has the same id.
+
+A requirement by my client is the ability to reorder the songs. My approach
+to this is to switch the id of the two songs to switch them in the view.
+Due to both id's having the uniqure property I will need to use the id as
+0 for a temp value. This should be relatively simple with sql update statements
+
+Another database quirk that I need to take into consideration is when the user
+deletes a song in the playlist as this will cause there to be gaps in the
+ids of tables. This is probolmatic as I cannot get the right id by getting 
+the rowid. There are two ways I could solve this: I update all of the ids
+greater that the deleted item so there are no gaps or allow gaps and find
+a way of selecting a row of data in the database by how far down it is.
+The first option is a bad idea as this means changing id which are going
+to be used as relations and it may become time consuming for large
+amount of rows. The second option is much better but I was original unsoure
+of how to acheive it untill I discovered the "OFFSET" clause. With this
+I can offset a select statement n rows down the table making this task
+trivial.
+
+\subsection{NetworkHandling}\label{NetworkHandling}
+
+As remarked previously a key part to this project is the process
+of extracting the video url from youtube so it can be previewed
+and the sound be downloaded. This section describes this process.
+
+\begin{figure}
+    \begin{tikzpicture}[node distance=5m]
+
+        \node (start) [startstop] {Start to ParseVideo};
+
+        \node (ifHtml) [decision, below of=start] {empty or is html};
+
+        \node (ifSigparse) [decision, below of=ifHtml] {signature//
+                                                        parsing needed};
+
+        \node (ifJs) [decision, right of=ifHtml] {Is the response js};
+        
+        \draw [arrow] (ifHtml) -- node {Yes} (ifSigparse);
+        \draw [arrow] (ifHtml) -- node {No} (ifJs);
+    \end{tikzpicture}
+\end{figure}
+
 
 \end{document}
