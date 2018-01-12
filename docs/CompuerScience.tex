@@ -10,7 +10,7 @@
 \tikzstyle{block} = [rectangle, draw, fill=blue!20, 
     text width=5em, text centered, rounded corners, minimum height=4em]
 \tikzstyle{TextBox} = [rectangle, draw, fill=blue!20, 
-    right, text width=6em, rounded corners]
+    right, text width=4em, rounded corners]
 \tikzstyle{line} = [draw, -latex']
 \tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=3cm,
     minimum height=2em]
@@ -25,9 +25,29 @@
 
 
 \tikzstyle{process} = [rectangle, minimum width=3cm,
-    minimum height=1cm, text centered, draw=black, fill=orange!30]
+    text width=20em, minimum height=1cm, text centered, draw=black, fill=orange!30]
 
 \tikzstyle{arrow} = [thick,->,>=stealth]
+
+
+\tikzset{
+    hyperlink node/.style={
+        alias=sourcenode,
+        append after command={
+            let     \p1 = (sourcenode.north west),
+                \p2=(sourcenode.south east),
+                \n1={\x2-\x1},
+                \n2={\y1-\y2} in
+            node [inner sep=0pt, outer sep=0pt,anchor=north west,at=(\p1)] {\hyperlink{#1}{\XeTeXLinkBox{\phantom{\rule{\n1}{\n2}}}}}
+                    %xelatex needs \XeTeXLinkBox, won't create a link unless it
+                    %finds text --- rules don't work without \XeTeXLinkBox.
+                    %Still builds correctly with pdflatex and lualatex
+        }
+    }
+}
+
+\tikzset{square arrow/.style={to path={-- ++(0,.25) -| (\tikztotarget)}}}
+
 
 
 \hypersetup{
@@ -604,21 +624,76 @@ of extracting the video url from youtube so it can be previewed
 and the sound be downloaded. This section describes this process.
 
 \begin{figure}
-    \begin{tikzpicture}[node distance=5m]
+    \begin{tikzpicture}[node distance=6cm]
 
         \node (start) [startstop] {Start to ParseVideo};
-
-        \node (ifHtml) [decision, below of=start] {empty or is html};
-
-        \node (ifSigparse) [decision, below of=ifHtml] {signature//
-                                                        parsing needed};
-
-        \node (ifJs) [decision, right of=ifHtml] {Is the response js};
         
-        \draw [arrow] (ifHtml) -- node {Yes} (ifSigparse);
-        \draw [arrow] (ifHtml) -- node {No} (ifJs);
+        %This is for ifHtml if statement
+        \node (ifHtml) [decision, below of=start] {empty or is html};
+        \node (ifSigparse) [decision, below of=ifHtml] {signature parsing needed};
+        \node (ifJs) [decision, right of=ifHtml] {Is it the html5 player response};
+
+        \draw [arrow] (start) -- node {} (ifHtml);
+        \draw [arrow] (ifHtml) -- node[anchor=west] {True} (ifSigparse);
+        \draw [arrow] (ifHtml) -- node[anchor=north] {False} (ifJs);
+
+        \node (getHtmlPlayer) [process, below of=ifSigparse] {
+                Extract the html5 player using one of the following regexs:\newline
+                \verb!html5player.+\\.js!\newline
+                \verb!//[^"]*html5player[^"]*\\.js!\newline
+                \verb!(//?)[^"]*player[^"]*\\/base\\.js!\newline
+        };
+        \draw [arrow] (ifSigparse) -- node {} (getHtmlPlayer);
+
+        %This is the ifHtmlPlayer if statement
+        \node (ifHtmlPlayer) [decision, right of=getHtmlPlayer] {has html5 player been found};
+        \node (html5PlayerFalsetFound) [process, yshift=3cm, below of=ifHtmlPlayer] {emit error};
+        \node (html5PlayerFound) [process, yshift=-3cm, above of=ifHtmlPlayer] {Send get request to player};
+        \draw [arrow] (getHtmlPlayer) -- node {} (ifHtmlPlayer);
+        \draw [arrow] (ifHtmlPlayer) -- node[anchor=west] {True} (html5PlayerFound);
+        \draw [arrow] (ifHtmlPlayer) -- node[anchor=east] {False} (html5PlayerFalsetFound);
+
+        %js player if statement
+        \node (parseJs) [process, hyperlink node=parseJs, fill=purple!60, above of=ifJs] {parseJs function};
+        \draw [arrow] (ifJs) -- node[anchor=west] {True} (parseJs);
+
     \end{tikzpicture}
 \end{figure}
 
+\begin{figure}
+    \begin{tikzpicture}[node distance=6cm]
+
+        \node (start) [startstop] {\hypertarget{parseJs}{start to parse js}};
+        \node (regexExpression) [process, below of=start, minimum width=10cm] {
+                Extract the js method name using the regex expression
+                \verb!signature=|set\\(\"signature\",([$\\w]+)\\(!
+            };
+
+        \node (ifFound) [decision, below of=regexExpression] {If method name found};
+        \node (methodCall) [process, fill=purple!60, hyperlink node=extractJSMethod, below of=ifFound] {extrack JS Method};
+
+        \draw [arrow] (start) -- node {} (regexExpression);
+        \draw [arrow] (regexExpression) -- node {} (ifFound);
+        \draw [arrow] (ifFound) -- node[anchor=east] {True} (methodCall);
+
+    \end{tikzpicture}
+\end{figure}
+
+\begin{figure}
+    \begin{tikzpicture}[node distance=6cm]
+
+        \node (start) [startstop] {\hypertarget{extractJSMethod}{Start to extract js method}};
+        \node (checkIfCompleted) [decision, below of=start] {for method in js Method};
+        \node (ifComplete) [decision, right of=checkIfCompleted] {if method name equals name};
+        \node (isCompleted) [startstop, above of=ifComplete] {return};
+
+
+        \draw [arrow] (start) -- node (CheckCompleteforarrow) {} (checkIfCompleted);
+        \draw [arrow] (checkIfCompleted) -- node[anchor=north] {True} (ifComplete);
+        \draw [arrow] (ifComplete) -- node[anchor=west] {True} (isCompleted);
+        \draw [arrow] (ifComplete) -- node[anchor=east] {False} (CheckCompleteforarrow);
+
+    \end{tikzpicture}
+\end{figure}
 
 \end{document}
