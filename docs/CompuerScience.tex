@@ -623,9 +623,38 @@ As remarked previously a key part to this project is the process
 of extracting the video url from youtube so it can be previewed
 and the sound be downloaded. This section describes this process.
 
+\subsection{DataTable}\label{DataTable}
+
+\begin{center}
+    \begin{tabular} { | c | c | c |}
+        \hline
+        Variable Name     &     Type     &               Summary                          \\ \hline
+        \multicolumn{3} {| c |}{Main function in Window.cpp}                              \\ \hline
+        app               &  QApplication& This is part of the Qt api and is              \\ 
+                                         &&used to initialize the necessary               \\ 
+                                         &&things                                         \\ \hline
+        mainWidget        &  Object of   & This is the only object of the                 \\
+                          &  MainWidget  &MainWidget class which is descirbed             \\
+                                         &&here at Fig ~\ref{fig:MainWidget}              \\ \hline
+        downloadWidget    &  Object of   & This is the only object of the                 \\
+                          &  DownloadTab &DownloadWidget class that is one of             \\
+                                         &&the main tab classes. It's                     \\
+                                         &&functionality is described here at             \\
+                                         &&Fig ~\ref{fig:DownloadTab Diagram}             \\ \hline
+        libraryTab        &  Object of   & This is the only object of the                 \\
+                          &  LibraryTab  &libraryTab class. It is described               \\
+                                         &&here in Fig ~\ref{fig:LibraryTab class layout} \\ \hline
+        window            &  Object of   & This is the only object of the class.          \\
+                          &  MainWindow  & It is described here ~\ref{fig:MainWindow}     \\ \hline
+
+                         
+    \end{tabular}
+\end{center}
+
+
+
 \begin{figure}
     \begin{tikzpicture}[node distance=6cm]
-
         \node (start) [startstop] {Start to ParseVideo};
         
         %This is for ifHtml if statement
