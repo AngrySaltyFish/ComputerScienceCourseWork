@@ -623,34 +623,6 @@ As remarked previously a key part to this project is the process
 of extracting the video url from youtube so it can be previewed
 and the sound be downloaded. This section describes this process.
 
-\subsection{DataTable}\label{DataTable}
-
-\begin{center}
-    \begin{tabular} { | c | c | c |}
-        \hline
-        Variable Name     &     Type     &               Summary                          \\ \hline
-        \multicolumn{3} {| c |}{Main function in Window.cpp}                              \\ \hline
-        app               &  QApplication& This is part of the Qt api and is              \\ 
-                                         &&used to initialize the necessary               \\ 
-                                         &&things                                         \\ \hline
-        mainWidget        &  Object of   & This is the only object of the                 \\
-                          &  MainWidget  &MainWidget class which is descirbed             \\
-                                         &&here at Fig ~\ref{fig:MainWidget}              \\ \hline
-        downloadWidget    &  Object of   & This is the only object of the                 \\
-                          &  DownloadTab &DownloadWidget class that is one of             \\
-                                         &&the main tab classes. It's                     \\
-                                         &&functionality is described here at             \\
-                                         &&Fig ~\ref{fig:DownloadTab Diagram}             \\ \hline
-        libraryTab        &  Object of   & This is the only object of the                 \\
-                          &  LibraryTab  &libraryTab class. It is described               \\
-                                         &&here in Fig ~\ref{fig:LibraryTab class layout} \\ \hline
-        window            &  Object of   & This is the only object of the class.          \\
-                          &  MainWindow  & It is described here ~\ref{fig:MainWindow}     \\ \hline
-
-                         
-    \end{tabular}
-\end{center}
-
 
 
 \begin{figure}
@@ -666,18 +638,19 @@ and the sound be downloaded. This section describes this process.
         \draw [arrow] (ifHtml) -- node[anchor=west] {True} (ifSigparse);
         \draw [arrow] (ifHtml) -- node[anchor=north] {False} (ifJs);
 
-        \node (getHtmlPlayer) [process, below of=ifSigparse] {
+        \node (getHtmlPlayer) [process, yshift=1.5cm, below of=ifSigparse] {
                 Extract the html5 player using one of the following regexs:\newline
                 \verb!html5player.+\\.js!\newline
                 \verb!//[^"]*html5player[^"]*\\.js!\newline
                 \verb!(//?)[^"]*player[^"]*\\/base\\.js!\newline
         };
-        \draw [arrow] (ifSigparse) -- node {} (getHtmlPlayer);
+        \draw [arrow] (ifSigparse) -- node[anchor=east] {True} (getHtmlPlayer);
 
         %This is the ifHtmlPlayer if statement
         \node (ifHtmlPlayer) [decision, right of=getHtmlPlayer] {has html5 player been found};
         \node (html5PlayerFalsetFound) [process, yshift=3cm, below of=ifHtmlPlayer] {emit error};
         \node (html5PlayerFound) [process, yshift=-3cm, above of=ifHtmlPlayer] {Send get request to player};
+
         \draw [arrow] (getHtmlPlayer) -- node {} (ifHtmlPlayer);
         \draw [arrow] (ifHtmlPlayer) -- node[anchor=west] {True} (html5PlayerFound);
         \draw [arrow] (ifHtmlPlayer) -- node[anchor=east] {False} (html5PlayerFalsetFound);
@@ -685,6 +658,18 @@ and the sound be downloaded. This section describes this process.
         %js player if statement
         \node (parseJs) [process, hyperlink node=parseJs, fill=purple!60, above of=ifJs] {parseJs function};
         \draw [arrow] (ifJs) -- node[anchor=west] {True} (parseJs);
+
+        \node (continue) [process, yshift=-4.5cm, hyperlink node=parseVideo2, fill=purple!60, above of=parseJs] {Continue};
+
+        \draw [arrow] (parseJs) -- node {} (continue);
+        \draw [arrow] (html5PlayerFound) -- node {} (continue);
+    \end{tikzpicture}
+\end{figure}
+
+\begin{figure}
+    \begin{tikzpicture}[node distance=6cm]
+
+        \node (start) [startstop] {\hypertarget{parseVideo2}{Continue parseVideo}};
 
     \end{tikzpicture}
 \end{figure}
@@ -721,6 +706,46 @@ and the sound be downloaded. This section describes this process.
         \draw [arrow] (checkIfCompleted) -- node[anchor=north] {True} (ifComplete);
         \draw [arrow] (ifComplete) -- node[anchor=west] {True} (isCompleted);
         \draw [arrow] (ifComplete) -- node[anchor=east] {False} (CheckCompleteforarrow);
+        
+        \node (firstFunctionRegex) [process, below of=checkIfCompleted] {Use the folowing regex to get the content
+        of the function that has the same name as the paremeter. The regex is as follows where escapedName is the
+        name of the function:
+
+        \verb!((?:function\\s*" + escapedName!\newline
+        \verb!+ "|(var\\s*|,\\s*|\\n)" + escapedName +!\newline
+        \verb!"\\s*=(?:\\s*function)?)\\s*(\\([\\w,!\newline
+        \verb!\\s]*\\))?\\s*)(\\{.*\\})!};
+
+        \draw [arrow] (checkIfCompleted) -- node[anchor=east] {False} (firstFunctionRegex);
+
+        \node (checkIfContentMatchParam) [decision, right of=firstFunctionRegex] {Does the contest extract found in the js param};
+        \node (extractJsContinued) [process, hyperlink node=extractJS2, fill=purple!60, below of=checkIfContentMatchParam] {Continue};
+       \draw [arrow] (checkIfContentMatchParam) -- node {} (extractJsContinued); 
+
+    \end{tikzpicture}
+\end{figure}
+
+\begin{figure}
+    \begin{tikzpicture}[node distance=6cm]
+        \node (start) [startstop] {\hypertarget{extractJS2}{extractJS method part 2}};
+        \node (createObject) [process, below of=start] {Initializes a object of type jsMethod (Fig ~\ref{fig:Struct layout})};
+        \node (setProperties) [process, below of=createObject] {Set the name, code properties of jsMethod and add to jsMethods
+                                                                property};
+        \node (ifMethodCodeNotEmpty) [decision, right of=setProperties] {Is the object code empty};
+        \node (regex) [process, above of=ifMethodCodeNotEmpty, yshift=-1.5cm] {Use the follow regex: 
+            \verb!([\\w\\$]+)(?:[\\w\\.\\$])*\\s*!\newline
+            \verb!(\\([\\w\\s,\"\\$]*)\\)!};
+        \node (recursive) [process, above of=regex, yshift=-1.5cm] {The regex should find functions called inside. After finding these functions
+        call \hypertarget{extractJSMethod}{extractJS} with the name and code as arguments};
+
+        \node (stop) [startstop, above of=recursive] {Finish};
+
+        \draw [arrow] (start) -- node {} (createObject);
+        \draw [arrow] (createObject) -- node {} (setProperties);
+        \draw [arrow] (setProperties) -- node {} (ifMethodCodeNotEmpty);
+        \draw [arrow] (ifMethodCodeNotEmpty) -- node[anchor=east] {False} (regex);
+        \draw [arrow] (regex) -- node {} (recursive);
+        \draw [arrow] (recursive) -- node {} (stop);
 
 
         \node (escapeRegex) [process, below of=checkIfCompleted] {Find the contents of the
@@ -733,5 +758,32 @@ and the sound be downloaded. This section describes this process.
 
     \end{tikzpicture}
 \end{figure}
+\subsection{DataTable}\label{DataTable}
+
+\begin{center}
+    \begin{tabular} { | c | c | c |}
+        \hline
+        Variable Name     &     Type     &               Summary                          \\ \hline
+        \multicolumn{3} {| c |}{Main function in Window.cpp}                              \\ \hline
+        app               &  QApplication& This is part of the Qt api and is              \\ 
+                                         &&used to initialize the necessary               \\ 
+                                         &&things                                         \\ \hline
+        mainWidget        &  Object of   & This is the only object of the                 \\
+                          &  MainWidget  &MainWidget class which is descirbed             \\
+                                         &&here at Fig ~\ref{fig:MainWidget}              \\ \hline
+        downloadWidget    &  Object of   & This is the only object of the                 \\
+                          &  DownloadTab &DownloadWidget class that is one of             \\
+                                         &&the main tab classes. It's                     \\
+                                         &&functionality is described here at             \\
+                                         &&Fig ~\ref{fig:DownloadTab Diagram}             \\ \hline
+        libraryTab        &  Object of   & This is the only object of the                 \\
+                          &  LibraryTab  &libraryTab class. It is described               \\
+                                         &&here in Fig ~\ref{fig:LibraryTab class layout} \\ \hline
+        window            &  Object of   & This is the only object of the class.          \\
+                          &  MainWindow  & It is described here ~\ref{fig:MainWindow}     \\ \hline
+
+                         
+    \end{tabular}
+\end{center}
 
 \end{document}
