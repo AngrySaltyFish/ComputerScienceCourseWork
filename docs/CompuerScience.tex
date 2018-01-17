@@ -722,6 +722,15 @@ and the sound be downloaded. This section describes this process.
         \draw [arrow] (ifComplete) -- node[anchor=west] {True} (isCompleted);
         \draw [arrow] (ifComplete) -- node[anchor=east] {False} (CheckCompleteforarrow);
 
+
+        \node (escapeRegex) [process, below of=checkIfCompleted] {Find the contents of the
+            method from the name using a regular expression};
+        \node (ifFunctionContentFound) [decision, below of=escapeRegex] {Has the content of
+            the function been found};
+        \node (FunctionContentHasBeenFound) [process, below of=ifFunctionContentFound] {
+            Create a jsMethod struct (Fig ~\ref{fig:Struct layout} ) and set the code
+            and name properties to that found by the regex};
+
     \end{tikzpicture}
 \end{figure}
 
