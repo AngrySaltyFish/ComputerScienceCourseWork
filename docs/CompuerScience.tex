@@ -649,7 +649,7 @@ and the sound be downloaded. This section describes this process.
         %This is the ifHtmlPlayer if statement
         \node (ifHtmlPlayer) [decision, right of=getHtmlPlayer] {has html5 player been found};
         \node (html5PlayerFalsetFound) [process, yshift=3cm, below of=ifHtmlPlayer] {emit error};
-        \node (html5PlayerFound) [process, yshift=-3cm, above of=ifHtmlPlayer] {Send get request to player};
+        \node (html5PlayerFound) [process, yshift=-3cm, above of=ifHtmlPlayer] {add player url to requiredDownload};
 
         \draw [arrow] (getHtmlPlayer) -- node {} (ifHtmlPlayer);
         \draw [arrow] (ifHtmlPlayer) -- node[anchor=west] {True} (html5PlayerFound);
@@ -662,14 +662,51 @@ and the sound be downloaded. This section describes this process.
         \node (continue) [process, yshift=-4.5cm, hyperlink node=parseVideo2, fill=purple!60, above of=parseJs] {Continue};
 
         \draw [arrow] (parseJs) -- node {} (continue);
-        \draw [arrow] (html5PlayerFound) -- node {} (continue);
-    \end{tikzpicture}
+
+        \draw [arrow] (html5PlayerFound) -- +(5,0) |- node {} (continue);
+        \draw [arrow] (ifJs)  -- +(4,0) |- node[anchor=south west] {False} (continue);
+        \draw [arrow] (ifSigparse) -- +(10.5,0) |- node[anchor=east] {} (continue);
+    \end{tikzpicture}[node distance=6cm]
 \end{figure}
 
 \begin{figure}
     \begin{tikzpicture}[node distance=6cm]
 
         \node (start) [startstop] {\hypertarget{parseVideo2}{Continue parseVideo}};
+        \node (checkForRequiredDownloads) [decision, below of=start] {Check if requiredDownloads is empty};
+        \node (checkIfRequiredDownloadsHasJs) [decision, below of=checkForRequiredDownloads] {
+            Check if required Downloads has the player url};
+        \node (jsIsTrue) [process, below of=checkIfRequiredDownloadsHasJs] {set the key and url
+            to js and the player url respectivaly};
+        \node (jsIsFalse) [process, xshift=2cm, right of=checkIfRequiredDownloadsHasJs] {set the key and url
+            to the first value of requiredDownloads};
+        \node (addDownload) [process, below of=jsIsFalse] {remove the set key from
+            required downloads and add a Download to the HttpHandler object (send a get request)};
+        \node (titleRegex) [process, above of=jsIsFalse] {create the following regular expression
+                to extract the video title:\newline
+            \verb!<meta name=\"title\" content=\"(.*)\"!};
+
+        \node (continue) [process, hyperlink node=parseVideo3, fill=purple!60,
+            above of=titleRegex] {Continue};
+
+        \draw [arrow] (start) -- node {} (checkForRequiredDownloads);
+        \draw [arrow] (checkForRequiredDownloads) -- node[anchor=west] {True} 
+            (checkIfRequiredDownloadsHasJs);
+        \draw [arrow] (checkForRequiredDownloads) -- node[anchor=north] {False} (titleRegex);
+        \draw [arrow] (checkIfRequiredDownloadsHasJs) -- node[anchor=west] {True} (jsIsTrue);
+        \draw [arrow] (checkIfRequiredDownloadsHasJs) -- node[anchor=north] {False} (jsIsFalse);
+        \draw [arrow] (jsIsFalse) -- node {} (addDownload);
+        \draw [arrow] (jsIsTrue) -- node {} (addDownload);
+        \draw [arrow] (addDownload) -- +(4,0) |- node {} (titleRegex);
+        \draw [arrow] (titleRegex) -- node {} (continue);
+
+    \end{tikzpicture}
+\end{figure}
+
+\begin{figure}
+    \begin{tikzpicture}
+        
+        \node (start) [startstop] {\hypertarget{parseVideo3}{Continuation of parseVideo}};
 
     \end{tikzpicture}
 \end{figure}
