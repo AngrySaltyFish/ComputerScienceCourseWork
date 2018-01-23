@@ -7,9 +7,9 @@
 \usetikzlibrary{calc,positioning,shapes,shadows,arrows}
 
 % tikz custom stuff
-\tikzstyle{block} = [rectangle, draw, fill=blue!20, 
+\tikzstyle{block} = [rectangle, draw, fill=blue!20,
     text width=5em, text centered, rounded corners, minimum height=4em]
-\tikzstyle{TextBox} = [rectangle, draw, fill=blue!20, 
+\tikzstyle{TextBox} = [rectangle, draw, fill=blue!20,
     right, text width=4em, rounded corners]
 \tikzstyle{line} = [draw, -latex']
 \tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=3cm,
@@ -20,7 +20,7 @@
     minimum width=3cm, minimum height=1cm,text centered,
     draw=black, fill=red!30]
 
-\tikzstyle{decision} = [diamond, minimum width=3cm, 
+\tikzstyle{decision} = [diamond, minimum width=3cm,
     text width=5em, minimum height=1cm, text centered, draw=black, fill=green!30]
 
 
@@ -241,7 +241,7 @@ solve it. To use these you need to use the emit to create a signal and the you c
 a slot to listen out for that signal and run a procedure when that signal is received.
 This is vital when interacting with the user as when the user clicks a button or interacts
 with the interface a signal is emitted and I need to connect a slot up to these signals
-to make the application work. 
+to make the application work.
 
 With this knowledge I can start to explain how all of the classes come together and
 function with the figures shown below. All of these figures are annotated and should
@@ -259,21 +259,21 @@ interrupted causing the file to be corrupt. In order to prevent this I thought i
 be best to create a temporary file that will be automatically deleted by the operating
 system after a period of time. This means I can continually put data into this temporary
 file and when the download file is finished save it into a permanent file. To have the
-correct name to save the file to I have the title property. The "progress", 
+correct name to save the file to I have the title property. The "progress",
 "currentProgress" and "getProgress" are used to keep track of progress for the download
 progress bar. The "segments" and "segmentPosition" is to allow the functionality to
 download the video if it is cut into segments. "CurrentStatus" is to get the http status
-code. Finally the "download()" procedure is to initiate the download process. 
+code. Finally the "download()" procedure is to initiate the download process.
 
 The "fmtQuality" and "videoQuality" structs store the qualities and there relevant
 urls. The first property of the "fmtQuality" struct is "quality" which stores the quality
 that is listed by youtube. The "resolution", "video" and "audio" properties are to store
-their qualities respectively. The procedure "fmtQuality" is the constructor to initialise 
+their qualities respectively. The procedure "fmtQuality" is the constructor to initialise
 all of these properties. The "videoQuality" has the same "quailty" property but also has
-"audioUrl" and "videoUrl". These actually store the url to download the video. It should be 
-noted that I put this property in "videoQuality" instead of "download" because there 
+"audioUrl" and "videoUrl". These actually store the url to download the video. It should be
+noted that I put this property in "videoQuality" instead of "download" because there
 multiple urls for a video each different due to the quality. The "videoQuality" procedure
-is different ways of initialising the properties and the operator is to compare the 
+is different ways of initialising the properties and the operator is to compare the
 different qualities.
 
 Finally the "jsMethod" struct is to store the the JavaScript code from youtubes code in
@@ -292,7 +292,6 @@ belive that the easier and more efficient option would be to use an array.
     \begin{center}
 	\begin{tabular}{c | c}
 	    LinkedList & Array \\ \hline
-	    
     	\end{tabular}
     \end{center}
     \caption{Linkedlist vs array table} \label{fig:Data structure table}
@@ -302,7 +301,7 @@ belive that the easier and more efficient option would be to use an array.
 Another key design feature I need to implement is making the use of the program as
 intuative as possible. Because of this I think the best way for the user to insert
 songs and reorder them would be through a drag and drop system. This would require
-me to set up various variables and features embbeded in qt which is described 
+me to set up various variables and features embbeded in qt which is described
 \href{http://doc.qt.io/qt-5/model-view-programming.html#using-drag-and-drop-with-item-views}
 {here}.
 
@@ -364,12 +363,12 @@ me to set up various variables and features embbeded in qt which is described
         \draw [] (1, 9) rectangle (4, 4.1) node[pos=0.5] (PlaylistListing) {}; %Playlist listing
         \draw [] (4.5, 9) rectangle (11, 4.1) node[pos=0.5] (SongSelector) {}; %Song selector
         \draw [] (11, 3.75) rectangle (1, 3.85); %slider body
-        \draw [fill=white] (9, 3.65) rectangle (8.8, 3.95) node[pos=0.5] (Slider) {}; %slider handle    
+        \draw [fill=white] (9, 3.65) rectangle (8.8, 3.95) node[pos=0.5] (Slider) {}; %slider handle
         \draw [] (4, 3) rectangle (1, 3.5) node[pos=0.5] (Prev) {}; %prev Btn
         \draw [] (4.5, 3) rectangle (7.5, 3.5) node[pos=0.5] (PlayPause) {}; %play/pause
         \draw [] (11, 3) rectangle (8, 3.5) node[pos=0.5] (Next) {}; %next btn
-        \draw [] (11, 2) rectangle (1, 2.5) node[pos=0.5] (BurnBtn) {}; %Burn btn        
-        \draw [] (11, 1.5) rectangle (1, 1) node[pos=.5] (ProgressBar) {}; %Progress Bar         
+        \draw [] (11, 2) rectangle (1, 2.5) node[pos=0.5] (BurnBtn) {}; %Burn btn
+        \draw [] (11, 1.5) rectangle (1, 1) node[pos=.5] (ProgressBar) {}; %Progress
 
         \draw (ProgressBar) -- (0, -2) node[TextBox, pos=1] {
             This is the progress bar that will display the progress of burning
@@ -396,7 +395,7 @@ me to set up various variables and features embbeded in qt which is described
             This is to list and select the playlist you want to interact with
         };
     \end{tikzpicture}
-    \caption{LibraryTab Diagram} \label{fig:LibraryTab Diagram} 
+    \caption{LibraryTab Diagram} \label{fig:LibraryTab Diagram}
 \end{figure}
 
 
@@ -433,7 +432,7 @@ me to set up various variables and features embbeded in qt which is described
         	The DownloadWidget class will be used to create the DownloadTab object. This
         	object will provide a canvas to put all of the features described in the
         	downloadTab diagram (Fig ~\ref{fig:DownloadTab Diagram}). It should be noted
-        	this inherits from the TabWidget meaning it will be added as a tab 
+        	this inherits from the TabWidget meaning it will be added as a tab
         	automatically. The constructor will be called from the MainWindow. Finally
         	this class will act as a middle man for other classes like PlayerWindow
         	(Fig ~\ref{fig:PlayWindow class layout}).
@@ -448,7 +447,7 @@ me to set up various variables and features embbeded in qt which is described
         \begin{sideways}
             \node [] (tree) at (4, 4) {\includegraphics[width=\textheight]{classPdfs/classHttpHandler_ade64572cb953620fd483bc669c1e9178_cgraph.pdf}};
         \end{sideways}
-        
+
         \node [right of = tree] (inherit) {\includegraphics[]{classPdfs/classHttpHandler.pdf}};
         \node [TextBox, above=0cm of inherit, text width = 30em] (textbox) {
         	For this class the first thing that you know is that it inherits from QObject
@@ -474,7 +473,7 @@ me to set up various variables and features embbeded in qt which is described
         \begin{sideways}
             \node [] (tree) at (4, 4) {\includegraphics[width=\textheight]{classPdfs/classLibraryTab_a928c981ca174c41d75e5296d4623d5a2_cgraph.pdf}};
         \end{sideways}
-        
+
         \node [right of = tree] (inherit) {\includegraphics[]{classPdfs/classLibraryTab.pdf}};
         \node [TextBox, above=0cm of inherit, text width = 30em] (textbox) {
         	Similarly to DownloadWidget this is a child of TabWidget meaning it is one
@@ -494,7 +493,7 @@ me to set up various variables and features embbeded in qt which is described
         \begin{sideways}
             \node [] (tree) at (4, 4) {\includegraphics[width=\textheight]{classPdfs/classPlayListView_ac84c4c57fc29e6b775c2bc8bc5fed55e_cgraph.pdf}};
         \end{sideways}
-        
+
         \node [right of = tree] (inherit) {\includegraphics[]{classPdfs/classPlayListView.pdf}};
         \node [TextBox, above=0cm of inherit, text width = 30em] (textbox) {
 			This class is called by LibraryWidget and is used to list the playlists
@@ -528,7 +527,7 @@ me to set up various variables and features embbeded in qt which is described
         \begin{sideways}
             \node [] (tree) at (4, 4) {\includegraphics[width=\textheight]{classPdfs/classVideoYoutube_a80afcc31ca007b32108976d2158be9ce_cgraph.pdf}};
         \end{sideways}
-        
+
         \node [right of = tree] (inherit) {\includegraphics[]{classPdfs/classVideoYoutube.pdf}};
         \node [TextBox, above=0cm of inherit, text width = 30em] (textbox) {
 			This class is used to represent the currently selected video from the
@@ -551,7 +550,7 @@ me to set up various variables and features embbeded in qt which is described
         \begin{sideways}
             \node [] (tree) at (4, 4) {\includegraphics[width=\textheight]{classPdfs/classDatabaseHandler_a6f3d7ae8a73f534059dc5667b29eb0d2_cgraph.pdf}};
         \end{sideways}
-        
+
         \node [right of = tree] (inherit) {\includegraphics[]{classPdfs/classDatabaseHandler.pdf}};
         \node [TextBox, above=0cm of inherit, text width = 30em] (textbox) {
 			This class is meant to handle all of the database function and is called
@@ -594,7 +593,7 @@ file which is a double that will hold the length of the song in mineuts.
 
 To further avoid duplications any playlist created by the user will refrence
 the songs in "AllSongs".In order to allow these refrences I will need to use join
-statements in sql. I need to use this statement as I still want the artist and 
+statements in sql. I need to use this statement as I still want the artist and
 genere columns in the users playlist without having to create this additional columns.
 By using select with these join statement along with the where clause I should
 be able to grab all data that has the same id.
@@ -606,7 +605,7 @@ Due to both id's having the uniqure property I will need to use the id as
 
 Another database quirk that I need to take into consideration is when the user
 deletes a song in the playlist as this will cause there to be gaps in the
-ids of tables. This is probolmatic as I cannot get the right id by getting 
+ids of tables. This is probolmatic as I cannot get the right id by getting
 the rowid. There are two ways I could solve this: I update all of the ids
 greater that the deleted item so there are no gaps or allow gaps and find
 a way of selecting a row of data in the database by how far down it is.
@@ -628,7 +627,7 @@ and the sound be downloaded. This section describes this process.
 \begin{figure}
     \begin{tikzpicture}[node distance=6cm]
         \node (start) [startstop] {Start to ParseVideo};
-        
+
         %This is for ifHtml if statement
         \node (ifHtml) [decision, below of=start] {empty or is html};
         \node (ifSigparse) [decision, below of=ifHtml] {signature parsing needed};
@@ -682,6 +681,8 @@ and the sound be downloaded. This section describes this process.
             to the first value of requiredDownloads};
         \node (addDownload) [process, below of=jsIsFalse] {remove the set key from
             required downloads and add a Download to the HttpHandler object (send a get request)};
+        \node (return) [startstop, yshift=4cm, below of=addDownload] {Return and exit from the
+            function};
         \node (titleRegex) [process, above of=jsIsFalse] {create the following regular expression
                 to extract the video title:\newline
             \verb!<meta name=\"title\" content=\"(.*)\"!};
@@ -690,24 +691,70 @@ and the sound be downloaded. This section describes this process.
             above of=titleRegex] {Continue};
 
         \draw [arrow] (start) -- node {} (checkForRequiredDownloads);
-        \draw [arrow] (checkForRequiredDownloads) -- node[anchor=west] {True} 
+        \draw [arrow] (checkForRequiredDownloads) -- node[anchor=west] {True}
             (checkIfRequiredDownloadsHasJs);
         \draw [arrow] (checkForRequiredDownloads) -- node[anchor=north] {False} (titleRegex);
         \draw [arrow] (checkIfRequiredDownloadsHasJs) -- node[anchor=west] {True} (jsIsTrue);
         \draw [arrow] (checkIfRequiredDownloadsHasJs) -- node[anchor=north] {False} (jsIsFalse);
         \draw [arrow] (jsIsFalse) -- node {} (addDownload);
         \draw [arrow] (jsIsTrue) -- node {} (addDownload);
-        \draw [arrow] (addDownload) -- +(4,0) |- node {} (titleRegex);
+        \draw [arrow] (addDownload) -- node {} (return);
         \draw [arrow] (titleRegex) -- node {} (continue);
 
     \end{tikzpicture}
 \end{figure}
 
 \begin{figure}
-    \begin{tikzpicture}
-        
-        \node (start) [startstop] {\hypertarget{parseVideo3}{Continuation of parseVideo}};
+    \begin{tikzpicture}[node distance=6cm]
 
+        \node (start) [startstop] {\hypertarget{parseVideo3}{Continuation of parseVideo}};
+        \node (ifFoundTitle) [decision, below of=start] {Has any text been extract};
+        \node (setTitle) [process, below of=ifFoundTitle] {set the title to extracted content};
+        \node (qualityLinkRegex) [process, minimum width=9cm, below of=setTitle] {Create the
+            following regexes to extract different video links with quality:\newline
+            \verb!"\adaptive_fmts\": ?\"(.*)\"!\newline
+            \verb!"\url_encoded_fmt_stream_map\": ?\"(.*)\"!};
+
+        \node (ifQualityLinksFound) [decision, xshift=2cm, right of=qualityLinkRegex] {If any
+            quality Links Found};
+        \node (QualityLinksFound) [process, above of=ifQualityLinksFound] {extract the links
+            found and add them to a list called "qualityLinks"};
+        \node (ifQualityLinksIsNotEmpty) [decision, above of=QualityLinksFound] {If
+            qualityLinks and dashQualityLinks not Empty};
+        \node (qualityHasItems) [process, above of=ifQualityLinksIsNotEmpty] {Add possible
+            format qualitys to "fmtQualites" in the form of the fmtQuality struct fig
+            ~\ref{fig:Struct layout}};
+        \node (error) [startstop, xshift=3cm, yshift=2cm,
+            below left =of ifQualityLinksIsNotEmpty] {emit Error!};
+
+        \node (continue) [process, yshift=-3cm, hyperlink node=parseVideo4, fill=purple!60,
+            above of=qualityHasItems] {Continue};
+
+        \draw [arrow] (start) -- node {} (ifFoundTitle);
+        \draw [arrow] (ifFoundTitle) -- node[anchor=west] {True} (setTitle);
+        \draw [arrow] (ifFoundTitle) -| node[anchor=south] {False} (error);
+        \draw [arrow] (setTitle) -- node {} (qualityLinkRegex);
+        \draw [arrow] (qualityLinkRegex) -- node {} (ifQualityLinksFound);
+        \draw [arrow] (ifQualityLinksFound) -- node[anchor=west] {True} (QualityLinksFound);
+        \draw [arrow] (ifQualityLinksFound) -- +(4,0) |- node[anchor=south east] {True}
+            (ifQualityLinksIsNotEmpty);
+        \draw [arrow] (QualityLinksFound) -- node {} (ifQualityLinksIsNotEmpty);
+        \draw [arrow] (ifQualityLinksIsNotEmpty) -| node {} (error);
+        \draw [arrow] (ifQualityLinksIsNotEmpty) -- node[anchor=west] {True} (qualityHasItems);
+        \draw [arrow] (qualityHasItems) -- node {} (continue);
+    \end{tikzpicture}
+\end{figure}
+
+
+\begin{figure}
+    \begin{tikzpicture}[node distance=6cm]
+        \node (start) [startstop] {\hypertarget{parseVideo4}{Continuation of parseVideo}};
+        \node (whileLoop) [decision, fill=cyan!60, below of=start] {While there is an item in
+            fmtQualities};
+        \node (createVideoLink) [process, yshift=-3cm, hyperlink node=parseVideo4,
+            fill=purple!60, below of=whileLoop] {Call "getFmtLink" with qualityLinks and
+            the video property of the current fmtQuality and set that as the videoLink};
+        \node (FinishMe) [process, below of=createVideoLink] {TODO://Finish Me!};
     \end{tikzpicture}
 \end{figure}
 
@@ -734,7 +781,8 @@ and the sound be downloaded. This section describes this process.
     \begin{tikzpicture}[node distance=6cm]
 
         \node (start) [startstop] {\hypertarget{extractJSMethod}{Start to extract js method}};
-        \node (checkIfCompleted) [decision, below of=start] {for method in js Method};
+        \node (checkIfCompleted) [decision, fill=cyan!60, below of=start] {for method in js
+            Method};
         \node (ifComplete) [decision, right of=checkIfCompleted] {if method name equals name};
         \node (isCompleted) [startstop, above of=ifComplete] {return};
 
@@ -743,7 +791,7 @@ and the sound be downloaded. This section describes this process.
         \draw [arrow] (checkIfCompleted) -- node[anchor=north] {True} (ifComplete);
         \draw [arrow] (ifComplete) -- node[anchor=west] {True} (isCompleted);
         \draw [arrow] (ifComplete) -- node[anchor=east] {False} (CheckCompleteforarrow);
-        
+
         \node (firstFunctionRegex) [process, below of=checkIfCompleted] {Use the folowing regex to get the content
         of the function that has the same name as the paremeter. The regex is as follows where escapedName is the
         name of the function:
@@ -757,7 +805,7 @@ and the sound be downloaded. This section describes this process.
 
         \node (checkIfContentMatchParam) [decision, right of=firstFunctionRegex] {Does the contest extract found in the js param};
         \node (extractJsContinued) [process, hyperlink node=extractJS2, fill=purple!60, below of=checkIfContentMatchParam] {Continue};
-       \draw [arrow] (checkIfContentMatchParam) -- node {} (extractJsContinued); 
+        \draw [arrow] (checkIfContentMatchParam) -- node {} (extractJsContinued);
 
     \end{tikzpicture}
 \end{figure}
@@ -769,7 +817,7 @@ and the sound be downloaded. This section describes this process.
         \node (setProperties) [process, below of=createObject] {Set the name, code properties of jsMethod and add to jsMethods
                                                                 property};
         \node (ifMethodCodeNotEmpty) [decision, right of=setProperties] {Is the object code empty};
-        \node (regex) [process, above of=ifMethodCodeNotEmpty, yshift=-1.5cm] {Use the follow regex: 
+        \node (regex) [process, above of=ifMethodCodeNotEmpty, yshift=-1.5cm] {Use the follow regex:
             \verb!([\\w\\$]+)(?:[\\w\\.\\$])*\\s*!\newline
             \verb!(\\([\\w\\s,\"\\$]*)\\)!};
         \node (recursive) [process, above of=regex, yshift=-1.5cm] {The regex should find functions called inside. After finding these functions
@@ -795,6 +843,18 @@ and the sound be downloaded. This section describes this process.
 
     \end{tikzpicture}
 \end{figure}
+
+\subsection{Burning the audio CD}
+Due to one of my original requirements I need to ensure that this program is cross platform
+which raises a problem when it comes to the cd burning process as different platforms have
+different methods to burning a audio data to a cd. To resolve this problem I decide that
+I would run 3rd party software that would be able to run on all platforms from my own
+program. There are a few out there but the one that seemed best supported and had good
+documentaion was the cdrtools collection. The program in this collection that is relevent
+to this project is "cdrecord". This program allows data to be burnt to a cd of your choosing.
+Below I have illustrated a flowchart to show how I itend to use and interact with this
+program.
+
 \subsection{DataTable}\label{DataTable}
 
 \begin{center}
@@ -802,8 +862,8 @@ and the sound be downloaded. This section describes this process.
         \hline
         Variable Name     &     Type     &               Summary                          \\ \hline
         \multicolumn{3} {| c |}{Main function in Window.cpp}                              \\ \hline
-        app               &  QApplication& This is part of the Qt api and is              \\ 
-                                         &&used to initialize the necessary               \\ 
+        app               &  QApplication& This is part of the Qt api and is              \\
+                                         &&used to initialize the necessary               \\
                                          &&things                                         \\ \hline
         mainWidget        &  Object of   & This is the only object of the                 \\
                           &  MainWidget  &MainWidget class which is descirbed             \\
@@ -819,7 +879,6 @@ and the sound be downloaded. This section describes this process.
         window            &  Object of   & This is the only object of the class.          \\
                           &  MainWindow  & It is described here ~\ref{fig:MainWindow}     \\ \hline
 
-                         
     \end{tabular}
 \end{center}
 
