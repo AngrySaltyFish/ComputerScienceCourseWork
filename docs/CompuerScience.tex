@@ -808,26 +808,101 @@ and the sound be downloaded. This section describes this process.
     \begin{center}
         \begin{tabular} { | c | c | c |}
             \hline
-            \multicolumn{3} {| c |}{Main function in Window.cpp}                              \\ \hline
-            Variable Name     &     Type     &               Summary                          \\ \hline
+            \multicolumn{3} {| c |}{\textbf{Main data types in Window.cpp}}                   \\ \hline
+            \textbf{Variable Name}&\textbf{Type}&           \textbf{Summary}                  \\ \hline
             app               &  QApplication& This is part of the Qt api and is              \\ 
                                              &&used to initialize the necessary               \\ 
                                              &&things                                         \\ \hline
             mainWidget        &  Object of   & This is the only object of the                 \\
-                              &  MainWidget  &MainWidget class which is descirbed             \\
-                                             &&here at Fig ~\ref{fig:MainWidget}              \\ \hline
+                              &  MainWidget  &MainWidget class which is descirbed it is       \\
+                                             &&here at Fig ~\ref{fig:MainWidget} and is       \\ 
+                                             && defined in Window.cpp                         \\ \hline
             downloadWidget    &  Object of   & This is the only object of the                 \\
                               &  DownloadTab &DownloadWidget class that is one of             \\
                                              &&the main tab classes. It's                     \\
                                              &&functionality is described here at             \\
-                                             &&Fig ~\ref{fig:DownloadTab Diagram}             \\ \hline
+                                             &&Fig ~\ref{fig:DownloadTab Diagram}             \\
+                                             &&It is defined in the DownloadTab.cpp           \\ \hline
             libraryTab        &  Object of   & This is the only object of the                 \\
                               &  LibraryTab  &libraryTab class. It is described               \\
-                                             &&here in Fig ~\ref{fig:LibraryTab class layout} \\ \hline
+                                             &&here in Fig ~\ref{fig:LibraryTab class layout} \\
+                                             &&It is defined in LibraryTab.cpp                \\ \hline
             window            &  Object of   & This is the only object of the class.          \\
                               &  MainWindow  & It is described here ~\ref{fig:MainWindow}     \\ \hline
-    
-                             
+            \multicolumn{3} {| c |}{\textbf{Main data types in DownloadTab class}}            \\ \hline
+            \textbf{Variable Name}&\textbf{Type}&           \textbf{Summary}                  \\ \hline
+            videoList         &  Object of   &This is an object of the SearchList in          \\
+                              &  SearchList  &DownloadTab and is used to get and display the  \\
+                                             &&the resluts of the search. SearchList is       \\
+                                             &&descibed here in fig ~\ref{}. It is defined in \\
+                                             &&DownloadTab.cpp and is a variable in           \\
+                                             &&DownloadWidget.                                \\ \hline
+            preview          &   Object of   &This is an object of PlayerWindow which is      \\
+                             &  PlayerWindow &defined in PlayerWindow.cpp and is used to      \\
+                                             &&preview videos after they have been selected in\\
+                                             &&videoList. It is displayed graphically on      \\
+                                             &&LibraryTab and therefore it is a variable in   \\
+                                             && LibraryTab.cpp. It is describe here in fig    \\
+                                             &&~\ref{fig:PlayWindow class layout}             \\ \hline
+            currentVideo     &   Object of   &This is an object of VideoYoutube and is used   \\
+                             &  VideoYoutube &to get and store infomation of the current      \\
+                                             &&selected video. It also interacts with preview \\
+                                             &&to set the url to stream from. There is only   \\
+                                             &&one object of VideoYoutube as the information  \\
+                                             &&can be changed with setUrl and analyse         \\
+                                             &&procedures. It is defined in VideoYoutube.cpp  \\
+                                             &&and describe in more here at figure            \\
+                                             &&~\ref{fig:VideoYoutube class layout}           \\ \hline
+
+            \caption{Data table fig} \label{fig:dataTable}
+        \end{tabular}
+    \end{center}
+\end{figure}
+
+\newpage
+
+\begin{figure}[h]
+    \begin{center}
+        \begin{tabular} { | c | c | c |}
+            \hline
+            \multicolumn{3} {| c |}{\textbf{Main data types in SearchList class}}             \\ \hline
+            \textbf{Variable Name}&\textbf{Type}&           \textbf{Summary}                  \\ \hline
+            networkManger     &  Object of   &This is an instance of the QNetworkAccessManager\\
+                              & QNetworkAces-&and is used to send a get request with the      \\
+                              & sManager     &search term used to get urls to the webpages    \\
+                                             &&containing the videos.                         \\ \hline
+            \multicolumn{3} {| c |}{\textbf{Main data types in VideoYoutube class}}           \\ \hline
+            \textbf{Variable Name}&\textbf{Type}&           \textbf{Summary}                  \\ \hline
+            handler           &  Object of   &This is an object to handler the necessary      \\
+                              & HttpHandler  &networking to extract video links and download  \\
+                                             &&them. After a finished get request it calls    \\
+                                             &&parseVideo with the response. It is defined in \\
+                                             &&HttpHandler.cpp and descibed here at figure    \\
+                                             &&\ref{fig:HttpHandler class layout}             \\ \hline
+            downloading       &  QSttring    &This contains a breif description about what has\\
+                                             &&most recently been downloaded and is use in    \\
+                                             &&parseVideo to control the program flow which is\\
+                                             &&described in the flowchart at ~\ref{}          \\ \hline
+            supportedQualities&   QList      &This is a list that has a series of videoQuality\\
+                                             &&structs in it which are described at figure    \\
+                                             &&~\ref{fig:Struct layout}. Essentially this     \\
+                                             &&variable is use to contain the different       \\
+                                             &&qualities availiable.                          \\ \hline
+            expression         &  QRegExp    &This variable is use to store the regex that is \\
+                                             && is use to extract the information. It changes \\
+                                             && frequently as it changes to extract different \\
+                                             &&pieces of information.                         \\ \hline
+            title              &  QString    &This is use to contain the title of the video   \\
+                                             && downloaded and is inserted into the database  \\
+                                             &&as the title of the song after the download.   \\
+                                             &&It is also used to save the name of the file   \\ \hline
+            step                &   int      &This is used to store the current step in the   \\
+                                             &&program flow.                                  \\ \hline
+            html                &  QString   &This contains the response of the most recent   \\
+                                             &&download.                                      \\ \hline
+            
+
+    `     \caption{Data table fig 2} \label{fig:dataTable2}
         \end{tabular}
     \end{center}
 \end{figure}
