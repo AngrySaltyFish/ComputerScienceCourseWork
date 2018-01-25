@@ -751,10 +751,82 @@ and the sound be downloaded. This section describes this process.
         \node (start) [startstop] {\hypertarget{parseVideo4}{Continuation of parseVideo}};
         \node (whileLoop) [decision, fill=cyan!60, below of=start] {While there is an item in
             fmtQualities};
-        \node (createVideoLink) [process, yshift=-3cm, hyperlink node=parseVideo4,
+        \node (createVideoLink) [process, hyperlink node=getFmtLink,
             fill=purple!60, below of=whileLoop] {Call "getFmtLink" with qualityLinks and
             the video property of the current fmtQuality and set that as the videoLink};
-        \node (FinishMe) [process, below of=createVideoLink] {TODO://Finish Me!};
+        \node (setAudioLink) [process, hyperlink node=getFmtLink,
+            fill=purple!60, below of=createVideoLink] {if the audio property of fmtQuality is not
+                empty call getFmtlink with qualityLinks and audio property};
+        \node (ifAudioCouldNotBeFound) [decision, xshift=3cm, right of=setAudioLink] {If audio of
+            the fmtQuality still could not be found};
+        \node (manuallySetAudio) [process, yshift=2cm, above of=ifAudioCouldNotBeFound] {Set
+            audio link to the result of getFmtLink with qualityLinks and either "140" or "171" as
+            arguments};
+        \node (ifQualityFound) [decision, above of=manuallySetAudio] {If both video and audio
+            qualities have been found};
+
+        \node (continue) [process, yshift=-1.5cm, hyperlink node=parseVideo5, fill=purple!60,
+            above of=ifQualityFound] {Continue};
+
+
+        \draw [arrow] (start) -- node {} (whileLoop);
+        \draw [arrow] (whileLoop) -- node[anchor=west] {True} (createVideoLink);
+        \draw [arrow] (createVideoLink) -- node {} (setAudioLink);
+        \draw [arrow] (setAudioLink) -- node {} (ifAudioCouldNotBeFound);
+        \draw [arrow] (ifAudioCouldNotBeFound) -- node {} (manuallySetAudio);
+        \draw [arrow] (manuallySetAudio) -- node {} (ifQualityFound);
+        \draw [arrow] (ifQualityFound) -- node[anchor=west] {True} (continue);
+
+    \end{tikzpicture}
+\end{figure}
+
+\begin{figure}
+    \begin{tikzpicture}[node distance=6cm]
+        \node (start) [startstop] {\hypertarget{parseVideo5}{Continuation of parseVideo}};
+        \node (initVideoQuality) [process, below of=start] {Create an instance of VideoQuality
+            which is show in figure ~\ref{fig:Struct layout}};
+        \node (createRegex) [process, below of=initVideoQuality] {Set the containerName to mp4
+            and set the resolution to the qualityLinks resolution for the videoQuality.
+            Also create the following regex: \verb!webm|flv!};
+        \node (ifFoundContainer) [decision, below of=createRegex] {if the format is found in
+            videoLink};
+        \node (foundContainer) [process, yshift=3cm, below of=ifFoundContainer] {set the
+            containerName on videoQuality to the found format};
+        \node (setQuality) [process, xshift=3cm, right of=ifFoundContainer] {set the quality of
+            videoQuality to that of qualityLinks};
+        \node (ifQualityIsDefault) [decision, above of=setQuality] {if quality is the default
+            value};
+        \node (qualityIsDefault) [process, hyperlink node=getQualityFromFmtLink, fill=purple!60,
+            above of=ifQualityIsDefault] {call getQualityFromFmyLink with VideoLink as an
+            argument and set the videoQuality quality property to the result};
+        \node (continue) [process, hyperlink node=parseVideo6, fill=purple!60,
+            above of=qualityIsDefault] {Continue};
+
+        \draw [arrow] (start) -- node {} (initVideoQuality);
+        \draw [arrow] (initVideoQuality) -- node {} (createRegex);
+        \draw [arrow] (createRegex) -- node {} (ifFoundContainer);
+        \draw [arrow] (ifFoundContainer) -- node[anchor=west] {True} (foundContainer);
+        \draw [arrow] (ifFoundContainer) -- node[anchor=north] {False} (setQuality);
+        \draw [arrow] (foundContainer) -| node {} (setQuality);
+        \draw [arrow] (setQuality) -- node {} (ifQualityIsDefault);
+        \draw [arrow] (ifQualityIsDefault) -- node[anchor=west] {True} (qualityIsDefault);
+        \draw [arrow] (qualityIsDefault) -- node {} (continue);
+        \draw [arrow] (ifQualityIsDefault) -- +(-4,0) |- node[anchor=south east] {False}
+            (continue);
+
+    \end{tikzpicture}
+\end{figure}
+
+\begin{figure}
+    \begin{tikzpicture}[node distance=6cm]
+        \node (start) [startstop] {\hypertarget{getQualityFromFmtLink}{start of
+            getQualityFromFmtLink}};
+    \end{tikzpicture}
+\end{figure}
+
+\begin{figure}
+    \begin{tikzpicture}[node distance=6cm]
+        \node (start) [startstop] {\hypertarget{getFmtLink}{start of getFmtLink}};
     \end{tikzpicture}
 \end{figure}
 
@@ -865,12 +937,12 @@ program.
             \hline
             \multicolumn{3} {| c |}{\textbf{Main data types in Window.cpp}}                   \\ \hline
             \textbf{Variable Name}&\textbf{Type}&           \textbf{Summary}                  \\ \hline
-            app               &  QApplication& This is part of the Qt api and is              \\ 
-                                             &&used to initialize the necessary               \\ 
+            app               &  QApplication& This is part of the Qt api and is              \\
+                                             &&used to initialize the necessary               \\
                                              &&things                                         \\ \hline
             mainWidget        &  Object of   & This is the only object of the                 \\
                               &  MainWidget  &MainWidget class which is descirbed it is       \\
-                                             &&here at Fig ~\ref{fig:MainWidget} and is       \\ 
+                                             &&here at Fig ~\ref{fig:MainWidget} and is       \\
                                              && defined in Window.cpp                         \\ \hline
             downloadWidget    &  Object of   & This is the only object of the                 \\
                               &  DownloadTab &DownloadWidget class that is one of             \\
