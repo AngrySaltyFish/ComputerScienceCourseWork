@@ -721,6 +721,8 @@ and the sound be downloaded. This section describes this process.
             found and add them to a list called "qualityLinks"};
         \node (ifQualityLinksIsNotEmpty) [decision, above of=QualityLinksFound] {If
             qualityLinks and dashQualityLinks not Empty};
+        \node (alternativeMethod) [process, yshift=-3cm, xshift=5cm, hyperlink node=parseVideo7, fill=purple!60,
+            above left =of ifQualityLinksIsNotEmpty] {Use aletnative algorithm};
         \node (qualityHasItems) [process, above of=ifQualityLinksIsNotEmpty] {Add possible
             format qualitys to "fmtQualites" in the form of the fmtQuality struct fig
             ~\ref{fig:Struct layout}};
@@ -739,7 +741,7 @@ and the sound be downloaded. This section describes this process.
         \draw [arrow] (ifQualityLinksFound) -- +(4,0) |- node[anchor=south east] {True}
             (ifQualityLinksIsNotEmpty);
         \draw [arrow] (QualityLinksFound) -- node {} (ifQualityLinksIsNotEmpty);
-        \draw [arrow] (ifQualityLinksIsNotEmpty) -| node {} (error);
+        \draw [arrow] (ifQualityLinksIsNotEmpty) -- node[anchor=south west] {False} (alternativeMethod);
         \draw [arrow] (ifQualityLinksIsNotEmpty) -- node[anchor=west] {True} (qualityHasItems);
         \draw [arrow] (qualityHasItems) -- node {} (continue);
     \end{tikzpicture}
@@ -748,9 +750,35 @@ and the sound be downloaded. This section describes this process.
 
 \begin{figure}
     \begin{tikzpicture}[node distance=6cm]
+        \node (start) [startstop] {\hypertarget{parseVideo7}{Start of alternative Method}};
+        \node (regex) [process, below of=start] {Create the following two regexes:\newline
+            \verb!\"t\": \"(.*)\"!\newline
+            \verb!\"video_id\": \"(.*)\"\!\newline};
+        \node (ifRegex) [decision, below of=regex] {If the regex has found anything in html};
+        \node (error) [startstop, right of=ifRegex] {Error!};
+        \node (initVideoQuality) [process, below of=ifRegex] {Create a new videoQality object and
+            set the quality to normal and the videoUrl to the found values};
+        \node (append) [process, yshift=3cm, below of=initVideoQuality] {add the created videoQuality to the 
+           supportedQualities property};
+        \node (end) [process, xshift=3cm, hyperlink node=endOfAltMethod, fill=purple!60,
+            right of=append] {End of alternative method};
+
+
+        \draw [arrow] (start) -- node {} (regex);
+        \draw [arrow] (regex) -- node {} (ifRegex);
+        \draw [arrow] (ifRegex) -- node[anchor=west] {True} (initVideoQuality);
+        \draw [arrow] (ifRegex) -- node[anchor=north] {False} (error);
+        \draw [arrow] (initVideoQuality) -- node {} (append);
+        \draw [arrow] (append) -- node {} (end);
+        
+    \end{tikzpicture}
+\end{figure}
+
+\begin{figure}
+    \begin{tikzpicture}[node distance=6cm]
         \node (start) [startstop] {\hypertarget{parseVideo4}{Continuation of parseVideo}};
-        \node (whileLoop) [decision, fill=cyan!60, below of=start] {While there is an item in
-            fmtQualities};
+        \node (whileLoop) [decision, fill=cyan!60, below of=start] {\hypertarget{whileLoop}
+            {While there is an item in fmtQualities}};
         \node (createVideoLink) [process, hyperlink node=getFmtLink,
             fill=purple!60, below of=whileLoop] {Call "getFmtLink" with qualityLinks and
             the video property of the current fmtQuality and set that as the videoLink};
@@ -813,6 +841,46 @@ and the sound be downloaded. This section describes this process.
         \draw [arrow] (qualityIsDefault) -- node {} (continue);
         \draw [arrow] (ifQualityIsDefault) -- +(-4,0) |- node[anchor=south east] {False}
             (continue);
+
+    \end{tikzpicture}
+\end{figure}
+
+\begin{figure}
+    \begin{tikzpicture}[node distance=6cm]
+        \node (start) [startstop] {\hypertarget{parseVideo6}{Continuation of parseVideo}};
+        \node (setVideoUrl) [process, hyperlink node=getUrlFromFmtLink, fill=purple!60,
+            below of=start] {Set the video url property of videoQuality to the result
+            of getUrlFromFmtLink with the current video url as an argument and do the
+            same with the auido link};
+
+        \node (appendToSupportedQualities) [process, below of=setVideoUrl] {add the videoQuality
+            to the to the supportedQualities property};
+
+        \node (endOfWhileLoop) [process, hyperlink node=whileLoop, fill=purple!60,
+            below of=appendToSupportedQualities] {End of the while loop iteration (click this
+            to go back to the start)};
+        \node (emitFinish) [startstop, yshift=3cm, right of=endOfWhileLoop] {emit the signal analysingFinished};
+        \node (altMethod) [process, above of=emitFinish] {\hypertarget{endOfAltMethod}{Continuation of alternative method}};
+
+        \draw [arrow] (start) -- node {} (setVideoUrl);
+        \draw [arrow] (setVideoUrl) -- node {} (appendToSupportedQualities);
+        \draw [arrow] (appendToSupportedQualities) -- node {} (endOfWhileLoop);
+        \draw [arrow] (endOfWhileLoop) -- node {} (emitFinish);
+        \draw [arrow] (altMethod) -- node {} (emitFinish);
+
+    \end{tikzpicture}
+\end{figure}
+
+
+\begin{figure}
+    \begin{tikzpicture}[node distance=6cm]
+        \node (start) [startstop] {\hypertarget{getUrlFromFmtLink}{start of
+            getQualityFromFmtLink}};
+        \node (regex1) [process, below of=start] {Create two regular expression: urlExpression
+            and sigExpression which are respectively:\newline
+            \verb!(http[s]?[^,]+)!\newline
+            \verb!(?:^|[^a-zA-Z])[,]?s(ig)?=([^,]+)!\newline};
+        \node (extactUrl) [process, below of=regex] {Extract the url};
 
     \end{tikzpicture}
 \end{figure}
