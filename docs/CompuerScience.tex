@@ -1040,8 +1040,9 @@ I would run 3rd party software that would be able to run on all platforms from m
 program. There are a few out there but the one that seemed best supported and had good
 documentaion was the cdrtools collection. The program in this collection that is relevent
 to this project is "cdrecord". This program allows data to be burnt to a cd of your choosing.
-Below I have illustrated a flowchart to show how I intend to use and interact with this
-program.
+Unfortunatly running this within the program normally will cause it to freeze until it finishes.
+Because of this I think it will be best to use another thread to run this process in. Luckily
+Qt has a class call QThread which allow threading in qt.
 
 
 
