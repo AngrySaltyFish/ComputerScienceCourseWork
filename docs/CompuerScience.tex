@@ -3,6 +3,7 @@
 \usepackage{hyperref}
 \usepackage{tikz}
 \usepackage{rotating}
+\usepackage{float}
 
 \usetikzlibrary{calc,positioning,shapes,shadows,arrows}
 
@@ -201,7 +202,7 @@ contain the an interface to preview the youtube video and then download it while
 the LibraryTab will allow the user create playlists and organise the music. Figure 1
 below illustrates this hierarchy graphically.
 
-\begin{figure}
+\begin{figure}[H]
     \centering
     \begin{tikzpicture}[node distance = 2cm, auto]
         % Place nodes
@@ -288,7 +289,7 @@ belive that the easier and more efficient option would be to use an array.
 
 %\break
 
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
 	\begin{tabular}{c | c}
 	    LinkedList & Array \\ \hline
@@ -305,7 +306,7 @@ me to set up various variables and features embbeded in qt which is described
 \href{http://doc.qt.io/qt-5/model-view-programming.html#using-drag-and-drop-with-item-views}
 {here}.
 
-\begin{figure}
+\begin{figure}[H]
     \centering
     \begin{tikzpicture}[]
         \draw [fill=white] (0,0) rectangle (\textwidth,10) node[pos=0.5] (DownloadTab) {};
@@ -356,7 +357,7 @@ me to set up various variables and features embbeded in qt which is described
 \end{figure}
 
 
-\begin{figure}
+\begin{figure}[H]
     \centering
     \begin{tikzpicture}[]
         \draw [] (0,0) rectangle (\textwidth, 10);
@@ -399,7 +400,7 @@ me to set up various variables and features embbeded in qt which is described
 \end{figure}
 
 
-\begin{figure}
+\begin{figure}[H]
     \centering
     \begin{tikzpicture}
         \begin{sideways}
@@ -421,7 +422,7 @@ me to set up various variables and features embbeded in qt which is described
 \end{figure}
 
 
-\begin{figure}
+\begin{figure}[H]
     \centering
     \begin{tikzpicture}
         \begin{sideways}
@@ -441,7 +442,7 @@ me to set up various variables and features embbeded in qt which is described
     \caption{DownloadWidget class layout} \label{fig:DownloadWidget class layout}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[H]
     \centering
     \begin{tikzpicture}
         \begin{sideways}
@@ -467,7 +468,7 @@ me to set up various variables and features embbeded in qt which is described
     \caption{HttpHandler class layout} \label{fig:HttpHandler class layout}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[H]
     \centering
     \begin{tikzpicture}
         \begin{sideways}
@@ -487,7 +488,7 @@ me to set up various variables and features embbeded in qt which is described
     \caption{LibraryTab class layout} \label{fig:LibraryTab class layout}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[H]
     \centering
     \begin{tikzpicture}
         \begin{sideways}
@@ -506,7 +507,7 @@ me to set up various variables and features embbeded in qt which is described
     \caption{PlaylistView class layout} \label{fig:PlaylistView class layout}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[H]
     \centering
     \begin{tikzpicture}
         \node [right of = tree] (inherit) {\includegraphics[]{classPdfs/classTabWidget.pdf}};
@@ -521,7 +522,7 @@ me to set up various variables and features embbeded in qt which is described
     \caption{TabWidget class layout} \label{fig:TabWidget class layout}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[H]
     \centering
     \begin{tikzpicture}
         \begin{sideways}
@@ -544,7 +545,7 @@ me to set up various variables and features embbeded in qt which is described
     \caption{VideoYoutube class layout} \label{fig:VideoYoutube class layout}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[H]
     \centering
     \begin{tikzpicture}
         \begin{sideways}
@@ -563,7 +564,7 @@ me to set up various variables and features embbeded in qt which is described
     \caption{DatabaseHandler class layout} \label{fig:DatabaseHandler class layout}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[H]
     \begin{tikzpicture}[node distance=\textwidth /3]
         \node [] (download) {\includegraphics{classPdfs/structdownload}};
         \node [right of=download] (fmtQuality) {\includegraphics{classPdfs/structfmtQuality}};
@@ -624,7 +625,7 @@ and the sound be downloaded. This section describes this process.
 
 
 
-\begin{figure}
+\begin{figure}[H]
     \begin{tikzpicture}[node distance=6cm]
         \node (start) [startstop] {Start to ParseVideo};
 
@@ -668,7 +669,7 @@ and the sound be downloaded. This section describes this process.
     \end{tikzpicture}[node distance=6cm]
 \end{figure}
 
-\begin{figure}
+\begin{figure}[H]
     \begin{tikzpicture}[node distance=6cm]
 
         \node (start) [startstop] {\hypertarget{parseVideo2}{Continue parseVideo}};
@@ -704,7 +705,7 @@ and the sound be downloaded. This section describes this process.
     \end{tikzpicture}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[H]
     \begin{tikzpicture}[node distance=6cm]
 
         \node (start) [startstop] {\hypertarget{parseVideo3}{Continuation of parseVideo}};
@@ -748,7 +749,7 @@ and the sound be downloaded. This section describes this process.
 \end{figure}
 
 
-\begin{figure}
+\begin{figure}[H]
     \begin{tikzpicture}[node distance=6cm]
         \node (start) [startstop] {\hypertarget{parseVideo7}{Start of alternative Method}};
         \node (regex) [process, below of=start] {Create the following two regexes:\newline
@@ -774,7 +775,7 @@ and the sound be downloaded. This section describes this process.
     \end{tikzpicture}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[H]
     \begin{tikzpicture}[node distance=6cm]
         \node (start) [startstop] {\hypertarget{parseVideo4}{Continuation of parseVideo}};
         \node (whileLoop) [decision, fill=cyan!60, below of=start] {\hypertarget{whileLoop}
@@ -808,7 +809,7 @@ and the sound be downloaded. This section describes this process.
     \end{tikzpicture}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[H]
     \begin{tikzpicture}[node distance=6cm]
         \node (start) [startstop] {\hypertarget{parseVideo5}{Continuation of parseVideo}};
         \node (initVideoQuality) [process, below of=start] {Create an instance of VideoQuality
@@ -845,7 +846,7 @@ and the sound be downloaded. This section describes this process.
     \end{tikzpicture}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[H]
     \begin{tikzpicture}[node distance=6cm]
         \node (start) [startstop] {\hypertarget{parseVideo6}{Continuation of parseVideo}};
         \node (setVideoUrl) [process, hyperlink node=getUrlFromFmtLink, fill=purple!60,
@@ -872,7 +873,7 @@ and the sound be downloaded. This section describes this process.
 \end{figure}
 
 
-\begin{figure}
+\begin{figure}[H]
     \begin{tikzpicture}[node distance=6cm]
         \node (start) [startstop] {\hypertarget{getUrlFromFmtLink}{start of
             getQualityFromFmtLink}};
@@ -880,25 +881,75 @@ and the sound be downloaded. This section describes this process.
             and sigExpression which are respectively:\newline
             \verb!(http[s]?[^,]+)!\newline
             \verb!(?:^|[^a-zA-Z])[,]?s(ig)?=([^,]+)!\newline};
-        \node (extactUrl) [process, below of=regex] {Extract the url};
+        \node (extractUrl) [process, below of=regex] {Extract the url and signature
+            from the link parameter};
+        \node (checkSig) [process, hyperlink node=parseSignature, fill=purple!60,
+            below of=extractUrl] {if the signature does not equal "ig" then call parseSignature
+            with signature as a argument};
+        \node (return) [startstop, yshift=-3cm, xshift=-3cm, above right =of checkSig] {append the signature to url and return
+            the url};
 
+        \draw [arrow] (start) -- node {} (regex1);
+        \draw [arrow] (regex1) -- node {} (extractUrl);
+        \draw [arrow] (extractUrl) -- node {} (checkSig);
+        \draw [arrow] (checkSig) -| node {} (return);
     \end{tikzpicture}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[H]
+    \begin{tikzpicture}[node distance=6cm]
+        \node (start) [startstop] {\hypertarget{parseSignature}{start of parseSignature}};
+        \node (runJs) [process, below of=start] {Run the relvant javascript to process the signature};
+        \node (return) [startstop, below of=runJs] {Return the result of the javascript};
+
+        \draw [arrow] (start) -- node {} (runJs);
+        \draw [arrow] (runJs) -- node {} (return);
+    \end{tikzpicture}
+\end{figure}
+
+
+\begin{figure}[H]
     \begin{tikzpicture}[node distance=6cm]
         \node (start) [startstop] {\hypertarget{getQualityFromFmtLink}{start of
             getQualityFromFmtLink}};
+        \node (regex) [process, below of=start] {Create the following regex:\newline
+           \verb!quality_label=([^,]+)!\newline};
+        \node (ifFound) [decision, below of=regex] {If quality has been found by regex};
+        \node (foundTrue) [startstop, below of=ifFound] {return the relevant quality found by regex};
+        \node (foundFalse) [startstop, right of=ifFound] {return a empty string};
+
+
+        \draw [arrow] (start) -- node {} (regex);
+        \draw [arrow] (regex) -- node {} (ifFound);
+        \draw [arrow] (ifFound) -- node[anchor=west] {True} (foundTrue);
+        \draw [arrow] (ifFound) -- node[anchor=south] {False} (foundFalse);
     \end{tikzpicture}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[H]
     \begin{tikzpicture}[node distance=6cm]
         \node (start) [startstop] {\hypertarget{getFmtLink}{start of getFmtLink}};
+        \node (regex) [process, below of=start] {create the two following regexes:\newline
+            \verb!(http[s]?[^,]+)!\newline
+            \verb![,]?itag=([^,]+)!\newline};
+        \node (forLoop) [decision, fill=cyan!60, below of=regex] {for quality in qualityLinks};
+        \node (ifFound) [decision, xshift=3cm, right of=forLoop] {if both regexes match the quality and itag
+            expression result matches the fmt argument};
+        \node (foundTrue) [startstop, below of=ifFound] {return the quality};
+        \node (foundFalse) [process, above of=ifFound] {continue Loop};
+        \node (return) [startstop, minimum width=1cm, below of=forLoop] {return empty string};
+
+        \draw [arrow] (start) -- node {} (regex);
+        \draw [arrow] (regex) -- node {} (forLoop);
+        \draw [arrow] (forLoop) -- node[anchor=south] {True} (ifFound);
+        \draw [arrow] (ifFound) -- node[anchor=west] {True} (foundTrue);
+        \draw [arrow] (ifFound) -- node[anchor=east] {False} (foundFalse);
+        \draw [arrow] (foundFalse) -- node[anchor=east] {} (forLoop);
+        \draw [arrow] (forLoop) -- node[anchor=east] {False} (return);
     \end{tikzpicture}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[H]
     \begin{tikzpicture}[node distance=6cm]
 
         \node (start) [startstop] {\hypertarget{parseJs}{start to parse js}};
@@ -917,7 +968,7 @@ and the sound be downloaded. This section describes this process.
     \end{tikzpicture}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[H]
     \begin{tikzpicture}[node distance=6cm]
 
         \node (start) [startstop] {\hypertarget{extractJSMethod}{Start to extract js method}};
@@ -950,7 +1001,7 @@ and the sound be downloaded. This section describes this process.
     \end{tikzpicture}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[H]
     \begin{tikzpicture}[node distance=6cm]
         \node (start) [startstop] {\hypertarget{extractJS2}{extractJS method part 2}};
         \node (createObject) [process, below of=start] {Initializes a object of type jsMethod (Fig ~\ref{fig:Struct layout})};
@@ -975,14 +1026,11 @@ and the sound be downloaded. This section describes this process.
 
         \node (escapeRegex) [process, below of=checkIfCompleted] {Find the contents of the
             method from the name using a regular expression};
-        \node (ifFunctionContentFound) [decision, below of=escapeRegex] {Has the content of
-            the function been found};
-        \node (FunctionContentHasBeenFound) [process, below of=ifFunctionContentFound] {
-            Create a jsMethod struct (Fig ~\ref{fig:Struct layout} ) and set the code
-            and name properties to that found by the regex};
 
     \end{tikzpicture}
 \end{figure}
+
+\pagebreak
 
 \subsection{Burning the audio CD}
 Due to one of my original requirements I need to ensure that this program is cross platform
@@ -992,13 +1040,13 @@ I would run 3rd party software that would be able to run on all platforms from m
 program. There are a few out there but the one that seemed best supported and had good
 documentaion was the cdrtools collection. The program in this collection that is relevent
 to this project is "cdrecord". This program allows data to be burnt to a cd of your choosing.
-Below I have illustrated a flowchart to show how I itend to use and interact with this
+Below I have illustrated a flowchart to show how I intend to use and interact with this
 program.
 
 
 
 
-\begin{figure}[h]
+\begin{figure}[H]
     \subsection{DataTable}\label{DataTable}
     \begin{center}
         \begin{tabular} { | c | c | c |}
@@ -1055,7 +1103,7 @@ program.
 
 \newpage
 
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
         \begin{tabular} { | c | c | c |}
             \hline
