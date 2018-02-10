@@ -1,9 +1,13 @@
 #include "PlayerWindow.hpp"
+#include "ExternalProcess.hpp"
 #include <QPushButton>
 #include <QSlider>
 #include <QLayout>
 #include <QMessageBox>
 #include <QFileDialog>
+
+#include <memory>
+#include <iostream>
 
 using namespace QtAV;
 
@@ -168,8 +172,9 @@ AudioPlayer::AudioPlayer()
 }
 void AudioPlayer::openMedia(QList < QString > trackList, int index)
 {
-    this->trackList = trackList; 
+    this->trackList = trackList;
     this->index = index;
+    qDebug() << "Song to play : " << trackList.at(index);
 
     player->setFile(trackList.at(index));
     player->play();
@@ -184,11 +189,12 @@ void AudioPlayer::btns()
     connect(playBtn, SIGNAL(clicked()), SLOT(playPause()));
     connect(forwardBtn, SIGNAL(clicked()), SLOT(nextSong()));
     connect(backBtn, SIGNAL(clicked()), SLOT(previousSong()));
+    connect(burnBtn, SIGNAL(clicked()), SLOT(burnPlaylist()));
 }
 void AudioPlayer::nextSong()
 {
     index++;
-    
+
     if (index == trackList.size())
         index = 0;
 
@@ -203,6 +209,19 @@ void AudioPlayer::previousSong()
         index = 0;
     player->setFile(trackList.at(index));
     player->play();
+}
+void AudioPlayer::burnPlaylist()
+{
+    progressBar->reset();
+    BurnerThread* burner = new BurnerThread(this->trackList, "cdrecord");
+    progressBar->setRange(0, this->trackList.length());
+
+    connect(burner, SIGNAL(changeProgress()), this, SLOT(changeBurnProgress()));
+}
+void AudioPlayer::changeBurnProgress()
+{
+    currentProgress++;
+    progressBar->setValue(currentProgress);
 }
 void AudioPlayer::layout()
 {
@@ -220,3 +239,4 @@ void AudioPlayer::layout()
     hb->addWidget(playBtn);
     hb->addWidget(forwardBtn);
 }
+

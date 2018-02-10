@@ -24,7 +24,7 @@ class DatabaseHandler : public QObject
     explicit DatabaseHandler(QString);
     QList <std::shared_ptr<Playlist>>  getPlaylists();
 
-    void insertSong(QString);
+    void insertSong(QString, QString);
     void addToPlaylist(QString, QString);
 
     public slots:

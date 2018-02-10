@@ -46,9 +46,9 @@ void DatabaseHandler::init()
     allSongs = createPlaylist("AllSongs", true);
 
 }
-void DatabaseHandler::insertSong(QString filename)
+void DatabaseHandler::insertSong(QString filename, QString hash)
 {
-    QString query = "INSERT INTO AllSongs (trackName) VALUES ('" + filename + "')";
+    QString query = "INSERT INTO AllSongs (trackName, hash) VALUES ('" + filename + "', '" + hash + "' )";
     db.open();
     qDebug() << query;
     db.exec(query);
@@ -115,7 +115,7 @@ std::shared_ptr< Playlist >  DatabaseHandler::createPlaylist(const QString &name
     playlistColumns[name] = {"TrackId INTEGER"};
 
     if(allSongs)
-        playlistColumns[name] = {"trackName TEXT", "artist INTEGER", "Genere INTEGER", "Duration DOUBLE"};
+        playlistColumns[name] = {"trackName TEXT", "artist INTEGER", "Genere INTEGER", "Duration DOUBLE, hash TEXT"};
 
     createTable(&playlistColumns);
 
@@ -182,11 +182,11 @@ void Playlist::playSong(int rowId)
     {
 
         db.open();
-        QSqlQuery query = db.exec("SELECT trackName FROM AllSongs");
+        QSqlQuery query = db.exec("SELECT hash FROM AllSongs");
 
         while (query.next())
         {
-            trackList.append("Downloads/" + query.value(0).toString());
+            trackList.append("Downloads/" + query.value(0).toString() + ".wav");
         }
         db.close();
 
@@ -201,13 +201,13 @@ void Playlist::playSong(int rowId)
             songId = rowIdToSongData(i, QString("TrackId")).toString();
 
             db.open();
-            QSqlQuery query = db.exec("SELECT tracKName FROM AllSongs WHERE id = " + songId);
+            QSqlQuery query = db.exec("SELECT hash FROM AllSongs WHERE id = " + songId);
 
             if (query.record().isEmpty())
                 break;
 
             query.first();
-            trackList.append("Downloads/" + query.value(0).toString());
+            trackList.append("Downloads/" + query.value(0).toString() + ".wav");
 
             songId = rowIdToSongData(i, QString("TrackId")).toString();
             db.close();
@@ -221,7 +221,7 @@ void Playlist::playSong(int rowId)
 QVariant Playlist::rowIdToSongData(int rowId, QString column)
 {
     db.open();
-    
+
     QSqlQuery query = db.exec("SELECT " + column + " FROM " + name + " ORDER BY id LIMIT 1 OFFSET " + QByteArray::number(rowId));
     query.first();
 

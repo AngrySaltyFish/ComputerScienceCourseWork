@@ -39,7 +39,7 @@ private slots:
     void search();
     void itemSelectionChanged();
     void showVideo();
-    void processDownloadVideo(QString);
+    void processDownloadVideo(QString, QString);
 
 private:
     QPushButton *searchBtn;

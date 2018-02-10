@@ -28,9 +28,9 @@ public Q_SLOTS:
 private Q_SLOTS:
     void startDownload();
     void changeQuality(int);
+    void changeDownloadProgress(qint64, qint64);
 
 protected Q_SLOTS:
-    void changeDownloadProgress(qint64, qint64);
     void updateSlider(qint64 value);
     void updateSlider();
     void updateSliderUnit();
@@ -69,15 +69,19 @@ class AudioPlayer : public PlayerWindow
         void openMedia(QList < QString >, int);
 
     private Q_SLOTS:
+        void changeBurnProgress();
         void nextSong();
         void previousSong();
+        void burnPlaylist();
     private:
     QPushButton *backBtn;
     QPushButton *forwardBtn;
     QPushButton *burnBtn;
 
     QList < QString > trackList;
+    std::string runCmd(char * cmd);
     int index;
+    int currentProgress;
 
     protected:
     void layout();

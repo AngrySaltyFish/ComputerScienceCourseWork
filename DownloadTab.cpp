@@ -24,7 +24,7 @@ void DownloadWidget::init()
 
     connect(videoList, SIGNAL (itemSelectionChanged()), this, SLOT (itemSelectionChanged()));
     connect(currentVideo, SIGNAL (analysingFinished()), SLOT (showVideo()));
-    connect(currentVideo, SIGNAL (audioDownloadFinished(QString)), SLOT(processDownloadVideo(QString)));
+    connect(currentVideo, SIGNAL (audioDownloadFinished(QString, QString)), SLOT(processDownloadVideo(QString, QString)));
 }
 void DownloadWidget::btns()
 {
@@ -71,9 +71,9 @@ void DownloadWidget::showVideo()
     preview->openMedia(currentVideo);
 }
 
-void DownloadWidget::processDownloadVideo(QString filename)
+void DownloadWidget::processDownloadVideo(QString filename, QString hash)
 {
-    parent->getFileManger().insertSong(filename);
+    parent->getFileManger().insertSong(filename, hash);
 }
 
 

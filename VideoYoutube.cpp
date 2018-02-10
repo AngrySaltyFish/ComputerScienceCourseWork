@@ -1,9 +1,12 @@
 #include "VideoYoutube.hpp"
+#include "ExternalProcess.hpp"
 
 #include "QMutableListIterator"
 #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
 #include <QtWebKitWidgets/QtWebKitWidgets>
 #endif
+
+#include <QCryptographicHash>
 
 VideoYoutube::VideoYoutube()
 {
@@ -137,8 +140,6 @@ QString VideoYoutube::getUrlFromFmtLink(QString link)
 
 void VideoYoutube::download()
 {
-    step = 3;
-
     if (!this->supportedQualities.at(currentQuality).audioUrl.isEmpty())
     {
         if (this->supportedQualities.at(currentQuality).audioSegments.isEmpty())
@@ -147,6 +148,7 @@ void VideoYoutube::download()
             handler->addDownload(this->supportedQualities.at(currentQuality).audioUrl, this->supportedQualities.at(currentQuality).chunkedDownload, QByteArray(), QStringList(), title);
         }
     }
+    step = 3;
 }
 
 void VideoYoutube::handleDownloads()
@@ -163,8 +165,10 @@ void VideoYoutube::handleDownloads()
         parseVideo(html);
 
     }
-    else
+    else if (this->step == 3)
     {
+        QList < QString > filenames;
+
         for (int i = 0; i < handler->downloads.size(); ++i)
         {
             if (handler->downloads.at(i)->tempFile->isOpen())
@@ -173,19 +177,14 @@ void VideoYoutube::handleDownloads()
                 handler->downloads.at(i)->tempFile->close();
             }
 
-            QString filename = handler->downloads.at(i)->title;
-            handler->downloads.at(i)->tempFile->open();
+            filenames << handler->downloads.at(i)->tempFile->fileName();
+            filenames << QString(QCryptographicHash::hash((handler->downloads.at(i)->title.toUtf8()),
+                        QCryptographicHash::Md5).toHex());
 
-            QByteArray data = handler->downloads.at(i)->tempFile->readAll();
-
-            QSaveFile *fileSave = new QSaveFile("Downloads/" + filename);;
-            fileSave->open(QIODevice::WriteOnly);
-            fileSave->write(data.constData(), data.size());
-            fileSave->commit();
-
-            emit audioDownloadFinished(filename);
+            emit audioDownloadFinished(handler->downloads.at(i)->title, filenames.at(i + 1));
         }
-
+        ConverterThread *converter = new ConverterThread(filenames, "ffmpeg");
+        converter->convert();
     }
 }
 
