@@ -3,8 +3,9 @@
 #include <QDebug>
 
 
-ConverterThread::ConverterThread(QList < QString > list, QString progName) :
-    trackList(list)
+ConverterThread::ConverterThread(QList < QString > list, QString progName, bool isVideo) :
+    trackList(list),
+    convertVideo(isVideo)
 {
     programName = findFile(progName);
 }
@@ -38,6 +39,9 @@ void ConverterThread::convert()
 
         args.clear();
 
+        if (convertVideo)
+            args << "-vn";
+
         args << "-i";
         args <<  this->trackList.at(i);
         args << outFile;
@@ -60,7 +64,7 @@ void ConverterThread::convertStatus(int code, QProcess::ExitStatus status)
 }
 
 BurnerThread::BurnerThread(QList < QString > list, QString progName) :
-    ConverterThread(list, progName)
+    ConverterThread(list, progName, false)
 {
     process = new QProcess();
 
@@ -87,6 +91,7 @@ void BurnerThread::startBurn(QString trackName)
     });
 
     burnProcess->start(programName, args);
+
 }
 void BurnerThread::extractDevId()
 {

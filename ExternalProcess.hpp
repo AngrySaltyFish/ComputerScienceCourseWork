@@ -6,11 +6,13 @@ class ConverterThread : public QObject
     Q_OBJECT;
 
     public:
-    ConverterThread(QList < QString >, QString);
+    ConverterThread(QList < QString >, QString, bool);
     void convert();
 
     private:
     QProcess *convertProcess;
+    bool convertVideo;
+
     signals:
     void finished();
     void changeProgress();

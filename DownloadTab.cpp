@@ -60,6 +60,7 @@ void DownloadWidget::itemSelectionChanged()
 
     QString url = QString("https://www.youtube.com");
     url.append(videoList->urlMap[QString(currentItem->text())]);
+    qDebug() << "Triggered change selection";
 
     currentVideo->setUrl(url);
     currentVideo->analyse();

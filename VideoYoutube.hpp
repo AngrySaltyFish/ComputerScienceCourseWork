@@ -107,6 +107,7 @@ class VideoYoutube : public QObject
         HttpHandler* handler;
         int currentQuality;
         int step;
+        bool downloadIsVideo;
 
         QUrl currentUrl;
 

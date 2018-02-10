@@ -51,7 +51,7 @@ void VideoYoutube::analyse()
     {
         step = 1;
         handler->addDownload(currentUrl.toString());
-        connect(this, SIGNAL(analysingFinished()), this, SLOT(slotAnalysingFinished()));
+        connect(this, SIGNAL(analysingFinished()), this, SLOT(slotAnalysingFinished()), Qt::UniqueConnection);
     }
     else
     {
@@ -140,14 +140,13 @@ QString VideoYoutube::getUrlFromFmtLink(QString link)
 
 void VideoYoutube::download()
 {
-    if (!this->supportedQualities.at(currentQuality).audioUrl.isEmpty())
+    downloadIsVideo = this->supportedQualities.at(currentQuality).audioUrl.isEmpty();
+    if (!downloadIsVideo)
     {
-        if (this->supportedQualities.at(currentQuality).audioSegments.isEmpty())
-        {
-            qDebug() << "Downloading audio file: " << this->supportedQualities.at(currentQuality).audioUrl;
-            handler->addDownload(this->supportedQualities.at(currentQuality).audioUrl, this->supportedQualities.at(currentQuality).chunkedDownload, QByteArray(), QStringList(), title);
-        }
+        handler->addDownload(this->supportedQualities.at(currentQuality).audioUrl, this->supportedQualities.at(currentQuality).chunkedDownload, QByteArray(), QStringList(), title);
     }
+    else
+        handler->addDownload(this->supportedQualities.at(currentQuality).videoUrl, this->supportedQualities.at(currentQuality).chunkedDownload, QByteArray(), QStringList(), title);
     step = 3;
 }
 
@@ -183,7 +182,7 @@ void VideoYoutube::handleDownloads()
 
             emit audioDownloadFinished(handler->downloads.at(i)->title, filenames.at(i + 1));
         }
-        ConverterThread *converter = new ConverterThread(filenames, "ffmpeg");
+        ConverterThread *converter = new ConverterThread(filenames, "ffmpeg", downloadIsVideo);
         converter->convert();
     }
 }
