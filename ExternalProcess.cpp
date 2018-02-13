@@ -20,7 +20,9 @@ QByteArray ConverterThread::findFile(QString targetFile)
         if (filename.contains(targetFile))
         {
             if (!filename.contains(".exe"))
+            {
                 filename.prepend("./");
+            }
             qDebug() << "FIleName: " << filename.toLatin1().data();
 
             return filename.toLatin1();
@@ -70,34 +72,35 @@ BurnerThread::BurnerThread(QList < QString > list, QString progName) :
 
     args << "-scanbus";
     connect(process, SIGNAL(readyReadStandardOutput()), this, SLOT(extractDevId()));
+    qDebug() << programName;
     process->start(programName, args);
 }
-void BurnerThread::startBurn(QList<QString>::iterator it)
+void BurnerThread::startBurn()
 {
-    process->kill();
+    QProcess *process = new QProcess();
 
     if (args.length() > 5)
         args.removeLast();
 
-    args.append(*it);
+    qDebug() << "The length of trackList is: " << this->trackList.length();
+    args.append(this->trackList.at(0));
+    this->trackList.removeFirst();
 
-    process->setArguments(args);
 
     connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
     [=](int exitCode, QProcess::ExitStatus exitStatus){
     qDebug() << "Output: " << process->readAllStandardError();
+    qDebug() << "Output: " << process->readAllStandardOutput();
     emit changeProgress();
-    it++;
-    qDebug() << "The value of it: " << *it;
 
-    if (it != this->trackList.end())
-        startBurn(it);
+    if (this->trackList.length())
+        startBurn();
     else
         delete this;
 
     });
 
-    process->start();
+    process->start(programName, args);
 
 }
 void BurnerThread::extractDevId()
@@ -105,7 +108,9 @@ void BurnerThread::extractDevId()
     qDebug() << "extract called";
 
     QString output(process->readAllStandardOutput());
+    qDebug() << "Output: " << process->readAllStandardError();
     QString devId;
+    qDebug() << output;
 
     QStringList lines = output.split("\n", QString::SkipEmptyParts);
 
@@ -133,6 +138,6 @@ void BurnerThread::extractDevId()
 
     process->disconnect();
 
-    startBurn(this->trackList.begin());
+    startBurn();
 }
 

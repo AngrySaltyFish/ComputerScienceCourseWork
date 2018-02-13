@@ -39,6 +39,7 @@ private:
     QtAV::VideoOutput *videoOutput;
     QPushButton *downloadBtn;
     QPushButton *stopBtn;
+    QProgressBar *progressBar;
     QComboBox *quality;
 
     void refresh();
@@ -48,7 +49,6 @@ protected:
     QtAV::AVPlayer *player;
     QPushButton *playBtn;
     QSlider *slider;
-    QProgressBar *progressBar;
     int unit;
 
     void setupOutput();
@@ -77,6 +77,7 @@ class AudioPlayer : public PlayerWindow
     QPushButton *backBtn;
     QPushButton *forwardBtn;
     QPushButton *burnBtn;
+    QProgressBar *progressBar;
 
     QList < QString > trackList;
     std::string runCmd(char * cmd);

@@ -169,6 +169,8 @@ void PlayerWindow::changeDownloadProgress(qint64 currentProgress, qint64 totalBy
 
 AudioPlayer::AudioPlayer()
 {
+    progressBar = new QProgressBar();
+
     setupOutput();
     btns();
     layout();
@@ -215,8 +217,6 @@ void AudioPlayer::previousSong()
 }
 void AudioPlayer::burnPlaylist()
 {
-    if (!currentVideo)
-        return;
     progressBar->reset();
     BurnerThread* burner = new BurnerThread(this->trackList, "cdrecord");
     progressBar->setMaximum(this->trackList.length());
@@ -226,7 +226,7 @@ void AudioPlayer::burnPlaylist()
 }
 void AudioPlayer::changeBurnProgress()
 {
-    qDebug() << "Progress Made";
+    qDebug() << "Progress Made " << currentProgress;
     currentProgress++;
     progressBar->setValue(currentProgress);
 }

@@ -41,5 +41,5 @@ class BurnerThread : public ConverterThread
 
     private slots:
     void extractDevId();
-    void startBurn(QList<QString>::iterator it);
+    void startBurn();
 };
