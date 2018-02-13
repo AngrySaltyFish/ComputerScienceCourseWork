@@ -35,6 +35,8 @@ void PlayerWindow::init()
     setupOutput();
     btns();
     layout();
+
+    this->currentVideo = NULL;
 }
 
 void PlayerWindow::setupOutput()
@@ -81,7 +83,6 @@ void PlayerWindow::btns()
 
 void PlayerWindow::openMedia(VideoYoutube *video)
 {
-    this->currentVideo = NULL;
     QList< QPair<QString, int> > qualities = video->getSupportedQualities();
 
     quality->clear();
@@ -150,6 +151,8 @@ void PlayerWindow::updateSliderUnit()
 
 void PlayerWindow::startDownload()
 {
+    if (!currentVideo)
+        return;
     connect(currentVideo->getHandler(), SIGNAL(downloadProgress(qint64, qint64)), SLOT(changeDownloadProgress(qint64, qint64)));
     currentVideo->download();
 }
@@ -212,6 +215,8 @@ void AudioPlayer::previousSong()
 }
 void AudioPlayer::burnPlaylist()
 {
+    if (!currentVideo)
+        return;
     progressBar->reset();
     BurnerThread* burner = new BurnerThread(this->trackList, "cdrecord");
     progressBar->setMaximum(this->trackList.length());

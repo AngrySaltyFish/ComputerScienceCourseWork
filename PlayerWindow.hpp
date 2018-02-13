@@ -37,7 +37,6 @@ protected Q_SLOTS:
 
 private:
     QtAV::VideoOutput *videoOutput;
-    VideoYoutube *currentVideo;
     QPushButton *downloadBtn;
     QPushButton *stopBtn;
     QComboBox *quality;
@@ -45,6 +44,7 @@ private:
     void refresh();
 
 protected:
+    VideoYoutube *currentVideo;
     QtAV::AVPlayer *player;
     QPushButton *playBtn;
     QSlider *slider;
