@@ -1,9 +1,14 @@
 \documentclass{article}
 
+\usepackage{listings}
+\usepackage{color}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
 \usepackage{hyperref}
 \usepackage{tikz}
 \usepackage{rotating}
 \usepackage{float}
+\usepackage[framemethod=tikz]{mdframed}
 
 \usetikzlibrary{calc,positioning,shapes,shadows,arrows}
 
@@ -77,6 +82,53 @@
   \fi}
 \makeatother
 
+
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+
+\lstset{ %
+    backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}; should come as last argument
+    basicstyle=\footnotesize,        % the size of the fonts that are used for the code
+    breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+    breaklines=true,                 % sets automatic line breaking
+    captionpos=b,                    % sets the caption-position to bottom
+    commentstyle=\color{mygreen},    % comment style
+    deletekeywords={...},            % if you want to delete keywords from the given language
+    escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+    extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8 frame=single,                    % adds a frame around the code keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible) keywordstyle=\color{blue},       % keyword style language=C,                      % the language of the code
+    morekeywords={*,...},            % if you want to add more keywords to the set
+    keywordstyle=\color{magenta},
+    numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+    numbersep=5pt,                   % how far the line-numbers are from the code
+    numberstyle=\tiny\color{mygray}, % the style that is used for the line-numbers
+    rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+    showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+    showstringspaces=false,          % underline spaces within strings only
+    showtabs=false,                  % show tabs within strings adding particular underscores
+    stepnumber=2,                    % the step between two line-numbers. If it's 1, each line will be numbered
+    stringstyle=\color{mymauve},     % string literal style
+    tabsize=4,                       % sets default tabsize to 2 spaces
+    title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+\newcommand\mylstcaption{}
+
+\mdfdefinestyle{mymdstyle}{
+hidealllines=true,
+middleextra={
+  \node[anchor=west] at (O|-P)
+    {\lstlistingname~\thelstlisting\  (Cont.):~\mylstcaption};},
+secondextra={
+  \node[anchor=west] at (O|-P)
+    {\lstlistingname~\thelstlisting\  (Cont.):~\mylstcaption};},
+splittopskip=2\baselineskip
+}
+
+\surroundwithmdframed[style=mymdstyle]{lstlisting}
+\newmdenv[style=mymdstyle]{mdlisting}
+
+
 \begin{document}
 
 \maketitle
@@ -126,7 +178,7 @@ want this program to achieve.
         Being able to burn these disks within the application
     \item
         Must be able to work on almost any environment without programs being
-        pre-install 
+        pre-install
 \end{itemize}
 
 For the first item on the list I need to consider where I get the music
@@ -170,7 +222,7 @@ This section will begin to explain how I plan to create this application.
 \subsection{Outline}\label{outline}
 
 The Qt library which is the library that I am using uses widgets which are window
-like objects that can be embedded into one another to create a GUI. The bullets 
+like objects that can be embedded into one another to create a GUI. The bullets
 points below show how I plan to embed each of these widgets.
 
 \begin{itemize}
@@ -238,7 +290,7 @@ suggests the preview is to allow the user to view the video before downloading w
 
 Within GUI and network programming you often want one object to be notified when an event
 happens to another. Fortunately Qt recognises this problem and has signals and slots to
-solve it. To use these you need to use the emit to create a signal and the you can use 
+solve it. To use these you need to use the emit to create a signal and the you can use
 a slot to listen out for that signal and run a procedure when that signal is received.
 This is vital when interacting with the user as when the user clicks a button or interacts
 with the interface a signal is emitted and I need to connect a slot up to these signals
@@ -382,7 +434,7 @@ me to set up various variables and features embbeded in qt which is described
         };
         \draw (PlayPause) -- (12, 3) node[TextBox, pos=1] {
             This is to play or pause the current song
-        }; 
+        };
         \draw (Next) -- (12, 5) node[TextBox, pos=1] {
             This is to skip to the next song
         };
@@ -480,7 +532,7 @@ me to set up various variables and features embbeded in qt which is described
         	Similarly to DownloadWidget this is a child of TabWidget meaning it is one
         	of the two tabs and provides a canvas to put widgets on. Fig
         	\ref{fig:LibraryTab Diagram} shows how inten it to look. This class
-        	will be the middle man for all of the data handling. Within the 
+        	will be the middle man for all of the data handling. Within the
         	constructor all of the objects shown in Fig \ref{fig:LibraryTab Diagram}
         	will be initialized and then layed out in the layout procedure.
         };
@@ -616,6 +668,44 @@ amount of rows. The second option is much better but I was original unsoure
 of how to acheive it untill I discovered the "OFFSET" clause. With this
 I can offset a select statement n rows down the table making this task
 trivial.
+
+With this knowledge I have created a table below in figure ~\ref{fig:SQLTable}
+that I belive I will need for the database.
+
+
+\begin{figure}[H]
+    \begin{center}
+        \begin{tabular} { | c | c | }
+            \hline
+            \textbf{Query}                   &                 \textbf{Summerary}             \\ \hline
+            CREATE TABLE IF NOT EXISTS       &This should create the artists table. This      \\
+            artists(id INTEGEAR NOT NULL     &will store the artists name and an id to        \\
+            PRIMARY KEY AUTOINCREMENT UNIQUE,&reference the name                              \\
+            artist TEXT)                     &                                                \\ \hline
+            CREATE TABLE IF NOT EXISTS       &This should create the albums table which will  \\
+            albums (id INTEGEAR NOT NULL     &store the album name and an id to reference the \\
+            PRIMARY KEY AUTOINCREMENT UNIQUE,&name.                                           \\
+            albums TEXT)                     &                                                \\ \hline
+            CREATE TABLE IF NOT EXISTS       &                                                \\
+            AllSongs ( id INTEGEAR NOT NULL  &This should create the AllSongs table which will\\
+            PRIMARY KEY AUTOINCREMENT UNIQUE,&be used to store any downloaded song and        \\
+            trackName TEXT, artist INTEGEAR, &will be referenced by other playlists.          \\
+            Genere INTEGEAR, Duration DOUBLE)&                                                \\ \hline
+            DELETE FROM tableName WHERE id   &This statement will be used to allow the user   \\
+            IN (SELECT id FROM tableName     &to delete a row from tableName using the number \\
+            ORDER BY id LIMIT 1 OFFSET rowId &of rows down in the tableView. It should be     \\
+                                             &noted that tableName and rowId will be          \\
+                                             &substituted at runtime with the appropiate      \\
+                                             &values.                                         \\ \hline
+            SELECT AllSongs.id, trackName,   &This query will be used to get the appropiate   \\
+            artist, Genere, Duration FROM    &data from AllSongs by using the ids in tableName\\
+            AllSongs tableName ON AllSongs.id&to reference the values. It should be noted that\\
+             = tableName.id                  &tableName is a variable that will be substituted\\
+                                             &with the correct value at runtime.              \\ \hline
+        \end{tabular}
+    \end{center}
+    \caption{SQL queries} \label{fig:SQLTable}
+\end{figure}
 
 \subsection{NetworkHandling}\label{NetworkHandling}
 
@@ -759,7 +849,7 @@ and the sound be downloaded. This section describes this process.
         \node (error) [startstop, right of=ifRegex] {Error!};
         \node (initVideoQuality) [process, below of=ifRegex] {Create a new videoQality object and
             set the quality to normal and the videoUrl to the found values};
-        \node (append) [process, yshift=3cm, below of=initVideoQuality] {add the created videoQuality to the 
+        \node (append) [process, yshift=3cm, below of=initVideoQuality] {add the created videoQuality to the
            supportedQualities property};
         \node (end) [process, xshift=3cm, hyperlink node=endOfAltMethod, fill=purple!60,
             right of=append] {End of alternative method};
@@ -771,13 +861,14 @@ and the sound be downloaded. This section describes this process.
         \draw [arrow] (ifRegex) -- node[anchor=north] {False} (error);
         \draw [arrow] (initVideoQuality) -- node {} (append);
         \draw [arrow] (append) -- node {} (end);
-        
+
     \end{tikzpicture}
 \end{figure}
 
 \begin{figure}[H]
     \begin{tikzpicture}[node distance=6cm]
         \node (start) [startstop] {\hypertarget{parseVideo4}{Continuation of parseVideo}};
+
         \node (whileLoop) [decision, fill=cyan!60, below of=start] {\hypertarget{whileLoop}
             {While there is an item in fmtQualities}};
         \node (createVideoLink) [process, hyperlink node=getFmtLink,
@@ -1044,11 +1135,95 @@ Unfortunatly running this within the program normally will cause it to freeze un
 Because of this I think it will be best to use another thread to run this process in. Luckily
 Qt has a class call QThread which allow threading in qt.
 
+I was also unsure whether the program could be called multiple times with a different track
+and CD as this would be the best approach to burning music to the cds for two reasons. The
+first is that if there is an error burning one track the others should still be able be burnt
+onto the cd. The second is that I can update the progress bar with each succesful burning operation.
+I thought the best way for me to figure this out was to test the executable with various options.
+
+After testing the cdrecord program, I found that the folowing arguments are required to perform the
+desired behaviour: -dev, -pad, -multi and -tao. The dev option is use to set the id of the
+cd drive you wish to use. You can find out this device id by running the program with the -scanbus
+option. Unfortunatly on linux this does required root permission, when I tried using it with a
+usb cd, which generally is a bad idea and could cause problems in other areas of my program. The
+only solution to this permission issue is to edit the sudoers file to make an exception for this
+command. The next option, -pad, is used to make the audio data from the downloaded file a multiple
+of 2352 bytes. This is a required standard for audio CDs. the "-multi" option does exactly what
+I want to do in regards to burning each track in seperate commands. Finally the "-tao" option is
+actually something that is enabled by default by cdrecord but by explicitly specifying the option
+it will speed up the execution process by not doing a count down.
+
+\subsection{Data flow and data types}
+In this section I will define all of the data requirements for this project which will include
+the information inputted by the user and the final output. The database and the converted audio
+files are all stored in the downloads folder. This is a directory created by the DataHandler
+class where it create a new folder from the builds current path called downloads. Before being
+converted the audio data is saved in the temporary folder of the current OS it is running on.
+For example on linux this is "/tmp". The reasoning behind this is that the download may get
+interrupted and become corrupted making it difficult to deal with. If it save in the temporary
+folder the OS deals with it automatically and will clean up any mess left behind.
+
+\subsubsection{Data diagram}
+\begin{figure}[H]
+    \begin{tikzpicture}[node distance=6cm]
+
+        \node (start) [startstop] {User Enters search Term};
+        \node (downloadTemp) [process, below of=start] {start downloading the audio into temp file};
+        \node (convert) [process, below of=downloadTemp] {Convert audio from temp file and save it
+            into the downloads folder};
+        \node (database) [process, below of=convert] {Store the name, genere, artist and duration
+            for the video into the database};
+        \node (burn) [startstop, right of=database] {Burn the data onto a CD};
 
 
+        \draw [arrow] (start) -- node {} (downloadTemp);
+        \draw [arrow] (downloadTemp) -- node {} (convert);
+        \draw [arrow] (convert) -- node {} (database);
+        \draw [arrow] (database) -- node {} (burn);
+    \end{tikzpicture}
+    \caption{Data flow diagram} \label{fig:Data flow diagram}
+    This diagram illustrates the basic data flow of the application.
+\end{figure}
+
+
+\subsubsection{Data Structures used}
+There are many data structures that are introduced by the qt framework. You can usually distiguist
+these data structures from the normal c++ data structures by the fact they have a "Q" affixed to
+the start of their name. These data structures are described in figure ~\ref{fig:qtDataStructs}.
 
 \begin{figure}[H]
-    \subsection{DataTable}\label{DataTable}
+    \begin{center}
+        \begin{tabular} {| c | c |}
+            \hline
+            \textbf{Name}        &         \textbf{Desciption}                               \\ \hline
+            QString              &This acts the same as a normal string type but has methods \\
+                                 &that help iteraction with it. These methods are described  \\
+                                 &\href{https://doc.qt.io/qt-5/qstring.html}{here}           \\ \hline
+            QList                &This acts the same as a normal list but has additional     \\
+                                 &properties and methods to interact with it. You can find   \\
+                                 &more information about these extended features             \\
+                                 &\href{https://doc.qt.io/qt-5/qlist.html}{here}             \\ \hline
+            QHash                &This is a hash table type that you can use like a          \\
+                                 &dictionary/map. There is a similar Qt data structure called\\
+                                 &QMap but this type has a higher algorythmic complexity     \\
+                                 &making it slower that QHash. Because of this I have only   \\
+                                 &used the QHash type and not QMap. You can find more        \\
+                                 &information \href{https://doc.qt.io/qt-5/qhash.html}{here} \\ \hline
+            QStringList          &This is a type derived from QList and is design to only    \\
+                                 &house QStrings and nothing else. More information can be   \\
+                                 &\href{http://doc.qt.io/qt-5/qstringlist.html}{here}        \\ \hline
+            qint64               &This is an integear type that have 64 bytes of memory      \\
+                                 &allocated to it. This will likely only be used for the     \\
+                                 &progress bars and nothing else. Data about this type can be\\
+                                 &found                                                      \\
+                                 &\href{https://doc.qt.io/qt-5/qtglobal.html#qint64-typedef}{here} \\ \hline
+
+        \end{tabular}
+    \end{center}
+    \caption{qt data structures} \label{fig:qtDataStructs}
+\end{figure}
+
+\begin{figure}[H]
     \begin{center}
         \begin{tabular} { | c | c | c |}
             \hline
@@ -1122,7 +1297,7 @@ Qt has a class call QThread which allow threading in qt.
                                              &&parseVideo with the response. It is defined in \\
                                              &&HttpHandler.cpp and descibed here at figure    \\
                                              &&\ref{fig:HttpHandler class layout}             \\ \hline
-            downloading       &  QSttring    &This contains a breif description about what has\\
+            downloading       &  QString     &This contains a brief description about what has\\
                                              &&most recently been downloaded and is use in    \\
                                              &&parseVideo to control the program flow which is\\
                                              &&described in the flowchart at ~\ref{}          \\ \hline
@@ -1131,22 +1306,228 @@ Qt has a class call QThread which allow threading in qt.
                                              &&~\ref{fig:Struct layout}. Essentially this     \\
                                              &&variable is use to contain the different       \\
                                              &&qualities availiable.                          \\ \hline
-            expression         &  QRegExp    &This variable is use to store the regex that is \\
+            expression        &   QRegExp    &This variable is use to store the regex that is \\
                                              && is use to extract the information. It changes \\
                                              && frequently as it changes to extract different \\
                                              &&pieces of information.                         \\ \hline
-            title              &  QString    &This is use to contain the title of the video   \\
+            title             &   QString    &This is use to contain the title of the video   \\
                                              && downloaded and is inserted into the database  \\
                                              &&as the title of the song after the download.   \\
                                              &&It is also used to save the name of the file   \\ \hline
-            step                &   int      &This is used to store the current step in the   \\
+            step              &     int      &This is used to store the current step in the   \\
                                              &&program flow.                                  \\ \hline
-            html                &  QString   &This contains the response of the most recent   \\
+            html              &    QString   &This contains the response of the most recent   \\
                                              &&download.                                      \\ \hline
-
+            \multicolumn{3} {| c |}{\textbf{Main data types in PlayerWindow and AudioPlayer class}}\\ \hline
+            \textbf{Variable Name}&\textbf{Type}&           \textbf{Summary}                  \\ \hline
+            player            &  AVplayer    &This is part of QtAv and is used to display the \\
+                                             &&video and play the audio for the preview. Most \\
+                                             &&of the interaction for the preview will be done\\
+                                             &&through this class.                            \\ \hline
         \end{tabular}
     \end{center}
     \caption{Data table fig 2} \label{fig:dataTable2}
 \end{figure}
+
+
+\begin{figure}[H]
+    \begin{center}
+        \begin{tabular} { | c | c | c |}
+            \hline
+            playBtn           & QPushButton  &This is a button that the user can both pause   \\
+                                             &&and play the select media                      \\ \hline
+            slider            & QSlider      &This is used to create a slider so that the user\\
+                                             &&can skip forward or backward in the media      \\ \hline
+            progressBar       & QProgressBar &This is used to display the progress of either  \\
+                                             &&the download progress if it is an instance of  \\
+                                             &&PlayerWindow or the burn progress if it is an  \\
+                                             &&instance of AudioPlayer                        \\ \hline
+
+
+            \multicolumn{3} {| c |}{\textbf{Main data types in PlayerWindow class}}           \\ \hline
+            \textbf{Variable Name}&\textbf{Type}&           \textbf{Summary}                  \\ \hline
+            videoOutput       & VideoOutput  &This is used to render the video data for player\\
+                                             &&variable and is part of the QtAv libary        \\ \hline
+            currentVideo      &VideoYoutube  &This is use to hold the current video currently \\
+                                             &&selected to access properties like the video   \\
+                                             &&url needed to stream the data                  \\
+            downloadBtn       & QPushButton  &This is a button used to initate the download   \\
+                                             &&process for the currently selected video       \\ \hline
+            quality           & QComboBox    &This is a drop down box that is used to select  \\
+                                             &&the quality that you want to download.         \\
+            \multicolumn{3} {| c |}{\textbf{Main data types in AudioPlayer class}}            \\ \hline
+            \textbf{Variable Name}&\textbf{Type}&           \textbf{Summary}                  \\ \hline
+            trackList         &QList<QString>&This is used to store all of the tracks in the  \\
+                                             &&currently selected playlist so that the tracks \\
+                                             &&can be burned to disc and player.              \\ \hline
+            burnBtn           & QPushButton  &This is a button used to initate the burn       \\
+                                             &&process for the tracks in the select playlist  \\
+            forwardBtn        & QPushButton  &This skips forward a single track and plays it  \\ \hline
+            backBtn           & QPushButton  &This skips back a single track and plays it     \\ \hline
+            burnerThread      & QThread      &This will be the thread to burn music to a CD   \\ \hline
+            \multicolumn{3} {| c |}{\textbf{Main data types in LibraryTab class}}             \\ \hline
+            \textbf{Variable Name}&\textbf{Type}&           \textbf{Summary}                  \\ \hline
+            playlistView      & QListWidget  &This is used to display the playlists that are  \\
+                                             &&stored in the database so that the use user    \\
+                                             &&can select them.                               \\ \hline
+            dataHandler      &DatabaseHandler&This is a custom class that is describe in fig  \\
+                                             &&~\ref{fig:DatabaseHandler class layout} .      \\
+                                             &&It is used in this class retrive the necessary \\
+                                             &&data and display it to the user                \\ \hline
+            tableView         &QStackWidget  &This contains multiple instances of PlaylistView\\
+                                             &&and displays the one that the user has         \\
+                                             &&currently selected in playlistView.            \\ \hline
+            playlistAdder     & PlaylistAdder&This is used to create playlists that are then  \\
+                                             &&added to playlistView                          \\ \hline
+        \end{tabular}
+    \end{center}
+    \caption{Data table fig 3} \label{fig:dataTable3}
+\end{figure}
+
+
+\begin{figure}[H]
+    \begin{center}
+        \begin{tabular} { | c | c | c |}
+            \hline
+
+            \multicolumn{3} {| c |}{\textbf{Main data types in DataHandler class}}            \\ \hline
+            \textbf{Variable Name}&\textbf{Type}&           \textbf{Summary}                  \\ \hline
+            dbName            &   QString    &This is the name of the database file that all  \\
+                                             &&the data is save to. Since the databse is saved\\
+                                             &&in the downloads folder it is prefixed with    \\
+                                             &&"Downloads/"                                   \\ \hline
+            db                &QSqlDatabase  &This is used as an interface for the database   \\
+                                             &&file meaning all queries are executed by this  \\
+                                             &&object.                                        \\ \hline
+            playlists         &QList         &This list is used to store all playlists that   \\
+                              &<shared\_ptr <&are either found in the database or are created \\
+                              &Playlist> >   &during runtime                                  \\ \hline
+            allSongs          &shared\_ptr   &This holds a pointer to a playlist object which \\
+                              &<Playlist>    &holds the allSongs table. This will be used to  \\
+                                             &&update the view after songs have been inserted \\
+                                             &&into allSongs                                  \\ \hline
+            \multicolumn{3} {| c |}{\textbf{Main data types in PlaylistView class}}           \\ \hline
+            \textbf{Variable Name}&\textbf{Type}&           \textbf{Summary}                  \\ \hline
+            isDragging        &   bool       &This is will be used to determine whether the   \\
+                                             &&user is current dragging a track or is just    \\
+                                             &&clicking.                                      \\ \hline
+            yPos              &QList <int>   &This is a list of the y coordinates of the rows \\
+                                             &&of tables in the table view. This will be used \\
+                                             &&to find out the which track the user is        \\
+                                             &&currently dragging                             \\ \hline
+            \multicolumn{3} {| c |}{\textbf{Main data types in Playlist class}}               \\ \hline
+            \textbf{Variable Name}&\textbf{Type}&           \textbf{Summary}                  \\ \hline
+            name              &  QString     &This will be the name of the table the playlist \\
+                                             &&object represents.                             \\ \hline
+            view              & PlalistView  &This will be used to create a view of the table \\
+                                             &&selected.                                      \\ \hline
+                              &              &                                                \\
+        \end{tabular}
+    \end{center}
+    \caption{Data table fig 4} \label{fig:dataTable4}
+\end{figure}
+
+\section{Technical and coding styles}
+
+\subsection{Window.cpp}
+
+\renewcommand\mylstcaption{Contents of Window.cpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../Window.cpp}
+\end{mdlisting}
+
+\renewcommand\mylstcaption{Contents of Window.hpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../Window.hpp}
+\end{mdlisting}
+
+
+\subsection{DownloadTab.cpp}
+
+\renewcommand\mylstcaption{Contents of DownloadTab.cpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../DownloadTab.cpp}
+\end{mdlisting}
+
+\renewcommand\mylstcaption{Contents of DownloadTab.hpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../DownloadTab.hpp}
+\end{mdlisting}
+
+\subsection{LibraryTab.cpp}
+
+\renewcommand\mylstcaption{Contents of LibraryTab.cpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../LibraryTab.cpp}
+\end{mdlisting}
+
+\renewcommand\mylstcaption{Contents of LibraryTab.hpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../LibraryTab.hpp}
+\end{mdlisting}
+
+\subsection{DataHandler.cpp}
+
+\renewcommand\mylstcaption{Contents of DataHandler.cpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../DataHandler.cpp}
+\end{mdlisting}
+
+\renewcommand\mylstcaption{Contents of DataHandler.hpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../DataHandler.hpp}
+\end{mdlisting}
+
+\subsection{HttpHandler.cpp}
+
+\renewcommand\mylstcaption{Contents of HttpHandler.cpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../HttpHandler.cpp}
+\end{mdlisting}
+
+\renewcommand\mylstcaption{Contents of HttpHandler.hpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../HttpHandler.hpp}
+\end{mdlisting}
+
+\subsection{PlayerWindow.cpp}
+
+\renewcommand\mylstcaption{Contents of PlayerWindow.cpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../PlayerWindow.cpp}
+\end{mdlisting}
+
+\renewcommand\mylstcaption{Contents of PlayerWindow.hpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../PlayerWindow.hpp}
+\end{mdlisting}
+
+\subsection{ExternalProcess.cpp}
+
+\renewcommand\mylstcaption{Contents of ExternalProcess.cpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../ExternalProcess.cpp}
+\end{mdlisting}
+
+\renewcommand\mylstcaption{Contents of ExternalProcess.hpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../ExternalProcess.hpp}
+\end{mdlisting}
+
+\subsection{VideoYoutube.cpp}
+
+\renewcommand\mylstcaption{Contents of VideoYoutube.cpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../VideoYoutube.cpp}
+\end{mdlisting}
+
+\renewcommand\mylstcaption{Contents of VideoYoutube.hpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../VideoYoutube.hpp}
+\end{mdlisting}
+
+\section{Testing}
+
+\section{Evaluation}
 
 \end{document}
