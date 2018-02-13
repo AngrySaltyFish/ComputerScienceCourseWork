@@ -23,6 +23,7 @@ void DownloadWidget::init()
     preview->init();
 
     connect(videoList, SIGNAL (itemSelectionChanged()), this, SLOT (itemSelectionChanged()));
+    connect(videoList, SIGNAL (finishedSearch()), this, SLOT (changeButtonStatus()));
     connect(currentVideo, SIGNAL (analysingFinished()), SLOT (showVideo()));
     connect(currentVideo, SIGNAL (audioDownloadFinished(QString, QString)), SLOT(processDownloadVideo(QString, QString)));
 }
@@ -47,9 +48,14 @@ void DownloadWidget::layout()
 }
 void DownloadWidget::search()
 {
+    searchBtn->setEnabled(false);
     videoList->clear();
     QString text = searchBar->text();
     videoList->searchYoutube(text);
+}
+void DownloadWidget::changeButtonStatus()
+{
+    searchBtn->setEnabled(true);
 }
 void DownloadWidget::itemSelectionChanged()
 {
@@ -102,10 +108,15 @@ void SearchList::requestReceived(QNetworkReply *reply)
     {
 	    QString elementText = element.toPlainText();
 	    elementText = elementText.section('\n', 0, 0);
-	    urlMap[elementText] = element.firstChild().firstChild().attribute("href");
+            QString id = element.firstChild().firstChild().attribute("href");
+
+            if (elementText.contains("Channel") || elementText.contains("Playlist") || id.contains("https"))
+                continue;
+
+	    urlMap[elementText] = id;
 	    this->addItem(elementText);
     }
-
+    emit finishedSearch();
 }
 void SearchList::searchYoutube(QString text)
 {

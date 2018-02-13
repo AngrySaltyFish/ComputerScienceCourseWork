@@ -19,6 +19,8 @@ public:
     SearchList();
     void searchYoutube(const QString text);
     std::map<QString, QString> urlMap;
+signals:
+    void finishedSearch();
 private slots:
     void requestReceived(QNetworkReply *reply);
 private:
@@ -40,6 +42,8 @@ private slots:
     void itemSelectionChanged();
     void showVideo();
     void processDownloadVideo(QString, QString);
+    void changeButtonStatus();
+
 
 private:
     QPushButton *searchBtn;
