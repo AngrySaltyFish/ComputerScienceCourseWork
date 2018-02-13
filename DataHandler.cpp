@@ -136,6 +136,7 @@ Playlist::Playlist(QString name, QObject *parent, QSqlDatabase database) :
     db(database)
 {
     this->setJoinMode(QSqlRelationalTableModel::LeftJoin);
+    this->setTable(name);
     update();
 
     view = new PlaylistView();
@@ -286,9 +287,9 @@ void Playlist::update()
 {
     if (name == "AllSongs")
     {
-        qDebug() << "triggered!!";
-        this->setTable(name);
+        db.open();
         this->select();
+        db.close();
     }
     else
     {
@@ -297,7 +298,6 @@ void Playlist::update()
                 "SELECT AllSongs.id, trackName, artist, Genere, Duration FROM AllSongs JOIN " + name + " ON AllSongs.id = " + name + ".TrackId;"
                 );
         this->setQuery(query);
-        this->select();
         db.close();
     }
 }
