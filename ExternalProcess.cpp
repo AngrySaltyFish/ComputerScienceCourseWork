@@ -72,25 +72,32 @@ BurnerThread::BurnerThread(QList < QString > list, QString progName) :
     connect(process, SIGNAL(readyReadStandardOutput()), this, SLOT(extractDevId()));
     process->start(programName, args);
 }
-void BurnerThread::startBurn(QString trackName)
+void BurnerThread::startBurn(QList<QString>::iterator it)
 {
-    QProcess *burnProcess = new QProcess();
+    process->kill();
 
     if (args.length() > 5)
         args.removeLast();
 
-    args.append(trackName);
+    args.append(*it);
 
-    connect(burnProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+    process->setArguments(args);
+
+    connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
     [=](int exitCode, QProcess::ExitStatus exitStatus){
-    qDebug() << "Output: " << burnProcess->readAllStandardError();
+    qDebug() << "Output: " << process->readAllStandardError();
     emit changeProgress();
-    processCount++;
-    if (this->trackList.length() == processCount)
+    it++;
+    qDebug() << "The value of it: " << *it;
+
+    if (it != this->trackList.end())
+        startBurn(it);
+    else
         delete this;
+
     });
 
-    burnProcess->start(programName, args);
+    process->start();
 
 }
 void BurnerThread::extractDevId()
@@ -124,7 +131,8 @@ void BurnerThread::extractDevId()
     args << "-tao";
     args << "-multi";
 
-    for (int i = 0; i < this->trackList.size(); ++i)
-        startBurn(this->trackList.at(i));
+    process->disconnect();
+
+    startBurn(this->trackList.begin());
 }
 

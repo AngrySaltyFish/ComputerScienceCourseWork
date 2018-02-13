@@ -206,7 +206,7 @@ void Playlist::playSong(int rowId)
             if (query.record().isEmpty())
                 break;
 
-            query.first();
+            query.next();
             trackList.append("Downloads/" + query.value(0).toString() + ".wav");
 
             songId = rowIdToSongData(i, QString("TrackId")).toString();

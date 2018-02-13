@@ -160,7 +160,7 @@ void PlayerWindow::changeDownloadProgress(qint64 currentProgress, qint64 totalBy
     progressBar->setValue(currentProgress);
 
     if (currentProgress == totalBytes)
-        progressBar->setValue(0);
+        progressBar->reset();
 }
 
 
@@ -214,12 +214,14 @@ void AudioPlayer::burnPlaylist()
 {
     progressBar->reset();
     BurnerThread* burner = new BurnerThread(this->trackList, "cdrecord");
-    progressBar->setRange(0, this->trackList.length());
+    progressBar->setMaximum(this->trackList.length());
+    progressBar->setValue(0);
 
     connect(burner, SIGNAL(changeProgress()), this, SLOT(changeBurnProgress()));
 }
 void AudioPlayer::changeBurnProgress()
 {
+    qDebug() << "Progress Made";
     currentProgress++;
     progressBar->setValue(currentProgress);
 }
