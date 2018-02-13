@@ -55,7 +55,7 @@ class PlaylistView : public QTableView
 signals:
     void deleteRow(int);
     void reorderSong(int, int);
-    void playSong(int);
+    void playSong(int, bool);
 
     private:
     QList <int> yPos;
@@ -89,12 +89,15 @@ class Playlist : public QSqlRelationalTableModel
     void update();
 
     signals:
-        void playTrack(QList < QString >, int);
+        void playTrack(int);
 
     private slots:
         void reorderRow(int, int);
         void removeRow(int);
-        void playSong(int);
+
+    public slots:
+        QList < QString > getTrackList(int, bool);
+
     private:
     const QString name;
     QSqlDatabase db;

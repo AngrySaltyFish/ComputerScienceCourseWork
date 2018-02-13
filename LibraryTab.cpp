@@ -22,8 +22,11 @@ void LibraryTab::layout()
     QGridLayout *grid = new QGridLayout(this);
     PlaylistAdder *adder = new PlaylistAdder();
     PlayListView *playlistView = new PlayListView(dataHandler, tableView);
-    AudioPlayer *audioPlayer = new AudioPlayer();
 
+
+    AudioPlayer *audioPlayer = new AudioPlayer(dataHandler->getPlaylists().at(0)->getTrackList(0, true));
+
+    connect(playlistView, SIGNAL(updateTrackList(QList < QString >)), audioPlayer, SLOT(updateTrackList(QList < QString >)));
     connect(adder, SIGNAL(createPlaylist(QString)), dataHandler, SLOT(createPlaylist(QString)));
     connect(dataHandler, SIGNAL(playlistCreated()), playlistView, SLOT(extractFromDB()));
 
@@ -31,7 +34,7 @@ void LibraryTab::layout()
     QList <std::shared_ptr<Playlist>> playlists = dataHandler->getPlaylists();
 
     for (int i = 0; i < playlists.size(); ++i)
-        connect(playlists.at(i).get(), SIGNAL (playTrack(QList < QString >, int)), audioPlayer, SLOT (openMedia(QList < QString >, int)));
+        connect(playlists.at(i).get(), SIGNAL (playTrack(int)), audioPlayer, SLOT (openMedia(int)));
 
     grid->addWidget(playlistView, 0, 0);
     grid->addWidget(adder, 1, 0);
@@ -56,7 +59,7 @@ void PlayListView::extractFromDB()
 {
     QList <std::shared_ptr<Playlist>> playlists = handler->getPlaylists();
 
-    for (int i = 0; i < playlists.size(); ++i) 
+    for (int i = 0; i < playlists.size(); ++i)
     {
         if (stack->indexOf(playlists.at(i)->getView()) == -1)
         {
@@ -68,6 +71,7 @@ void PlayListView::extractFromDB()
 void PlayListView::changePlaylist(int index)
 {
     stack->setCurrentIndex(index);
+    emit updateTrackList(handler->getPlaylists().at(index)->getTrackList(index, true));
 }
 void PlayListView::dropEvent(QDropEvent *event)
 {

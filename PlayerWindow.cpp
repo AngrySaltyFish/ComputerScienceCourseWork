@@ -167,7 +167,8 @@ void PlayerWindow::changeDownloadProgress(qint64 currentProgress, qint64 totalBy
 }
 
 
-AudioPlayer::AudioPlayer()
+AudioPlayer::AudioPlayer(QList < QString > tracks) :
+    trackList(tracks)
 {
     progressBar = new QProgressBar();
 
@@ -175,14 +176,18 @@ AudioPlayer::AudioPlayer()
     btns();
     layout();
 }
-void AudioPlayer::openMedia(QList < QString > trackList, int index)
+void AudioPlayer::openMedia(int index)
 {
-    this->trackList = trackList;
     this->index = index;
     qDebug() << "Song to play : " << trackList.at(index);
 
     player->setFile(trackList.at(index));
     player->play();
+}
+void AudioPlayer::updateTrackList(QList < QString > tracks)
+{
+    qDebug() << "First track is: " << tracks.at(0);
+    this->trackList = tracks;
 }
 void AudioPlayer::btns()
 {

@@ -141,11 +141,11 @@ Playlist::Playlist(QString name, QObject *parent, QSqlDatabase database) :
     view = new PlaylistView();
     connect(view, SIGNAL (deleteRow(int)), this, SLOT(removeRow(int)));
     connect(view, SIGNAL (reorderSong(int, int)), this, SLOT(reorderRow(int, int)));
-    connect(view, SIGNAL (playSong(int)), this, SLOT (playSong(int)));
+    connect(view, SIGNAL (playSong(int, bool)), this, SLOT (getTrackList(int, bool)));
 
     view->setModel(this);
     view->hideColumn(0);
-    view->setEditTriggers(QAbstractItemView::NoEditTriggers); 
+    view->setEditTriggers(QAbstractItemView::NoEditTriggers);
     view->setSelectionBehavior(QAbstractItemView::SelectRows);
     view->setSelectionMode(QAbstractItemView::SingleSelection);
     view->resizeRowsToContents();
@@ -173,8 +173,9 @@ void Playlist::reorderRow(int startId, int destinationId)
     db.close();
     update();
 
+
 }
-void Playlist::playSong(int rowId)
+QList < QString > Playlist::getTrackList(int rowId, bool noSignal=false)
 {
     QList < QString > trackList;
 
@@ -214,9 +215,10 @@ void Playlist::playSong(int rowId)
             i++;
         }
     }
+    if (!noSignal)
+        emit playTrack(rowId);
 
-
-    emit playTrack(trackList, rowId);
+    return trackList;
 }
 QVariant Playlist::rowIdToSongData(int rowId, QString column)
 {
@@ -353,7 +355,7 @@ void PlaylistView::mouseDoubleClickEvent(QMouseEvent *event)
         else
             return;
 
-        emit playSong(rowId);
+        emit playSong(rowId, false);
     }
 }
 void PlaylistView::keyPressEvent(QKeyEvent *key)

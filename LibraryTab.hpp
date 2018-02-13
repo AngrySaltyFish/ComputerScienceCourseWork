@@ -18,7 +18,7 @@ private:
     QListWidget *playlistView;
     DatabaseHandler *dataHandler;
     QStackedWidget *tableView;
-    
+
     void init(MainWidget *);
     void layout();
 };
@@ -34,6 +34,8 @@ private slots:
     void dropEvent(QDropEvent *);
 public slots:
     void extractFromDB();
+signals:
+    void updateTrackList(QList < QString >);
 
 private:
     DatabaseHandler *handler;

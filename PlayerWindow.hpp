@@ -63,10 +63,11 @@ class AudioPlayer : public PlayerWindow
     Q_OBJECT;
 
     public:
-    explicit AudioPlayer();
+    explicit AudioPlayer(QList < QString >);
 
     public Q_SLOTS:
-        void openMedia(QList < QString >, int);
+        void openMedia(int);
+        void updateTrackList(QList < QString >);
 
     private Q_SLOTS:
         void changeBurnProgress();
