@@ -83,6 +83,7 @@ void PlayerWindow::btns()
 
 void PlayerWindow::openMedia(VideoYoutube *video)
 {
+    this->currentVideo = NULL;
     QList< QPair<QString, int> > qualities = video->getSupportedQualities();
 
     quality->clear();
