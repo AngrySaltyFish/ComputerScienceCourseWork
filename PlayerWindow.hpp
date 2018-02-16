@@ -29,6 +29,7 @@ private Q_SLOTS:
     void startDownload();
     void changeQuality(int);
     void changeDownloadProgress(qint64, qint64);
+    void enableBtn(QString, QString);
 
 protected Q_SLOTS:
     void updateSlider(qint64 value);

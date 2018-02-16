@@ -94,6 +94,7 @@ void PlayerWindow::openMedia(VideoYoutube *video)
     player->play(video->getVideoUrl());
     player->setExternalAudio(video->getAudioUrl());
     currentVideo = video;
+    connect(currentVideo, SIGNAL(audioDownloadFinished(QString, QString)), this, SLOT (enableBtn(QString, QString)), Qt::UniqueConnection);
 }
 
 void PlayerWindow::changeQuality(int index)
@@ -154,7 +155,13 @@ void PlayerWindow::startDownload()
     if (!currentVideo)
         return;
     connect(currentVideo->getHandler(), SIGNAL(downloadProgress(qint64, qint64)), SLOT(changeDownloadProgress(qint64, qint64)));
+    downloadBtn->setEnabled(false);
     currentVideo->download();
+}
+
+void PlayerWindow::enableBtn(QString _, QString __)
+{
+    downloadBtn->setEnabled(true);
 }
 
 void PlayerWindow::changeDownloadProgress(qint64 currentProgress, qint64 totalBytes)
