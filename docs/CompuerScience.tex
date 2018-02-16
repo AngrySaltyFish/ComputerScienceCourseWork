@@ -4,10 +4,10 @@
 \usepackage{color}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
-\usepackage{hyperref}
-\usepackage{tikz}
+\usepackage{hyperref} \usepackage{tikz}
 \usepackage{rotating}
 \usepackage{float}
+\usepackage{subfloat}
 \usepackage[framemethod=tikz]{mdframed}
 
 \usetikzlibrary{calc,positioning,shapes,shadows,arrows}
@@ -213,7 +213,59 @@ program using a USB and have it work on to. This also means I need to consider
 network restrictions of when I run the program in school and how some websites
 that I may use could be blocked.
 
+\subsection{Client Interview}\label{ClientInterview}
+This section will present some of the more important questions I asked the client
+and her answer:
 
+\begin{itemize}
+    \item How do you currently do the task?
+    \begin{itemize}
+        \item "At the moment I ask someone else like my son who gets the music from the web"
+    \end{itemize}
+    \item What devices do you perform the task on and how slow are they?
+    \begin{itemize}
+        \item "Currently I use my work and personal laptop which are both old and quite slow.
+            I also use a very old cuba player to play the music so it needs to work with that"
+    \end{itemize}
+    \item What problems do you face with your current system?
+    \begin{itemize}
+        \item "My son does not always have the time to do it for me and he is going to university
+            next year so it is not sustainable for me to keep asking him"
+    \end{itemize}
+    \item What would be your solution to the problem?
+    \begin{itemize}
+        \item "I would like the same process that my son does to be automated and user friendly"
+    \end{itemize}
+
+\end{itemize}
+
+\subsection{Solutions already out there}\label{Solutions}
+There are already numerous applications and websites that can download youtube videos but none of
+them will then proceeded to burn the music onto a CD. The most popular of these is "youtube-dl"
+which is written in python. Due to it being written in python and my application writted in c++
+it is difficult to interact betwen the two. One approach that I though about taking was to download
+the videos with the youtube-dl windows execuatable. There are a couple of problems with this, the
+first is that it is very slow due to it being compile from a python language making it not very pratical.
+The second problem was that there is only a windows version of the executable meaning it would not
+able to run on other systems.
+
+\subsection{Hardware and Software limitaions}\label{SoftwareAndHardware}
+This application will either be running on a personal computer or a school computer.
+Since there is a possiblity that it will be running as part of a network on a school
+computer I need to consider certain restrictions that will be put upon the program.
+One obvious limitaion would be that the user is unlikely to have admin permissions
+so I need to ensure that a normal user can run this program. The operating systems
+that the school currently uses is Windows but I would like to keep it as cross-platform
+as possble as people may run different OSs at home and the school may transition to
+a different operating system in the future.
+
+Generally speaking the hardware on the computer old and slow which suits my language choice
+of c++ well as c++ is typically faster than languages like python. Also the cross-platform
+nature of qt will make it flexiable with older systems.
+
+The client does already have a cd read and writer built into the laptop meaning the only
+additional hardware that is required for the user to buy is the actual CDs to burn the
+music onto.
 
 \section{Design}\label{design}
 
@@ -1527,6 +1579,53 @@ the start of their name. These data structures are described in figure ~\ref{fig
 \end{mdlisting}
 
 \section{Testing}
+In this section I will test my built application agaisnt the objectives that I originally stated and make sure
+that my applications fulfills the purpose it is meant to.
+
+
+\begin{figure}[H]
+    \begin{center}
+        \begin{tabular} { | c | c | c | c | c | c |}
+            \hline
+            \textbf{Test Id}&         \textbf{TestDescription}         &   \textbf{Data type}   &\textbf{Pass/Fail}& \textbf{Cross reference}\\ \hline
+            1               &Can type into the search bar and search   &      Normal            &       Pass       &                         \\ \hline
+            2               &Tried to repeatedly search for a video    &      Errounous         &       Pass       &                         \\ \hline
+                            &without the progress bar becomming messed &                        &                  &                         \\
+                            &up                                        &                        &                  &                         \\ \hline
+            3               &Preview a video and setting a different   &      Normal            &       N/A        &                         \\
+                            &quality.                                  &                        &                  &                         \\ \hline
+            4               &Able to download a video with the progress&      Normal            &       Pass       &                         \\
+                            &bar being updated periodically.           &                        &                  &                         \\ \hline
+            5               &Download a video with multiple special    &      Normal            &       Pass       &                         \\
+                            &characters in it.                         &                        &                  &                         \\ \hline
+            6               &Able to switch entries in the database    &      Normal            &       Pass       &                         \\
+                            &with one another.                         &                        &                  &                         \\ \hline
+            7               &Able to delete items in playlists and     &      Normal            &       N/A        &                         \\
+                            &remove them from the database             &                        &                  &                         \\ \hline
+            8               &Buttons do not raise an error in any state&      Erroneous         &       Fail       &                         \\ \hline
+            9               &The burning process runs on linux without &      Erroneous         &       Fail       &                         \\
+                            &permission errors.                        &                        &                  &                         \\ \hline
+            10              &The burning process works on windows      &      Erroneous         &       Pass       &                         \\
+                            &and on linux when being run with sudo     &                        &                  &                         \\ \hline
+            11              &Can play songs on a playlist and switch   &      Normal            &       Pass       &                         \\
+                            &between them.                             &                        &                  &                         \\ \hline
+
+
+        \end{tabular}
+    \end{center}
+    \caption{Testing table 1} \label{fig:testTable1}
+\end{figure}
+
+\begin{figure}[H]
+    \begin{center}
+        \begin{tabular} {ccc}
+            \hline
+            \subfloat[caption]{\includegraphics[width = 2in]{something}} &
+
+        \end{tabular}
+    \end{center}
+    \caption{Testing Sample 1} \label{fig:tSample}
+\end{figure}
 
 \section{Evaluation}
 
