@@ -120,7 +120,8 @@ void SearchList::requestReceived(QNetworkReply *reply)
 }
 void SearchList::searchYoutube(QString text)
 {
-    QString searchUrl = QString("https://www.youtube.com/results?search_query=") + text;
+    //QString searchUrl = QString("https://www.youtube.com/results?search_query=") + text;
+    QString searchUrl = QString("https://www.youtube.com/results?sp=EgIwAQ%253D%253D&search_query=") + text;
 
     searchUrl.replace(QString(' '), QString('+'));
     networkManger->get(QNetworkRequest(QUrl(searchUrl)));
