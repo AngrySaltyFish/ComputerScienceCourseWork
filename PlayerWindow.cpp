@@ -194,7 +194,6 @@ void AudioPlayer::openMedia(int index)
 }
 void AudioPlayer::updateTrackList(QList < QString > tracks)
 {
-    qDebug() << "First track is: " << tracks.at(0);
     this->trackList = tracks;
 }
 void AudioPlayer::btns()
