@@ -229,6 +229,8 @@ void AudioPlayer::previousSong()
 }
 void AudioPlayer::burnPlaylist()
 {
+    if (!trackList.length())
+        return;
     progressBar->reset();
     BurnerThread* burner = new BurnerThread(this->trackList, "cdrecord");
     progressBar->setMaximum(this->trackList.length());
