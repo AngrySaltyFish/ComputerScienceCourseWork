@@ -8,6 +8,7 @@
 \usepackage{tikz}
 \usepackage{float}
 \usepackage{subfig}
+\usepackage{array}
 %\usepackage{subfloat}
 \usepackage[framemethod=tikz]{mdframed}
 \usetikzlibrary{calc,positioning,shapes,shadows,arrows}
@@ -25,8 +26,7 @@
 \tikzstyle{decision} = [diamond, minimum width=3cm,
     text width=5em, minimum height=1cm, text centered, draw=black, fill=green!30]
 \tikzstyle{process} = [rectangle, minimum width=3cm,
-    text width=20em, minimum height=1cm, text centered, draw=black, fill=orange!30]
-\tikzstyle{arrow} = [thick,->,>=stealth]
+    text width=20em, minimum height=1cm, text centered, draw=black, fill=orange!30] \tikzstyle{arrow} = [thick,->,>=stealth]
 \tikzset{
     hyperlink node/.style={
         alias=sourcenode,
@@ -104,6 +104,7 @@ splittopskip=2\baselineskip
 }
 \surroundwithmdframed[style=mymdstyle]{lstlisting}
 \newmdenv[style=mymdstyle]{mdlisting}
+\newcolumntype{C}[1]{>{\centering}m{#1}}
 \begin{document}
 \maketitle
 \tableofcontents
@@ -113,98 +114,34 @@ splittopskip=2\baselineskip
 \subsection{Background}\label{background}
 The main goal of this software to satisfy the client and their needs so
 to do this successfully I need explain the situation my client
-is in. My current client is a primary school teacher who would like to
-use certain music during performances by the students. An example of a
+is in.
+
+My client is a primary school teacher who would like to
+use certain music during performances by the students. She genrally teaches
+students of the age of 4 to 5. An example of a
 song that would be needed by my client would a nursery rhyme like ``if
 your happy and you know in clap your hands''. The current system in
 place is virtually non existent by getting songs from online
-and from CDs. It should be noted that the current method of playing this music
+and from CDs. This is usually means
+going to websites that offer free versions of the songs and downloading
+mp3 files from them. This is a poor solution to the problem as these website
+are generally not trust worthy. Another solution that my client
+currently uses is using spotify, the music streaming service. This still
+is not a perfect system as many nursary rymes or less well known songs do
+exist on it. The final method is by purchsing cds containing the songs
+and then playing them. This is not perfect either as it becomes expensive
+and usually only get a couple of the desired songs.
+It should be noted that the current method of playing this music
 is through a CD player and that this application needs to be able to
 burn the new music onto a CD so it can still be played through the CD
 player.
 Since the user is going to have little technical knowledge the program
 needs to be easy to use which means I will need to have a GUI interface
 instead of a CLI one. So far there is only demand by a single client but
-I think that it should be able to have multiple users use it if need be.
-\subsection{The problem}\label{the-problem}
-Given this information the problem that I need to solve with this
-application is to be able to get music from online and burn it to a disk
-for my client to use. With this I can start to outline some objectives I
-want this program to meet.
-\begin{itemize}
-        \tightlist
-    \item
-        To be able to download music and store it
-    \item
-        Create playlists of these songs that my client can burn onto different
-        disks
-    \item
-        Being able to burn these disks within the application
-    \item
-        Must be able to work on almost any environment without programs being
-        pre-install
-\end{itemize}
-For the first item on the list I need to consider where I get the music
-from and whether it has copy right protection on it. My original thought
-on this was to use YouTube as this by far has the most variety of music
-on it and it would be familiar to people who use my application. The big
-problem with this was copyright but after a little research I managed to
-find that by editing the URL of the search you can search only for
-copyright free videos which makes YouTube my preferred choice.
-Next on the list I need to think how I would store this download music
-into playlists. The most simple solution to this would be to use folders
-where the folder name would be the name of the playlist and all of the
-contents the song within the playlist. The problem with this is that it
-would end up being slow and could take up considerable space as one song
-could be in multiple playlists meaning that it would have to be copied
-or use symlinks. Considering these factors it would be much more
-efficient to use a database where all of the songs would be in a single
-download folder where the database could organise them into different
-playlists. This also means memory consumption would be at a minimum as I
-could use ids to reference items in other table so there is little
-repeated data. I also need to take into account that after a period of time
-there could be a large number of songs meaning that I need to be able to store
-them in a efficient manner.
-Following the previous item we have to make sure that this application
-will work on computers without being dependent on other programs. This
-is critical for my client. The reasoning behind this is that this
-application may be run upon a work computer where installing additional
-programs is not feasible. Furthermore being able to transfer this
-program using a USB and have it work on to. This also means I need to consider
-network restrictions of when I run the program in school and how some websites
-that I may use could be blocked.
-\subsection{Client Interview}\label{ClientInterview}
-This section will present some of the more important questions I asked the client
-and her answer:
-\begin{itemize}
-    \item How do you currently do the task?
-    \begin{itemize}
-        \item "At the moment I ask someone else like my son who gets the music from the web"
-    \end{itemize}
-    \item What devices do you perform the task on and how slow are they?
-    \begin{itemize}
-        \item "Currently I use my work and personal laptop which are both old and quite slow.
-            I also use a very old cuba player to play the music so it needs to work with that"
-    \end{itemize}
-    \item What problems do you face with your current system?
-    \begin{itemize}
-        \item "My son does not always have the time to do it for me and he is going to university
-            next year so it is not sustainable for me to keep asking him"
-    \end{itemize}
-    \item What would be your solution to the problem?
-    \begin{itemize}
-        \item "I would like the same process that my son does to be automated and user friendly"
-    \end{itemize}
-\end{itemize}
-\subsection{Solutions already out there}\label{Solutions}
-There are already numerous applications and websites that can download youtube videos but none of
-them will then proceeded to burn the music onto a CD. The most popular of these is "youtube-dl"
-which is written in python. Due to it being written in python and my application written in c++
-it is difficult to interact between the two. One approach that I though about taking was to download
-the videos with the youtube-dl windows executable. There are a couple of problems with this, the
-first is that it is very slow due to it being compile from a python language making it not very practical.
-The second problem was that there is only a windows version of the executable meaning it would not
-able to run on other systems.
+I also need to consider what the program is downloading as it should be
+copyright-free material that will not have any legal problems surrounding
+it. The client expressed deep concern over this matter.
+
 \subsection{Hardware and Software limitaions}\label{SoftwareAndHardware}
 This application will either be running on a personal computer or a school computer.
 Since there is a possibility that it will be running as part of a network on a school
@@ -214,12 +151,197 @@ so I need to ensure that a normal user can run this program. The operating syste
 that the school currently uses is Windows but I would like to keep it as cross-platform
 as possible as people may run different OSs at home and the school may transition to
 a different operating system in the future.
-Generally speaking the hardware on the computer old and slow which suits my language choice
-of c++ well as c++ is typically faster than languages like python. Also the cross-platform
-nature of qt will make it flexible with older systems.
-The client does already have a cd read and writer built into the laptop meaning the only
-additional hardware that is required for the user to buy is the actual CDs to burn the
-music onto.
+
+Now that I have outlined the enviroment that the application will run on I need to choose
+the appropiate language and libraries to build it with. I have only used the following
+languages in the past: javascript, python and c++. Javascript is gennerally only used
+for web applications which means it has a lot of support for web scraping which will
+be useful for finding and downloading music. Unfortunatly javascript can be slow
+compared to other programming languages and genrally not used for desktop applications.
+Python, similarly to javascript has a lot of support for networking but is not as fast
+as c++ and python needs to be installed on the target computer before hand. Finally
+we have c++. It is fast compared to python and javascript and since it is compiled
+it does not need any additional programs to be installed beforehand. For this project
+I will choose c++. This is because the computer it will run on is old slow meaning I
+cannot take liberties when it comes to performance and since it is a work computer
+having programs installed beforehand is not an option. This does come with some
+design difficulties, the networking is going to be complex and to ensure that
+the app is cross-platform it may need to be cross-compiled.
+
+Now that I have chosen the language I wish to use I need now carefully pick
+the libraries to use with it. This was an easy choice for as the api I am
+most familiar with in c++ is Qt. This framework provides everything I need
+to use for this project as it allows you to build GUIs and has support for networking.
+It also states an emphasis on cross-platform meaning it aligns with all of my
+objectives.
+
+The client does already have a cd reader and writer built into the laptop meaning the only
+additional hardware that is required is the actual CDs to burn the music onto.
+\subsection{Research}\label{research}
+Following on from the perspective of copyright I need to explore the different
+sources of getting this copyright-free media. My client has mentioned serveral
+times that youtube is the best place to get the music as it contains even
+the most obscure songs. Obvisouly not all content on youtube is copyright-free
+but after investigating the website I discovered a catergory called "creative
+commons" on the search filter. This will then only show videos that have no
+legal restrictions on it. After examining the url it became clear that this
+would also be easy to implement into my application as I can search
+videos with this characterstic on youtube by substituting my query into the
+url.
+
+I was however a little concerned with whether it was possible to download
+videos from the youtube website. After searching around on the internet
+I found various tools that perform this task such as "youtube-dl", there
+are also a couple of websites that do the same thing like "https://www.genyoutube.net/"
+. I did question the client regarding these tools and whether she would
+be happy using something like this. The exact response is given in the interview
+below but essential some of these applications have difficult to use interfaces
+like CLI and lack the ability to orgranise and burn music onto CDs.
+
+Originally thought it may be good to use youtube-dl to download the music
+and then have my application to process and manage the music. However Due to it being written in python
+and my application written in c++
+it is difficult to interact between the two. One approach that I though about taking was to compile
+python and youtube-dl into a windows executable to then download then download the music. There are a couple of problems with this, the
+first is that it is very slow due to it being compile from a python language making it not very practical.
+The second problem was that there is only a windows version of the executable meaning it would not
+able to run on other systems. The second point goes against the clients wishes so
+I dismissed the idea.
+\subsection{Client Interview}\label{ClientInterview}
+This section below is the dialog between me and the client. All of the clients requirements I got through this
+interview.
+\begin{itemize}
+    \item "What problem would you like this project to solve?"
+    \begin{itemize}
+        \item "I need a way to get songs like nursery rymes off the internet and put them on a CD"
+    \end{itemize}
+    \item "Do you have any suggestions to solving the problem?"
+    \begin{itemize}
+        \item "Not really. Perhaps a program that can search the internet for songs and download them.
+            Youtube has a lot of the songs I want perhaps you could use that"
+    \end{itemize}
+    \item "How do you currently do the task?"
+    \begin{itemize}
+        \item "At the moment I sometimes try and get some of the music from the web but I often click the wrong
+            link and click and advert instead, I try to use CDs and spotify when I can"
+    \end{itemize}
+    \item "How much data is recorded to perfrom this task?"
+    \begin{itemize}
+        \item "Usually it just requires me to download a song"
+    \end{itemize}
+    \item "Is there any other information like artist or genere you would like me about each song?"
+    \begin{itemize}
+        \item "I think having artist and genere and that kinda of thing would be useful but isn't a priority"
+    \end{itemize}
+    \item "What devices do you perform the task on and how slow are they?"
+    \begin{itemize}
+        \item "Currently I use my work and personal laptop which are both old and quite slow.
+            I also use a very old cuba player to play the music so it needs to work with that"
+    \end{itemize}
+    \item "What problems do you face with your current system?"
+    \begin{itemize}
+        \item "As I mention before I often accidently click on the wrong thing when using the web, I am also very concern with
+            the legality behind it. It becomes very expensive trying to use other means like spotify or buying CDs"
+    \end{itemize}
+    \item "Can you take me through the steps of the old system in how it worked?"
+    \begin{itemize}
+        \item "I would usually search for a free version of the song online and find a download link. After downloading
+            I would burn the music on a disk using windows. If I can't find a link I try to find it on spotify or
+            buy the actual CD containg the song off amazon"
+    \end{itemize}
+    \item "Are there any parts of the system you would like to do manually?"
+    \begin{itemize}
+        \item "I would ideally like the app to handle everything"
+    \end{itemize}
+    \item "How often do you think you will be using this program?"
+    \begin{itemize}
+        \item "Probbaly about once every one or two months"
+    \end{itemize}
+    \item "What kind of output do you want the program to ouput?"
+    \begin{itemize}
+        \item "A CD containg the songs in the order I want that can be played on the CD player I have"
+    \end{itemize}
+    \item "Are there any constraints this program has to work in?"
+    \begin{itemize}
+        \item "I'm not allowed to install and change stuff on my work computer."
+    \end{itemize}
+    \item "Do you need this program to work on both you work and personal laptop?"
+    \begin{itemize}
+        \item "Yes, if that's possible"
+    \end{itemize}
+    \item "Do you think you'll need to delete this songs at later dates?"
+    \begin{itemize}
+        \item "I usually don't end up delete these songs as I might need them again and it's difficult to
+            download them again"
+    \end{itemize}
+\end{itemize}
+\subsection{Objectives}\label{the-problem}
+Given this information the problem that I need to solve with this
+application is to be able to get music from online and burn it to a disk
+for my client to use. With this I can start to outline some objectives I
+want this program to meet.
+
+\begin{enumerate}
+    \item Allow the user to download music
+
+    \begin{enumerate}
+        \item Must allow the user to search youtube
+        \item Must allow the user to then select from a range of results which are copyright free
+        \item The user must then be allowed to preview a result
+        \item the user must be able to pause, play and seek forward in preview
+        \item Must allow the user to download video being previewed
+    \end{enumerate}
+
+    \item Allow the user to create and organise playlists
+
+    \begin{enumerate}
+        \item Must allow the user to create a named playlist
+        \item Must allow the user to add songs to whichever playlist
+        \item Must allow the user to delete songs from whichever playlist
+        \item Must allow the user to change the order of songs in playlist
+        \item Must allow the user to perfrom these steps using a drag and drop mechanisim
+    \end{enumerate}
+
+    \item Allow the user to burn music to a CD
+
+    \begin{enumerate}
+        \item Must allow the user to select a playlist
+        \item Must allow the user to then initiate the burn process via a button
+        \item Burnt CD must be compatible with old CD player
+        \item Order of songs on the CD must be the same as the order of songs on the playlist
+    \end{enumerate}
+
+    \item The application must be compaitble with different platforms
+
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[node distance = 2cm]
+        \node (start) [startstop] {User enters search term};
+        \node (youtubeSearch) [process, right = of start] {Search youtube with Term};
+        \node (listOfResults) [process, below of = youtubeSearch] {Youtube results from search};
+        \node (userSelect) [process, below of = start] {User selects result};
+        \node (dataStream) [process, below of = userSelect] {Data from result streamed to preview};
+        \node (download) [process, below of = listOfResults] {Download Music};
+        \node (store) [process, below of = download] {Store the name, genre, artist and song in a database};
+        \node (burn) [process, below of = store] {burn song/songs onto a CD};
+
+
+        \draw [arrow] (start) -- node {} (youtubeSearch);
+        \draw [arrow] (youtubeSearch) -- node {} (listOfResults);
+        \draw [arrow] (listOfResults) -- node {} (userSelect);
+        \draw [arrow] (userSelect) -- node {} (dataStream);
+        \draw [arrow] (dataStream) -- node {} (userSelect);
+        \draw [arrow] (userSelect) -- node {} (download);
+        \draw [arrow] (download) -- node {} (store);
+        \draw [arrow] (store) -- node {} (burn);
+    \end{tikzpicture}
+    \caption{Data flow diagram} \label{fig:dataFlowDiagram}
+\end{figure}
+
+
+
 \section{Design}\label{design}
 This section will begin to explain how I plan to create this application.
 \subsection{Outline}\label{outline}
@@ -604,7 +726,54 @@ the songs in "AllSongs".In order to allow these references I will need to use jo
 statements in sql. I need to use this statement as I still want the artist and
 genre columns in the users playlist without having to create this additional columns.
 By using select with these join statement along with the where clause I should
-be able to grab all data that has the same id.
+be able to grab all data that has the same id. The diagram below (fig \ref{fig:databaseDiagram}) should show
+the overall design of the database.
+
+
+\begin{figure}[H]
+    \begin{tikzpicture}[node distance=6cm]
+        \node [left] (artists) {
+                \begin{tabular} {| c | c |}
+                    \hline
+                    \textbf{id}          &      \textbf{artistName} \\ \hline
+                    Primary key int      &      String              \\ \hline
+                \end{tabular}
+            };
+        \node (AllSongs) [below of = artists] {
+                \begin{tabular} {| c | c | p{2.5cm} | p{2.5cm} | c |}
+                    \hline
+                    \textbf{id}         &     \textbf{songName}   &   \textbf{artist}      & \textbf{genere}    &   \textbf{Duration} \\ \hline
+                    Primary Key int     &   String                &Secondary key pointing \
+                                                                  to artist in artist table\
+                                                                  , Int.                   &Secondary Key pointing \
+                                                                                            to genere in genere    \
+                                                                                            table, Int             &  Double          \\ \hline
+                \end{tabular}
+            };
+        \node (genere) [right of = artists] {
+                \begin{tabular} {| c | c |}
+                    \hline
+                    \textbf{id}          &      \textbf{genreName}  \\ \hline
+                    Primary key int      &      String              \\ \hline
+                \end{tabular}
+            };
+
+        \node (playlist) [below of = AllSongs] {
+                \begin{tabular} {| c |}
+                    \hline
+                    \textbf{Song id}                         \\ \hline
+                    Secondary key pointing to AllSongs, Int  \\ \hline
+                \end{tabular}
+            };
+        \draw [arrow] (artists) -- node {} (AllSongs);
+        \draw [arrow] (genere) -- (0.5,-4.9) node {} (AllSongs);
+        \draw [arrow] (playlist) -- (-7.9,-7) node {} (AllSongs);
+
+    \end{tikzpicture}
+    \caption{Database Overview} \label{fig:databaseDiagram}
+\end{figure}
+
+
 A requirement by my client is the ability to reorder the songs. My approach
 to this is to switch the id of the two songs to switch them in the view.
 Due to both id's having the unique property I will need to use the id as
@@ -660,6 +829,23 @@ that I belive I will need for the database.
 As remarked previously a key part to this project is the process
 of extracting the video url from youtube so it can be previewed
 and the sound be downloaded. This section describes this process.
+The series of diagrams below illustrate how I plan to complete this
+objective.
+
+The are a few functions or procedures that I will clarify here. The overall
+object of all of these subroutines is to assign the appropiate format to a
+link and evaulate a signature for each video and audio url. The signature is required
+as witout it being added to the url youtube will reject the request
+as it will not be authorised. In order to extract the necessary javascript code
+to generate the signature the "parseJS" subroutine is called which the goes on
+to call the "extractJSMethod" subroutine. Since there are multiple formats of
+audio and video availiable there are multiple urls and these two subroutines extract each
+javascript method for each url and adds them to the "jsMethods" property. When this
+is originally called the urls for each quality and format have not been found. It is only later
+when "getFmtLink" and "getUrlFromFmtLink" is called the javascript method is
+execute in the "parseSignature" function, returning the signature which is then
+added to the url.
+
 \begin{figure}[H]
     \begin{tikzpicture}[node distance=6cm]
         \node (start) [startstop] {Start to ParseVideo};
@@ -692,7 +878,7 @@ and the sound be downloaded. This section describes this process.
         \draw [arrow] (html5PlayerFound) -- +(5,0) |- node {} (continue);
         \draw [arrow] (ifJs)  -- +(4,0) |- node[anchor=south west] {False} (continue);
         \draw [arrow] (ifSigparse) -- +(10.5,0) |- node[anchor=east] {} (continue);
-    \end{tikzpicture}[node distance=6cm]
+    \end{tikzpicture}
     \caption{Start of parse Video} \label{fig:parseVideoStart}
 \end{figure}
 \begin{figure}[H]
@@ -1279,10 +1465,124 @@ the start of their name. These data structures are described in figure ~\ref{fig
     \caption{Data table fig 4} \label{fig:dataTable4}
 \end{figure}
 \section{Technical and coding styles}
+\subsection{Guide table}
+The table below shown in figure \ref{fig:guideTable} shows the objectives
+and points of reference where the objective has beeb met in the code.
+
+
+\begin{figure}[H]
+    \begin{tabular} {| p{2cm} | p{10cm} |}
+        \hline
+        \textbf{Objective}   &         \textbf{Description and reference}   \\ \hline
+        1(a)                 &This is acheived at listing \ref{lst:download}\
+                              at the "searchYoutube" method of the          \
+                              "Searchlist" class                            \\ \hline
+        1(b)                 &Again this was fullfilled in listing          \
+                              \ref{lst:download} with the "requestReceived" \
+                              method. This method is triggered after a      \
+                              response from a get request. It adds the      \
+                              titles of the videos to the parent which is a \
+                              "QListWidget" allowing the user to select a   \
+                              title.                                        \\ \hline
+        1(c)                 & In listing \ref{lst:download} there is the   \
+                              "itemSelectionChanged" method which is called \
+                              when ever the user selects an item from the   \
+                              "videoList". This method calls  the "analyse" \
+                              and "setUrl" functions of the "VideoYoutube"  \
+                              class to extract the video and audio urls.    \
+                              Once this is complete the "showVideo" method  \
+                              is called causing the "PlayerWindow" class in \
+                              listing \ref{lst:player} to play the video.   \\ \hline
+        1(d)                &The controls for the preview are shown in      \
+                             listing \ref{lst:player}. The methods          \
+                             "seekBySlider", "playPause", "stop" and        \
+                             "changeQuality" implement the controls to      \
+                             complete this objective.                       \\ \hline
+        1(e)                &This is acheived with a combination of listing \
+                             \ref{lst:player} and \ref{lst:http}. As in     \
+                             listing \ref{lst:player} a download button is  \
+                             created which triggers the "startDownload"     \
+                             method. This method calls the "download" method\
+                             of the "VideoYoutube" class which in turn uses \
+                             the "HttpHandler" class in listing             \
+                             \ref{lst:http} to download the audio.          \\ \hline
+        2(a)                &This is acheived in listing \ref{lst:library}  \
+                             in the "PlayerlistAdder" class. Once a name has\
+                             been typed into the text field and the button  \
+                             has been pressed it triggers the               \
+                             "createPlaylist" method of the "DataHandler"   \
+                             class in listing \ref{lst:data}. This then     \
+                             creates a playlist table in the database.      \\ \hline
+        2(b)                &This is done in listing \ref{lst:library} in the\
+                             "dropEvent" method in the "PlayListView" class.\
+                             This method is triggered everytime the user    \
+                             performs drop action on this widget. The       \
+                             inserts the song into the database and then    \
+                             updates the database.                          \\ \hline
+        2(c)                &This is acheived in listing \ref{lst:data} in the\
+                             "keyPressEvent" method of the "PlaylistView"   \
+                             class. Everytime a key is pressed it is        \
+                             triggered. It checks whether the pressed key is\
+                             the delte button. If it is it deletes the      \
+                             selected row from the database by calling the  \
+                             "removeRow" method in "Playlist".              \\ \hline
+        2(d)                &This is acheived in listing \ref{lst:data} in  \
+                             the "reorderRow" method in the "Playlist"      \
+                             class.                                         \\ \hline
+        2(e)                &Multiple methods and properties needed to be   \
+                             created to acheive this objective. The majority\
+                             of them are found in listing \ref{lst:data},   \
+                             there are a few however in listing             \
+                             \ref{lst:library}. The main properties that had\
+                             to be set are returned in the "flags" method   \
+                             found in classes like "Playlist". The methods  \
+                             like "dragMoveEvent" and "dropEvent" where then\
+                             used to respond to the drag and drop actions   \\ \hline
+    \end{tabular}
+    \caption{Guide table} \label{fig:guideTable}
+\end{figure}
+
+\begin{figure}[H]
+    \begin{tabular} {| p{2cm} | p{10cm} |}
+        \hline
+        \textbf{Objective}   &         \textbf{Description and reference}   \\ \hline
+        3(a)                 &This has been completed in listing            \
+                              \ref{lst:library} in the "changePlaylist"     \
+                              method in the "PlayListView" class. This      \
+                              method is triggered whenever the selection has\
+                              changed to a different playlist. This method  \
+                              changes the "tableview" to the playlist that  \
+                              is currently selected and then sends the songs\
+                              in the playlist to the "AudioPlayer" class in \
+                              listing \ref{lst:player}.                     \\ \hline
+        3(b)                 &This is acheived in listing \ref{lst:player}  \
+                              in the "AudioPlayer" class in the             \
+                              "burnPlaylist" method. This method is called  \
+                              everytime a button called "burnBtn" is clicked\
+                              . When this method is called it creates a new \
+                              instance of the class called "BurnerThread"   \
+                              which is shown in listing \ref{lst:process}.  \
+                              This object then starts the burn process.     \\ \hline
+        3(c)                 &Fortunatly the format that the songs needed to\
+                              be burnt onto disk with to be compatible with \
+                              the old cd player is the default behaviour of \
+                              the external application I am calling to burn \
+                              the music in listing \ref{lst:process} in the \
+                              "BurnerThread" class.                         \\ \hline
+        3(d)                 &This to was acheived in the "BurnerThread"    \
+                               class in the listing \ref{lst:process}. To   \
+                               ensure the songs where burnt in the right    \
+                               order, the application burns each song       \
+                               individually in order. This is possible      \
+                               due to the "-multi" arg.                     \\ \hline
+    \end{tabular}
+    \caption{Guide table} \label{fig:guideTable}
+\end{figure}
+
 \subsection{Window.cpp}
 \renewcommand\mylstcaption{Contents of Window.cpp}
 \begin{mdlisting}
-    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../Window.cpp}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:window]{../Window.cpp}
 \end{mdlisting}
 \renewcommand\mylstcaption{Contents of Window.hpp}
 \begin{mdlisting}
@@ -1291,7 +1591,7 @@ the start of their name. These data structures are described in figure ~\ref{fig
 \subsection{DownloadTab.cpp}
 \renewcommand\mylstcaption{Contents of DownloadTab.cpp}
 \begin{mdlisting}
-    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../DownloadTab.cpp}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:download]{../DownloadTab.cpp}
 \end{mdlisting}
 \renewcommand\mylstcaption{Contents of DownloadTab.hpp}
 \begin{mdlisting}
@@ -1300,7 +1600,7 @@ the start of their name. These data structures are described in figure ~\ref{fig
 \subsection{LibraryTab.cpp}
 \renewcommand\mylstcaption{Contents of LibraryTab.cpp}
 \begin{mdlisting}
-    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../LibraryTab.cpp}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:library]{../LibraryTab.cpp}
 \end{mdlisting}
 \renewcommand\mylstcaption{Contents of LibraryTab.hpp}
 \begin{mdlisting}
@@ -1309,7 +1609,7 @@ the start of their name. These data structures are described in figure ~\ref{fig
 \subsection{DataHandler.cpp}
 \renewcommand\mylstcaption{Contents of DataHandler.cpp}
 \begin{mdlisting}
-    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../DataHandler.cpp}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:data]{../DataHandler.cpp}
 \end{mdlisting}
 \renewcommand\mylstcaption{Contents of DataHandler.hpp}
 \begin{mdlisting}
@@ -1318,7 +1618,7 @@ the start of their name. These data structures are described in figure ~\ref{fig
 \subsection{HttpHandler.cpp}
 \renewcommand\mylstcaption{Contents of HttpHandler.cpp}
 \begin{mdlisting}
-    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../HttpHandler.cpp}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:http]{../HttpHandler.cpp}
 \end{mdlisting}
 \renewcommand\mylstcaption{Contents of HttpHandler.hpp}
 \begin{mdlisting}
@@ -1327,7 +1627,7 @@ the start of their name. These data structures are described in figure ~\ref{fig
 \subsection{PlayerWindow.cpp}
 \renewcommand\mylstcaption{Contents of PlayerWindow.cpp}
 \begin{mdlisting}
-    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../PlayerWindow.cpp}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:player]{../PlayerWindow.cpp}
 \end{mdlisting}
 \renewcommand\mylstcaption{Contents of PlayerWindow.hpp}
 \begin{mdlisting}
@@ -1336,7 +1636,7 @@ the start of their name. These data structures are described in figure ~\ref{fig
 \subsection{ExternalProcess.cpp}
 \renewcommand\mylstcaption{Contents of ExternalProcess.cpp}
 \begin{mdlisting}
-    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../ExternalProcess.cpp}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:process]{../ExternalProcess.cpp}
 \end{mdlisting}
 \renewcommand\mylstcaption{Contents of ExternalProcess.hpp}
 \begin{mdlisting}
@@ -1356,33 +1656,52 @@ In this section I will test my built application against the objectives that I o
 that my applications fulfills the purpose it is meant to. The table in figure \ref{fig:testTable1} shows the list
 of tests that I performed and whether the program pass the test or not. The table references numerous pictures
 in \ref{fig:tSample} to show proof of the test. Finally below that I create a references section that gives
-additional information about each of the fail tests.
+additional information about each of the fail tests. Since one of my main objectives was to make sure the app
+was cross-platform I have tested these scnarios on both windows and linux.
 \begin{figure}[H]
     \begin{center}
-        \begin{tabular} { | c | c | c | c | c | c |}
+        \begin{tabular} { | c | p{5cm} | c | c | c | c |}
             \hline
             \textbf{Test Id}&         \textbf{TestDescription}         &   \textbf{Data type}   &\textbf{Pass/Fail}& \textbf{Cross reference}\\ \hline
-            1               &Can type into the search bar and search   &      Normal            &       Pass       & Fig ~\ref{fig:tSample}a \\ \hline
-            2               &Tried to repeatedly search for a video    &      Errounous         &       Pass       & Fig ~\ref{fig:tSample}a \\ \hline
-            3               &Preview a video and setting a different   &      Normal            &       Pass       & Fig ~\ref{fig:tSample}b \\
-                            &quality.                                  &                        &                  &                         \\ \hline
-            4               &Able to download a video with the progress&      Normal            &       Pass       & Fig ~\ref{fig:tSample}c \\
-                            &bar being updated periodically.           &                        &                  &                         \\ \hline
-            5               &Download a video with multiple special    &      Erroneous         &       Pass       & Fig ~\ref{fig:tSample}d \\
-                            &characters in it.                         &                        &                  &                         \\ \hline
-            6               &Able to switch entries in the database    &      Normal            &       Pass       &Fig ~\ref{fig:tSample}e\&f\\
-                            &with one another.                         &                        &                  &                         \\ \hline
-            7               &Able to delete items in playlists and     &      Normal            &       Pass       & Fig ~\ref{fig:tSample}g \\
-                            &remove them from the database             &                        &                  &                         \\ \hline
-            8               &Buttons do not raise an error in any state&      Erroneous\cite{e1}&       Fail       & Fig ~\ref{fig:tSample}h \\ \hline
-            9               &The burning process runs on Linux without &      Erroneous\cite{e2}&       Fail       & Fig ~\ref{fig:tSample}i \\
-                            &permission errors.                        &                        &                  &                         \\ \hline
-            10              &The burning process works on windows      &      Erroneous         &       Pass       & Fig ~\ref{fig:tSample2}a\\
-                            &and on Linux when being run with sudo     &                        &                  &                         \\ \hline
-            11              &Can play songs on a playlist and switch   &      Normal            &       Pass       &                         \\
-                            &between them.                             &                        &                  &                         \\ \hline
-                            &without the progress bar becoming messed &                        &                  & Fig ~\ref{fig:tSample2}b \\
-                            &up                                        &                        &                  &                         \\ \hline
+            1               &Can type into the search bar and search   \
+                             . This is to test one of the first        \
+                             where the user enters a search and        \
+                             application should return a list of all   \
+                             of the youtube videos relevent to the     \
+                             search term.                              &      Normal            &       Pass       & Fig ~\ref{fig:tSample}a \\ \hline
+            2               &Tried to repeatedly search for a video
+                             with the same search term in the search   \
+                             bar. This is to ensure that the app does  \
+                             not give duplicate results                &      Errounous         &       Pass       & Fig ~\ref{fig:tSample}a \\ \hline
+            3               &Preview a video and setting a different   \
+                             quality. This is to make sure that all of \
+                             qualitys and formats have valid urls      \
+                             proving that the url extraction process is\
+                             stable                                    &      Normal            &       Pass       & Fig ~\ref{fig:tSample}b \\ \hline
+            4               &Able to download   audio with the progress\
+                             bar being updated periodically. This is to\
+                             test one of the main objectives.          &      Normal            &       Pass       & Fig ~\ref{fig:tSample}c \\ \hline
+            5               &Download a video with multiple special    \
+                             characters in it. This is to test the     \
+                             string handling and the file saving in the\
+                             app.                                      &      Erroneous         &       Pass       & Fig ~\ref{fig:tSample}d \\ \hline
+            6               &Able to switch entries in the database    \
+                            .This was One of the objectives set out by \
+                            the client.                                &      Normal            &       Pass       &Fig ~\ref{fig:tSample}e\&f\\ \hline
+            7               &Able to delete items in playlists and     \
+                             and remove them from the database,        \
+                             fullfilling one of the objectives set out \
+                             by the user.                              &      Normal            &       Pass       & Fig ~\ref{fig:tSample}g \\ \hline
+            8               &Buttons do not raise an error in any state\
+                             .This is to test the error handling in the\
+                             app as crashes can occur if the buttons   \
+                             are not set up properly.                  &      Erroneous\cite{e1}&       Fail       & Fig ~\ref{fig:tSample}h \\ \hline
+            9               &The burning process runs on Linux without \
+                            permission errors.                         &      Erroneous\cite{e2}&       Fail       & Fig ~\ref{fig:tSample}i \\ \hline
+            10              &The burning process       on windows      \
+                             and on Linux when being run with sudo     &      Erroneous         &       Pass       & Fig ~\ref{fig:tSample2}a\\ \hline
+            11              &Can play songs on a playlist and switch   \
+                             between them after downloading them.      &      Normal            &       Pass       & Fig ~\ref{fig:tSample2}b\\ \hline
         \end{tabular}
     \end{center}
     \caption{Testing table 1} \label{fig:testTable1}
@@ -1437,26 +1756,88 @@ I do belive that the system is effective as it can find copy right free content 
 speed while avoiding things like ads and malware which the user would experience if she wanted to download
 music off the web. Due to the drag and drop iteraction the system is easy to learn. How long this solution
 will last for however might be a problem as youtube is likely to change and update in the future which
-might make the current broken.
+might make the current method of getting the music broken.
 
-The ability to download music and store it was one of the original goals of this project and I think the
-final solution performs well in this area. It is able to save the data in a temp file when downloading;
-hash the name and save it in the folder and finally save it into a database for management purposes. Therefore
-I think I have satisfied this objective. Another pre-planed goal was to be able to create playlists so that
-the user can organise their. I think my project does this effectively by impleamenting tables as playlists
-which gives the user full control over how they want the playlist to be. One of the more challanging
-objectives that I think my application has had less success over is being able to burn the music
-onto the disks through the application. Although it can perform this task it is quite slow at doing it
-and on some systems like linux it requires additional permissions. Finally the last objective, it must
-work on almost any enviroment without programs or libries being pre-installed. Due to the choice of programming
-language and using the Qt library it completes this task excellently. The additional programs it uses, ffmpeg
-and cdrecord, are well suited to this need by being completly cross-platform.
+I am quite please with the sucess of completing objectives 1(a) to 1(e). I do however belive that the
+the process could be made more stable and reliable given more time to work on it. The search bar
+in the download tab allows the user to enter the search term to search for youtube videos acheiving
+objective 1(a). The application then substitutes this into a url and then performs a get request
+on this url which returns a list of copyright-free videos, completing objective 1(b). The user then
+can select any one of these return videos from the list to preview the video and audio, acheiving 1(c).
+The user can then play, pause and seek forward in this preview by the controls under the preview window,
+completing the objective 1(d). Finally the user can then click the download button under the controls to
+download the audio of the video which fullfills the last objective 1(e).
+
+The next set of objectives was to allow the user to create and organise playlists. Although I did meet these
+objectives the solution is not as complete as it was for the previous set. This was mostly because time was
+starting to become an issue and to fullfill some the objectives required unconventional use of databases
+like swaping rows and deleting rows based on how many rows down they were rather than a  single property.
+Allowing the user to create a named playlist was the first and easiest objective to complete as I only had
+to create a button that would create a table and a playlist object. The next objective 1(b) was more complex
+as to ensure that the object 1(e) was fullfill I needed to implement a drag and drop to add songs to a
+playlist. Once this system was complete it added a basis to complete objective 1(d). All I needed to do
+to complete object 1(d) was to then add a series of select and delete queries based on the row that the
+user select. Unfortunatly this raised a problem as there was not in built way in Qt to find the row
+that the user dropped on. To solve this I created an alogrythm to find the how that the user mouse is
+currently hovering over and triggered this algorythm every time the user performed the drop action.
+Finally the delete option for objective 1(c) needed to be built. I managed to complete this by using a
+single SQL statement to find a row based on how may rows down it was and then deleting that row. The
+problem however is that the song is never delete from the computer's storage only the database.
+So although this does meet the clients needs and the objectives I set out to complete it is not
+an efficient solution in terms of storage.
+
+The next two main objectives, three and four, are interlinked as many of the problems I encountered
+while trying to complete objective three was caused by objective four. This because I was using an
+external program called "cdrecord" to perform the actual burning. This meant that the app had to
+choose the correct version of the program as linux would not be able to run a .exe executable and
+vice versa with windows. Addtional permissions caused issues as unix based systems like linux require
+admin privilidges to read and write to a disk drive. This was very problomatic as for burning process
+to work on linux the applicaiton had to be launch as a root user which is generally bad practice and
+caused other areas of the application to fail. There is little I can do about this as this is the way
+the linux kernel is built. There is a work around however by editing the sudoers file you can make
+an exception for the application making it work perfectly. I do not think this is a issue for the
+client. The reasoning behind this is that the only computer where the cilent does not have the
+permssions to run the app as root is on here work laptop. Fortuatly this work laptop does and will
+for the foreseeable future run windows where the permission problems do not occur. The only instance
+where she may not be running windows will be on her personal laptop where she will have the appropiate
+permssions.
+
+With the exception of the problems mention in the previous paragragh the objectives in question three
+were reasonably easy to meet. The first 3(a) was solved by adding an addionaly mouse event to the
+drag and drop system allowing the user to select and highlight the intended playlist. Adding
+a button to initate the burn process was fairly straighforward and acheived with Qt, completing
+objective 3(b). Fortunatly objective 3(c) raised no problems as the default behaviour of "cdrecord"
+allowed the music burnt onto the cd to be played with the cd player. The last objective, 3(d), was
+easily completed by feeding songs into "cdrecord" individually with the "-multi" argument as planned
+in the design stage of this project.
 
 
 \subsection{User feedback}
 This section shows some quotes from the user and my thoughts on how I can act upon this feedback.
 
 \begin{itemize}
+    \item "I like the search feature but the result returned seems limited"
+    \begin{itemize}
+        \item I'm glad the user likes the search feature and can understand the issue
+            she has with the limited results. This is caused by app only getting the results
+            from the first page of results from the search on youtube. A possible solution
+            to this would be to get the next page of results from youtube when the scroll bar
+            reaches the bottom of the list. Additionaly if the user can find the video
+            on youtube but not with the application perhaps it would make more sense to
+            add a text bar where the user can paste the youtube url into it.
+    \end{itemize}
+    \item While the user used the application I observed that she sometimes got confused with the
+        table she was currently looking at. Perhaps it would be better to make it clearer
+        about what table was being used by have the table name in bold above the table
+        view along with some colouring.
+    \item "While I am previewing a video it sometimes buffers"
+    \begin{itemize}
+        \item The user said this as a passing comment but I think it may be possible to act upon
+            by changing the default quality of the preview to the lowest possible one. This
+            makes a lot of sense as the video quality is largely unimportant but the sound
+            quality is. Additional the preview is to simply check that the video select
+            is the one you want.
+    \end{itemize}
     \item "I like that you can group the songs so I can choose what I burn"
     \begin{itemize}
         \item This was some positive feedback that the client gave about the ability to
