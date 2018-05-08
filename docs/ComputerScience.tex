@@ -1,0 +1,1873 @@
+\documentclass{article}
+\usepackage{listings}
+\usepackage{color}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\usepackage{rotating}
+\usepackage{tikz}
+\usepackage{float}
+\usepackage{subfig}
+\usepackage{array}
+%\usepackage{subfloat}
+\usepackage[framemethod=tikz]{mdframed}
+\usetikzlibrary{calc,positioning,shapes,shadows,arrows}
+% tikz custom stuff
+\tikzstyle{block} = [rectangle, draw, fill=blue!20,
+    text width=5em, text centered, rounded corners, minimum height=4em]
+\tikzstyle{TextBox} = [rectangle, draw, fill=blue!20,
+    right, text width=4em, rounded corners]
+\tikzstyle{line} = [draw, -latex']
+\tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=3cm,
+    minimum height=2em]
+\tikzstyle{startstop} = [rectangle, rounded corners,
+    minimum width=3cm, minimum height=1cm,text centered,
+    draw=black, fill=red!30]
+\tikzstyle{decision} = [diamond, minimum width=3cm,
+    text width=5em, minimum height=1cm, text centered, draw=black, fill=green!30]
+\tikzstyle{process} = [rectangle, minimum width=3cm,
+    text width=20em, minimum height=1cm, text centered, draw=black, fill=orange!30] \tikzstyle{arrow} = [thick,->,>=stealth]
+\tikzset{
+    hyperlink node/.style={
+        alias=sourcenode,
+        append after command={
+            let     \p1 = (sourcenode.north west),
+                \p2=(sourcenode.south east),
+                \n1={\x2-\x1},
+                \n2={\y1-\y2} in
+            node [inner sep=0pt, outer sep=0pt,anchor=north west,at=(\p1)] {\hyperlink{#1}{\XeTeXLinkBox{\phantom{\rule{\n1}{\n2}}}}}
+                    %xelatex needs \XeTeXLinkBox, won't create a link unless it
+                    %finds text --- rules don't work without \XeTeXLinkBox.
+                    %Still builds correctly with pdflatex and lualatex
+        }
+    }
+}
+\tikzset{square arrow/.style={to path={-- ++(0,.25) -| (\tikztotarget)}}}
+\hypersetup{
+    colorlinks=true, %set true if you want colored links
+    linktoc=all,     %set to all if you want both sections and subsections linked
+    linkcolor=black,  %choose some color if you want links to stand out
+}
+\title{Computer Science Coursework}
+\date{}
+\author{James Rand}
+\def\tightlist{}
+\newcommand{\placetextbox}[3]{% \placetextbox{<horizontal pos>}{<vertical pos>}{<stuff>}
+    \setbox0=\hbox{#3}% Put <stuff> in a box
+  \AddToShipoutPictureFG*{% Add <stuff> to current page foreground
+      \put(\LenToUnit{#1\paperwidth},\LenToUnit{#2\paperheight}){\vtop{{\null}\makebox[0pt][c]{#3}}}%
+  }%
+}%
+\makeatletter
+\def\@seccntformat#1{%
+    \expandafter\ifx\csname c@#1\endcsname\c@section\else
+  \csname the#1\endcsname\quad
+  \fi}
+\makeatother
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+\lstset{ %
+    backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}; should come as last argument
+    basicstyle=\footnotesize,        % the size of the fonts that are used for the code
+    breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+    breaklines=true,                 % sets automatic line breaking
+    captionpos=b,                    % sets the caption-position to bottom
+    commentstyle=\color{mygreen},    % comment style
+    deletekeywords={...},            % if you want to delete keywords from the given language
+    escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+    extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8 frame=single,                    % adds a frame around the code keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible) keywordstyle=\color{blue},       % keyword style language=C,                      % the language of the code
+    morekeywords={*,...},            % if you want to add more keywords to the set
+    keywordstyle=\color{magenta},
+    numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+    numbersep=5pt,                   % how far the line-numbers are from the code
+    numberstyle=\tiny\color{mygray}, % the style that is used for the line-numbers
+    rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+    showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+    showstringspaces=false,          % underline spaces within strings only
+    showtabs=false,                  % show tabs within strings adding particular underscores
+    stepnumber=2,                    % the step between two line-numbers. If it's 1, each line will be numbered
+    stringstyle=\color{mymauve},     % string literal style
+    tabsize=4,                       % sets default tabsize to 2 spaces
+    title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+\newcommand\mylstcaption{}
+\mdfdefinestyle{mymdstyle}{
+hidealllines=true,
+middleextra={
+  \node[anchor=west] at (O|-P)
+    {\lstlistingname~\thelstlisting\  (Cont.):~\mylstcaption};},
+secondextra={
+  \node[anchor=west] at (O|-P)
+    {\lstlistingname~\thelstlisting\  (Cont.):~\mylstcaption};},
+splittopskip=2\baselineskip
+}
+\surroundwithmdframed[style=mymdstyle]{lstlisting}
+\newmdenv[style=mymdstyle]{mdlisting}
+\newcolumntype{C}[1]{>{\centering}m{#1}}
+\begin{document}
+\maketitle
+\tableofcontents
+\setcounter{tocdepth}{5}
+\newpage
+\section{Analysis}\label{analysis}
+\subsection{Background}\label{background}
+The main goal of this software to satisfy the client and their needs so
+to do this successfully I need explain the situation my client
+is in.
+
+My client is a primary school teacher who would like to
+use certain music during performances by the students. She generally teaches
+students of the age of 4 to 5. An example of a
+song that would be needed by my client would a nursery rhyme like ``if
+your happy and you know in clap your hands''. The current system in
+place is virtually non existent by getting songs from online
+and from CDs. This is usually means
+going to websites that offer free versions of the songs and downloading
+mp3 files from them. This is a poor solution to the problem as these website
+are generally not trust worthy. Another solution that my client
+currently uses is using spotify, the music streaming service. This still
+is not a perfect system as many nursery rhymes or less well known songs do
+exist on it. The final method is by purchasing CDs containing the songs
+and then playing them. This is not perfect either as it becomes expensive
+and usually only get a couple of the desired songs.
+It should be noted that the current method of playing this music
+is through a CD player and that this application needs to be able to
+burn the new music onto a CD so it can still be played through the CD
+player.
+Since the user is going to have little technical knowledge the program
+needs to be easy to use which means I will need to have a GUI interface
+instead of a CLI one. So far there is only demand by a single client but
+I also need to consider what the program is downloading as it should be
+copyright-free material that will not have any legal problems surrounding
+it. The client expressed deep concern over this matter.
+
+\subsection{Hardware and Software limitaions}\label{SoftwareAndHardware}
+This application will either be running on a personal computer or a school computer.
+Since there is a possibility that it will be running as part of a network on a school
+computer I need to consider certain restrictions that will be put upon the program.
+One obvious limitation would be that the user is unlikely to have admin permissions
+so I need to ensure that a normal user can run this program. The operating systems
+that the school currently uses is Windows but I would like to keep it as cross-platform
+as possible as people may run different OSs at home and the school may transition to
+a different operating system in the future.
+
+Now that I have outlined the environment that the application will run on I need to choose
+the appropriate language and libraries to build it with. I have only used the following
+languages in the past: JavaScript, python and c++. JavaScript is generally only used
+for web applications which means it has a lot of support for web scraping which will
+be useful for finding and downloading music. Unfortunately JavaScript can be slow
+compared to other programming languages and generally not used for desktop applications.
+Python, similarly to JavaScript has a lot of support for networking but is not as fast
+as c++ and python needs to be installed on the target computer before hand. Finally
+we have c++. It is fast compared to python and JavaScript and since it is compiled
+it does not need any additional programs to be installed beforehand. For this project
+I will choose c++. This is because the computer it will run on is old slow meaning I
+cannot take liberties when it comes to performance and since it is a work computer
+having programs installed beforehand is not an option. This does come with some
+design difficulties, the networking is going to be complex and to ensure that
+the app is cross-platform it may need to be cross-compiled.
+
+Now that I have chosen the language I wish to use I need now carefully pick
+the libraries to use with it. This was an easy choice for as the api I am
+most familiar with in c++ is Qt. This framework provides everything I need
+to use for this project as it allows you to build GUIs and has support for networking.
+It also states an emphasis on cross-platform meaning it aligns with all of my
+objectives.
+
+The client does already have a cd reader and writer built into the laptop meaning the only
+additional hardware that is required is the actual CDs to burn the music onto.
+\subsection{Research}\label{research}
+Following on from the perspective of copyright I need to explore the different
+sources of getting this copyright-free media. My client has mentioned several
+times that YouTube is the best place to get the music as it contains even
+the most obscure songs. Obviously not all content on YouTube is copyright-free
+but after investigating the website I discovered a category called "creative
+commons" on the search filter. This will then only show videos that have no
+legal restrictions on it. After examining the URL it became clear that this
+would also be easy to implement into my application as I can search
+videos with this characteristic on YouTube by substituting my query into the
+URL.
+
+I was however a little concerned with whether it was possible to download
+videos from the YouTube website. After searching around on the internet
+I found various tools that perform this task such as "youtube-dl", there
+are also a couple of websites that do the same thing like "https://www.genyoutube.net/"
+. I did question the client regarding these tools and whether she would
+be happy using something like this. The exact response is given in the interview
+below but essential some of these applications have difficult to use interfaces
+like CLI and lack the ability to organise and burn music onto CDs.
+
+Originally thought it may be good to use youtube-dl to download the music
+and then have my application to process and manage the music. However Due to it being written in python
+and my application written in c++
+it is difficult to interact between the two. One approach that I though about taking was to compile
+python and youtube-dl into a windows executable to then download then download the music. There are a couple of problems with this, the
+first is that it is very slow due to it being compile from a python language making it not very practical.
+The second problem was that there is only a windows version of the executable meaning it would not
+able to run on other systems. The second point goes against the clients wishes so
+I dismissed the idea.
+\subsection{Client Interview}\label{ClientInterview}
+This section below is the dialogue between me and the client. All of the clients requirements I got through this
+interview.
+\begin{itemize}
+    \item "What problem would you like this project to solve?"
+    \begin{itemize}
+        \item "I need a way to get songs like nursery rhymes off the internet and put them on a CD"
+    \end{itemize}
+    \item "Do you have any suggestions to solving the problem?"
+    \begin{itemize}
+        \item "Not really. Perhaps a program that can search the internet for songs and download them.
+            Youtube has a lot of the songs I want perhaps you could use that"
+    \end{itemize}
+    \item "How do you currently do the task?"
+    \begin{itemize}
+        \item "At the moment I sometimes try and get some of the music from the web but I often click the wrong
+            link and click and advert instead, I try to use CDs and spotify when I can"
+    \end{itemize}
+    \item "How much data is recorded to perform this task?"
+    \begin{itemize}
+        \item "Usually it just requires me to download a song"
+    \end{itemize}
+    \item "Is there any other information like artist or genre you would like me about each song?"
+    \begin{itemize}
+        \item "I think having artist and genre and that kinda of thing would be useful but isn't a priority"
+    \end{itemize}
+    \item "What devices do you perform the task on and how slow are they?"
+    \begin{itemize}
+        \item "Currently I use my work and personal laptop which are both old and quite slow.
+            I also use a very old Cuba player to play the music so it needs to work with that"
+    \end{itemize}
+    \item "What problems do you face with your current system?"
+    \begin{itemize}
+        \item "As I mention before I often accidentally click on the wrong thing when using the web, I am also very concern with
+            the legality behind it. It becomes very expensive trying to use other means like spotify or buying CDs"
+    \end{itemize}
+    \item "Can you take me through the steps of the old system in how it worked?"
+    \begin{itemize}
+        \item "I would usually search for a free version of the song online and find a download link. After downloading
+            I would burn the music on a disk using windows. If I can't find a link I try to find it on spotify or
+            buy the actual CD containing the song off Amazon"
+    \end{itemize}
+    \item "Are there any parts of the system you would like to do manually?"
+    \begin{itemize}
+        \item "I would ideally like the app to handle everything"
+    \end{itemize}
+    \item "How often do you think you will be using this program?"
+    \begin{itemize}
+        \item "Probably about once every one or two months"
+    \end{itemize}
+    \item "What kind of output do you want the program to output?"
+    \begin{itemize}
+        \item "A CD containing the songs in the order I want that can be played on the CD player I have"
+    \end{itemize}
+    \item "Are there any constraints this program has to work in?"
+    \begin{itemize}
+        \item "I'm not allowed to install and change stuff on my work computer."
+    \end{itemize}
+    \item "Do you need this program to work on both you work and personal laptop?"
+    \begin{itemize}
+        \item "Yes, if that's possible"
+    \end{itemize}
+    \item "Do you think you'll need to delete this songs at later dates?"
+    \begin{itemize}
+        \item "I usually don't end up delete these songs as I might need them again and it's difficult to
+            download them again"
+    \end{itemize}
+\end{itemize}
+\subsection{Objectives}\label{the-problem}
+Given this information the problem that I need to solve with this
+application is to be able to get music from online and burn it to a disk
+for my client to use. With this I can start to outline some objectives I
+want this program to meet.
+
+\begin{enumerate}
+    \item Allow the user to download music
+
+    \begin{enumerate}
+        \item Must allow the user to search YouTube
+        \item Must allow the user to then select from a range of results which are copyright free
+        \item The user must then be allowed to preview a result
+        \item the user must be able to pause, play and seek forward in preview
+        \item Must allow the user to download video being previewed
+    \end{enumerate}
+
+    \item Allow the user to create and organise playlists
+
+    \begin{enumerate}
+        \item Must allow the user to create a named playlist
+        \item Must allow the user to add songs to whichever playlist
+        \item Must allow the user to delete songs from whichever playlist
+        \item Must allow the user to change the order of songs in playlist
+        \item Must allow the user to perform these steps using a drag and drop mechanism
+    \end{enumerate}
+
+    \item Allow the user to burn music to a CD
+
+    \begin{enumerate}
+        \item Must allow the user to select a playlist
+        \item Must allow the user to then initiate the burn process via a button
+        \item Burnt CD must be compatible with old CD player
+        \item Order of songs on the CD must be the same as the order of songs on the playlist
+    \end{enumerate}
+
+    \item The application must be compatible with different platforms
+
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[node distance = 2cm]
+        \node (start) [startstop] {User enters search term};
+        \node (youtubeSearch) [process, right = of start] {Search youtube with Term};
+        \node (listOfResults) [process, below of = youtubeSearch] {Youtube results from search};
+        \node (userSelect) [process, below of = start] {User selects result};
+        \node (dataStream) [process, below of = userSelect] {Data from result streamed to preview};
+        \node (download) [process, below of = listOfResults] {Download Music};
+        \node (store) [process, below of = download] {Store the name, genre, artist and song in a database};
+        \node (burn) [process, below of = store] {burn song/songs onto a CD};
+
+
+        \draw [arrow] (start) -- node {} (youtubeSearch);
+        \draw [arrow] (youtubeSearch) -- node {} (listOfResults);
+        \draw [arrow] (listOfResults) -- node {} (userSelect);
+        \draw [arrow] (userSelect) -- node {} (dataStream);
+        \draw [arrow] (dataStream) -- node {} (userSelect);
+        \draw [arrow] (userSelect) -- node {} (download);
+        \draw [arrow] (download) -- node {} (store);
+        \draw [arrow] (store) -- node {} (burn);
+    \end{tikzpicture}
+    \caption{Data flow diagram} \label{fig:dataFlowDiagram}
+\end{figure}
+
+
+
+\section{Design}\label{design}
+This section will begin to explain how I plan to create this application.
+\subsection{Outline}\label{outline}
+The Qt library which is the library that I am using uses widgets which are window
+like objects that can be embedded into one another to create a GUI. The bullets
+points below show how I plan to embed each of these widgets.
+\begin{itemize}
+    \item Main Window
+        \begin{itemize}
+            \item TabWidget
+                \begin{itemize}
+                    \item Download Tab
+                        \begin{itemize}
+                            \item search
+                            \item preview
+                        \end{itemize}
+                    \item LibraryTab
+                        \begin{itemize}
+                            \item playlist list
+                            \item tableview
+                        \end{itemize}
+                \end{itemize}
+        \end{itemize}
+\end{itemize}
+The widget at the top of the hierarchy will be a child class of QMainWindow. This
+allows me to use some of the functionality of QMainWindow like adding a menu bar
+and shortcuts. I will then set the tabwidget as the central widget of this
+allowing me to add tabs to my window. The next two bullet points Are the widgets
+that the user will interact with to download and play music. The DownloadTab will
+contain the an interface to preview the YouTube video and then download it while
+the LibraryTab will allow the user create playlists and organise the music. Figure 1
+below illustrates this hierarchy graphically.
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[node distance = 2cm, auto]
+        % Place nodes
+        \node [block] (init) {Main Window};
+        \node [block, below of=init] (TabWidget) {Tab Widget};
+        \node [block, below left=of TabWidget] (DownloadTab) {DownloadTab};
+        \node [block, below right=of TabWidget] (LibraryTab) {LibraryTab};
+        \node [block, below left=of DownloadTab] (Preview) {Preview};
+        \node [block, fill=none, draw=none, below right=of DownloadTab] (PlaceHolder) {};
+        \node [block, left of=PlaceHolder] (Search) {Search};
+        \node [block, right of=PlaceHolder] (PlaylistList) {Playlist list};
+        \node [block, below right=of LibraryTab] (PlaylistView) {Playlist View};
+        % Draw edges \path [line] (init) -- (identify);
+        \path [line] (init) -- (TabWidget);
+        \path [line] (TabWidget) -- (DownloadTab);
+        \path [line] (TabWidget) -- (LibraryTab);
+        \path [line] (DownloadTab) -- (Preview);
+        \path [line] (DownloadTab) -- (Search);
+        \path [line] (LibraryTab) -- (PlaylistList);
+        \path [line] (LibraryTab) -- (PlaylistView);
+    \end{tikzpicture}
+    \caption{Layer Model} \label{fig:Layer Model}
+\end{figure}
+The two item on the graph above which has the most visual significance would be
+DownloadTab and LibraryTab as they are the direct descendants of the Tab Widget.
+Due to this fact I think that it is important to layout how I intend this two item to
+look. The first that we will look at will be the Download Tab which is shown as Figure
+~\ref{fig:DownloadTab Diagram}. There are quite a few objects on this diagram which are
+not in the layer model (Fig ~\ref{fig:Layer Model}) these objects are to interact with
+the two main widgets on the DownloadTab which are preview and searchlist. As the name
+suggests the preview is to allow the user to view the video before downloading while.
+Within GUI and network programming you often want one object to be notified when an event
+happens to another. Fortunately Qt recognises this problem and has signals and slots to
+solve it. To use these you need to use the emit to create a signal and the you can use
+a slot to listen out for that signal and run a procedure when that signal is received.
+This is vital when interacting with the user as when the user clicks a button or interacts
+with the interface a signal is emitted and I need to connect a slot up to these signals
+to make the application work.
+With this knowledge I can start to explain how all of the classes come together and
+function with the figures shown below. All of these figures are annotated and should
+explain them in detail. It is important to know that the diagrams only show the
+public procedures and functions currently. This is because I want to clearly line
+out how they interact with one another. The only figure without this annotation is
+figure ~\ref{fig:Struct layout} so I will explain it here. All of the structs that I
+am describing occur in the classes VideoYoutube (Fig ~\ref{fig:VideoYoutube class layout})
+and HttpHandler (Fig ~\ref{fig:HttpHandler class layout}) and the first to dive into is
+download. This struct is to store information about the current downloaded video. The
+first property "reply" is to store the response from the http request which will
+especially important for checking for errors and making sure it has the right thing. The
+next property "tempfile" is important for insurance reasons as the download may be
+interrupted causing the file to be corrupt. In order to prevent this I thought it would
+be best to create a temporary file that will be automatically deleted by the operating
+system after a period of time. This means I can continually put data into this temporary
+file and when the download file is finished save it into a permanent file. To have the
+correct name to save the file to I have the title property. The "progress",
+"currentProgress" and "getProgress" are used to keep track of progress for the download
+progress bar. The "segments" and "segmentPosition" is to allow the functionality to
+download the video if it is cut into segments. "CurrentStatus" is to get the http status
+code. Finally the "download()" procedure is to initiate the download process.
+The "fmtQuality" and "videoQuality" structs store the qualities and there relevant
+URLs. The first property of the "fmtQuality" struct is "quality" which stores the quality
+that is listed by YouTube. The "resolution", "video" and "audio" properties are to store
+their qualities respectively. The procedure "fmtQuality" is the constructor to initialise
+all of these properties. The "videoQuality" has the same "quailty" property but also has
+"audioUrl" and "videoUrl". These actually store the URL to download the video. It should be
+noted that I put this property in "videoQuality" instead of "download" because there
+multiple URLs for a video each different due to the quality. The "videoQuality" procedure
+is different ways of initializing the properties and the operator is to compare the
+different qualities.
+Finally the "jsMethod" struct is to store the the JavaScript code from YouTubes code in
+order to parse signatures to make the URLs valid.
+I need to also consider the data structure I am going to use for controlling the order of
+the songs that will be played through LibraryTab. There are two data structures which
+I am currently considering: Linked list and an array.% A comparison table is shown in Fig \ref{fig:Data structure table}.
+Based on the the ease of use I
+believe that the easier and more efficient option would be to use an array.
+%\break
+Another key design feature I need to implement is making the use of the program as
+intuitive as possible. Because of this I think the best way for the user to insert
+songs and reorder them would be through a drag and drop system. This would require
+me to set up various variables and features embedded in qt which is described
+\href{http://doc.qt.io/qt-5/model-view-programming.html#using-drag-and-drop-with-item-views}
+{here}.
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[]
+        \draw [fill=white] (0,0) rectangle (\textwidth,10) node[pos=0.5] (DownloadTab) {};
+        \draw [] (3.9, 8.5) rectangle (1, 9) node[pos=0.5] (SearchBar) {}; %serch bar
+        \draw [] (4, 8.5) rectangle (5, 9) node[pos=0.5] (SearchBtn) {}; %search btn
+        \draw [] (1, 1) rectangle (5, 8) node[pos=0.5] (SearchList) {}; %search list
+        \draw [] (11, 5) rectangle (6, 9) node[pos=0.5] (Preview) {}; %preview
+        \draw [] (11, 4.5) rectangle (6, 4.6); %slider body
+        \draw [fill=white] (9, 4.4) rectangle (8.8, 4.7) node[pos=0.5] (Slider) {}; %slider handle
+        \draw [] (7.5, 3) rectangle (6, 3.5) node[pos=0.5] (QualitySelector) {}; %qualitySelector
+        \draw [] (9.25, 3) rectangle (7.75, 3.5) node[pos=0.5] (PlayPauseBtn) {}; %play/pause
+        \draw [] (11, 3) rectangle (9.5, 3.5) node[pos=0.5] (StopBtn) {}; %StopBtn
+        \draw [] (11, 2) rectangle (6, 2.5) node[pos=0.5] (DownloadBtn) {}; %download btn
+        \draw [] (11, 1.5) rectangle (6, 1) node[pos=.5] (ProgressBar) {}; %Progress Bar
+        \draw (ProgressBar) -- (14, 0) node[TextBox, pos=1] {
+            This is a Progress bar that will display the progress of downloading a Video
+        };
+        \draw (DownloadBtn) -- (12, 2.5) node[TextBox, pos=1] {
+            This is a button to initiate the download process
+        };
+        \draw (StopBtn) -- (11, -1) node[TextBox, pos=1] {
+            This will stop the playback of preview
+        };
+        \draw (PlayPauseBtn) -- (8, -1) node[TextBox, pos=1] {
+            This will pause or play the playback of preview
+        };
+        \draw (QualitySelector) -- (5, -1) node[TextBox, pos=1] {
+            This will change the quality of video to be dowloaded or played back
+        };
+        \draw (SearchList) -- (1, -1) node[TextBox, pos=1] {
+            This is to display search results from YouTube
+        };
+        \draw (Slider) -- (14, 5) node[TextBox, pos=1] {
+            This will alow the user to navigate through the playback video
+        };
+        \draw (Preview) -- (14, 10) node[TextBox, pos=1] {
+            This is a preview of the video currently selected in search list
+        };
+        \draw (SearchBtn) -- (6, 13) node[TextBox, pos=1] {
+            This is the button to initate the search with the text in the search bar
+        };
+        \draw (SearchBar) -- (0, 13) node[TextBox, pos=1] {
+            This is a text to enter the terms to search YouTube for
+        };
+    \end{tikzpicture}
+    \caption{DownloadTab Diagram} \label{fig:DownloadTab Diagram}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[]
+        \draw [] (0,0) rectangle (\textwidth, 10);
+        \draw [] (1, 9) rectangle (4, 4.1) node[pos=0.5] (PlaylistListing) {}; %Playlist listing
+        \draw [] (4.5, 9) rectangle (11, 4.1) node[pos=0.5] (SongSelector) {}; %Song selector
+        \draw [] (11, 3.75) rectangle (1, 3.85); %slider body
+        \draw [fill=white] (9, 3.65) rectangle (8.8, 3.95) node[pos=0.5] (Slider) {}; %slider handle
+        \draw [] (4, 3) rectangle (1, 3.5) node[pos=0.5] (Prev) {}; %prev Btn
+        \draw [] (4.5, 3) rectangle (7.5, 3.5) node[pos=0.5] (PlayPause) {}; %play/pause
+        \draw [] (11, 3) rectangle (8, 3.5) node[pos=0.5] (Next) {}; %next btn
+        \draw [] (11, 2) rectangle (1, 2.5) node[pos=0.5] (BurnBtn) {}; %Burn btn
+        \draw [] (11, 1.5) rectangle (1, 1) node[pos=.5] (ProgressBar) {}; %Progress
+        \draw (ProgressBar) -- (0, -2) node[TextBox, pos=1] {
+            This is the progress bar that will display the progress of burning
+        };
+        \draw (BurnBtn) -- (7, -2) node[TextBox, pos=1] {
+            This is the button that will initiate the process of burning the selected playlist to a disk
+        };
+        \draw (Prev) -- (12, 1) node[TextBox, pos=1] {
+            This is to play the previous song
+        };
+        \draw (PlayPause) -- (12, 3) node[TextBox, pos=1] {
+            This is to play or pause the current song
+        };
+        \draw (Next) -- (12, 5) node[TextBox, pos=1] {
+            This is to skip to the next song
+        };
+        \draw (Slider) -- (12, 8) node[TextBox, pos=1] {
+            This is a slider to change your position in the current song
+        };
+        \draw (SongSelector) -- (12, 12) node[TextBox, pos=1] {
+            This is to change the song in current playlist and view info about that song
+        };
+        \draw (PlaylistListing) -- (6, 12) node[TextBox, pos=1] {
+            This is to list and select the playlist you want to interact with
+        };
+    \end{tikzpicture}
+    \caption{LibraryTab Diagram} \label{fig:LibraryTab Diagram}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{sideways}
+            \node [] (tree) at (4, 4) {\includegraphics[width=\textheight]{classPdfs/classPlayerWindow_a88bd0544109c4b49dbba0adc29c16943_cgraph.pdf}};
+        \end{sideways}
+        \node [right of = tree] (inherit) {\includegraphics[]{classPdfs/classPlayerWindow.pdf}};
+        \node [TextBox, above=0cm of inherit, text width = 30em] (textbox) {
+            The class will be used to play media selected by the user and provide
+            controls. This will be on both DownloadTab and LibraryTab meaning that
+            the constructor will be called in both of these classes. The tree on the
+            left describes what happens when you call the constructor. Since this is a
+            class that will be visually displayed to the user this class inherits the
+            QWidget. It also has the openMedia() procedure which is call by downloadtab
+            to set the media after extracting the URL. Finally the seekBySlider and
+            playPause are for the user to control the media.
+        };
+    \end{tikzpicture}
+    \caption{PlayWindow class layout} \label{fig:PlayWindow class layout}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{sideways}
+            \node [] (tree) at (4, 4) {\includegraphics[width=\textheight]{classPdfs/classDownloadWidget_a623f84423fc0163ff5cd6b75000fffd5_cgraph.pdf}};
+        \end{sideways}
+        \node [right of = tree] (inherit) {\includegraphics[]{classPdfs/classDownloadWidget.pdf}};
+        \node [TextBox, above=0cm of inherit, text width = 30em] (textbox) {
+        	The DownloadWidget class will be used to create the DownloadTab object. This
+        	object will provide a canvas to put all of the features described in the
+        	downloadTab diagram (Fig ~\ref{fig:DownloadTab Diagram}). It should be noted
+        	this inherits from the TabWidget meaning it will be added as a tab
+        	automatically. The constructor will be called from the MainWindow. Finally
+        	this class will act as a middle man for other classes like PlayerWindow
+        	(Fig ~\ref{fig:PlayWindow class layout}).
+        };
+    \end{tikzpicture}
+    \caption{DownloadWidget class layout} \label{fig:DownloadWidget class layout}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{sideways}
+            \node [] (tree) at (4, 4) {\includegraphics[width=\textheight]{classPdfs/classHttpHandler_ade64572cb953620fd483bc669c1e9178_cgraph.pdf}};
+        \end{sideways}
+        \node [right of = tree] (inherit) {\includegraphics[]{classPdfs/classHttpHandler.pdf}};
+        \node [TextBox, above=0cm of inherit, text width = 30em] (textbox) {
+        	For this class the first thing that you know is that it inherits from QObject
+        	instead of QWidget or a derivative of QWidget. This means that this class
+        	has no visual representation but completely backend. The point of this class
+        	is to perform all of the networking required. I decided to put all of it
+        	into a separate class because many errors can occur with network requests
+        	so proper error handling is a must. Due to the fact that you often have to
+        	wait for network requests to finished this class has numerous slots like
+        	dataHandler to process the the finished download. The final two things that
+        	should be noted is the data members downloads and networkAcessManager.
+        	The member downloads is a QList of the download struct, see (Fig ). The
+        	networkAcessManager is a QNetworkManager which is Qt class that allows
+        	you to make network requests.
+        };
+    \end{tikzpicture}
+    \caption{HttpHandler class layout} \label{fig:HttpHandler class layout}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{sideways}
+            \node [] (tree) at (4, 4) {\includegraphics[width=\textheight]{classPdfs/classLibraryTab_a928c981ca174c41d75e5296d4623d5a2_cgraph.pdf}};
+        \end{sideways}
+        \node [right of = tree] (inherit) {\includegraphics[]{classPdfs/classLibraryTab.pdf}};
+        \node [TextBox, above=0cm of inherit, text width = 30em] (textbox) {
+        	Similarly to DownloadWidget this is a child of TabWidget meaning it is one
+        	of the two tabs and provides a canvas to put widgets on. Fig
+        	\ref{fig:LibraryTab Diagram} shows how intend it to look. This class
+        	will be the middle man for all of the data handling. Within the
+        	constructor all of the objects shown in Fig \ref{fig:LibraryTab Diagram}
+        	will be initialized and then layerd out in the layout procedure.
+        };
+    \end{tikzpicture}
+    \caption{LibraryTab class layout} \label{fig:LibraryTab class layout}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{sideways}
+            \node [] (tree) at (4, 4) {\includegraphics[width=\textheight]{classPdfs/classPlayListView_ac84c4c57fc29e6b775c2bc8bc5fed55e_cgraph.pdf}};
+        \end{sideways}
+        \node [right of = tree] (inherit) {\includegraphics[]{classPdfs/classPlayListView.pdf}};
+        \node [TextBox, above=0cm of inherit, text width = 30em] (textbox) {
+			This class is called by LibraryWidget and is used to list the playlists
+			that the user has and allow the user to place songs and edit the playlists.
+			It should be noted that instead of a standard QWidget being used a QListWidget
+			is used. This still has a visual representation but instead of being a blank
+			canvas it lists items that you can add with the addItem procedure.
+        };
+    \end{tikzpicture}
+    \caption{PlaylistView class layout} \label{fig:PlaylistView class layout}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \node [right of = tree] (inherit) {\includegraphics[]{classPdfs/classTabWidget.pdf}};
+        \node [TextBox, above=0cm of inherit, text width = 30em] (textbox) {
+			Unlike the other class this class is abstract. This means that it should
+			always be a parent class in use and never called directly. The reasoning
+			behind this is that I want a way that I could add classes automatically.
+			This would also mean that if in the future I want to style my tabs I can
+			easily do so by applying styles to this which would apply to the children.
+        };
+    \end{tikzpicture}
+    \caption{TabWidget class layout} \label{fig:TabWidget class layout}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{sideways}
+            \node [] (tree) at (4, 4) {\includegraphics[width=\textheight]{classPdfs/classVideoYouTube_a80afcc31ca007b32108976d2158be9ce_cgraph.pdf}};
+        \end{sideways}
+        \node [right of = tree] (inherit) {\includegraphics[]{classPdfs/classVideoYouTube.pdf}};
+        \node [TextBox, above=0cm of inherit, text width = 30em] (textbox) {
+			This class is used to represent the currently selected video from the
+			search on the download tab. The main objective of this class is with the
+			use of HttpHandler (Fig \ref{fig:HttpHandler class layout}) to extract the
+			URL of the actual YouTube video which is done in the parseVideo procedure.
+			Once the URL has been retrieved the getVideoUrl and the getAudioUrl functions
+			provide objects like preview the URL to play the video. The download procedure
+			will pass the audio URL onto the HttpHandler so that it can be downloaded
+			and added to the database. Finally to repeat the process you need to set
+			a new webpage URL with setUrl and call the analyse procedure.
+        };
+    \end{tikzpicture}
+    \caption{VideoYouTube class layout} \label{fig:VideoYouTube class layout}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{sideways}
+            \node [] (tree) at (4, 4) {\includegraphics[width=\textheight]{classPdfs/classDatabaseHandler_a6f3d7ae8a73f534059dc5667b29eb0d2_cgraph.pdf}};
+        \end{sideways}
+        \node [right of = tree] (inherit) {\includegraphics[]{classPdfs/classDatabaseHandler.pdf}};
+        \node [TextBox, above=0cm of inherit, text width = 30em] (textbox) {
+			This class is meant to handle all of the database function and is called
+			by the LibraryWidget class. The should create all of the tables needed to
+			represent the tables and organise everything. Like the HttpHandler class
+			this class is a child of QObject showing that it is completely backend
+			and has no visual representation.
+        };
+    \end{tikzpicture}
+    \caption{DatabaseHandler class layout} \label{fig:DatabaseHandler class layout}
+\end{figure}
+\begin{figure}[H]
+    \begin{tikzpicture}[node distance=\textwidth /3]
+        \node [] (download) {\includegraphics{classPdfs/structdownload}};
+        \node [right of=download] (fmtQuality) {\includegraphics{classPdfs/structfmtQuality}};
+        \node [below=0.0mm of  download.south] (videoQuality) {\includegraphics{classPdfs/structvideoQuality}};
+        \node [right of=videoQuality] (jsMethod) {\includegraphics{classPdfs/structjsMethod}};
+    \end{tikzpicture}
+    \caption{Struct layout} \label{fig:Struct layout}
+\end{figure}
+\break
+\subsection{DatabaseHandling}\label{DatabaseHandling}
+As mention previously I decided that I would use a database to keep track of the
+downloaded music. To do this I will have one main table that will have any
+downloaded song automatically inserted into it. This table will be called "AllSongs"
+. This "AllSongs" table with contain 5 columns which I will describe here.
+The first column is the "id" columns which will be use to order the data
+and to reference the data inside "AllSongs". Because of this id will be an
+integer with each one being unique and auto increment. The second column
+is "TrackName" which as the title suggest will be a text field containing
+the name of the download song. The next two columns will be "artists" and
+"genre" which will both be integers to reference values in the artist and
+genre tables. This will avoid duplicates. These tables will have an id field
+identical to the AllSongs table and the artist and genre columns will
+reference values using this field. Finally there will be the duration
+file which is a double that will hold the length of the song in minuets.
+To further avoid duplications any playlist created by the user will reference
+the songs in "AllSongs".In order to allow these references I will need to use join
+statements in SQL. I need to use this statement as I still want the artist and
+genre columns in the users playlist without having to create this additional columns.
+By using select with these join statement along with the where clause I should
+be able to grab all data that has the same id. The diagram below (fig \ref{fig:databaseDiagram}) should show
+the overall design of the database.
+
+
+\begin{figure}[H]
+    \begin{tikzpicture}[node distance=6cm]
+        \node [left] (artists) {
+                \begin{tabular} {| c | c |}
+                    \hline
+                    \textbf{id}          &      \textbf{artistName} \\ \hline
+                    Primary key int      &      String              \\ \hline
+                \end{tabular}
+            };
+        \node (AllSongs) [below of = artists] {
+                \begin{tabular} {| c | c | p{2.5cm} | p{2.5cm} | c |}
+                    \hline
+                    \textbf{id}         &     \textbf{songName}   &   \textbf{artist}      & \textbf{genere}    &   \textbf{Duration} \\ \hline
+                    Primary Key int     &   String                &Secondary key pointing \
+                                                                  to artist in artist table\
+                                                                  , Int.                   &Secondary Key pointing \
+                                                                                            to genere in genere    \
+                                                                                            table, Int             &  Double          \\ \hline
+                \end{tabular}
+            };
+        \node (genere) [right of = artists] {
+                \begin{tabular} {| c | c |}
+                    \hline
+                    \textbf{id}          &      \textbf{genreName}  \\ \hline
+                    Primary key int      &      String              \\ \hline
+                \end{tabular}
+            };
+
+        \node (playlist) [below of = AllSongs] {
+                \begin{tabular} {| c |}
+                    \hline
+                    \textbf{Song id}                         \\ \hline
+                    Secondary key pointing to AllSongs, Int  \\ \hline
+                \end{tabular}
+            };
+        \draw [arrow] (artists) -- node {} (AllSongs);
+        \draw [arrow] (genere) -- (0.5,-4.9) node {} (AllSongs);
+        \draw [arrow] (playlist) -- (-7.9,-7) node {} (AllSongs);
+
+    \end{tikzpicture}
+    \caption{Database Overview} \label{fig:databaseDiagram}
+\end{figure}
+
+
+A requirement by my client is the ability to reorder the songs. My approach
+to this is to switch the id of the two songs to switch them in the view.
+Due to both id's having the unique property I will need to use the id as
+0 for a temp value. This should be relatively simple with SQL update statements
+Another database quirk that I need to take into consideration is when the user
+deletes a song in the playlist as this will cause there to be gaps in the
+ids of tables. This is problematic as I cannot get the right id by getting
+the rowid. There are two ways I could solve this: I update all of the ids
+greater that the deleted item so there are no gaps or allow gaps and find
+a way of selecting a row of data in the database by how far down it is.
+The first option is a bad idea as this means changing id which are going
+to be used as relations and it may become time consuming for large
+amount of rows. The second option is much better but I was original unsure
+of how to achieve it until I discovered the "OFFSET" clause. With this
+I can offset a select statement n rows down the table making this task
+trivial.
+With this knowledge I have created a table below in figure ~\ref{fig:SQLTable}
+that I believe I will need for the database.
+\begin{figure}[H]
+    \begin{center}
+        \begin{tabular} { | c | c | }
+            \hline
+            \textbf{Query}                   &                 \textbf{Summerary}             \\ \hline
+            CREATE TABLE IF NOT EXISTS       &This should create the artists table. This      \\
+            artists(id INTEGEAR NOT NULL     &will store the artists name and an id to        \\
+            PRIMARY KEY AUTOINCREMENT UNIQUE,&reference the name                              \\
+            artist TEXT)                     &                                                \\ \hline
+            CREATE TABLE IF NOT EXISTS       &This should create the albums table which will  \\
+            albums (id INTEGEAR NOT NULL     &store the album name and an id to reference the \\
+            PRIMARY KEY AUTOINCREMENT UNIQUE,&name.                                           \\
+            albums TEXT)                     &                                                \\ \hline
+            CREATE TABLE IF NOT EXISTS       &                                                \\
+            AllSongs ( id INTEGEAR NOT NULL  &This should create the AllSongs table which will\\
+            PRIMARY KEY AUTOINCREMENT UNIQUE,&be used to store any downloaded song and        \\
+            trackName TEXT, artist INTEGEAR, &will be referenced by other playlists.          \\
+            Genere INTEGEAR, Duration DOUBLE)&                                                \\ \hline
+            DELETE FROM tableName WHERE id   &This statement will be used to allow the user   \\
+            IN (SELECT id FROM tableName     &to delete a row from tableName using the number \\
+            ORDER BY id LIMIT 1 OFFSET rowId &of rows down in the tableView. It should be     \\
+                                             ¬ed that tableName and rowId will be          \\
+                                             &substituted at runtime with the appropiate      \\
+                                             &values.                                         \\ \hline
+            SELECT AllSongs.id, trackName,   &This query will be used to get the appropiate   \\
+            artist, Genere, Duration FROM    &data from AllSongs by using the ids in tableName\\
+            AllSongs tableName ON AllSongs.id&to reference the values. It should be noted that\\
+             = tableName.id                  &tableName is a variable that will be substituted\\
+                                             &with the correct value at runtime.              \\ \hline
+        \end{tabular}
+    \end{center}
+    \caption{SQL queries} \label{fig:SQLTable}
+\end{figure}
+\subsection{NetworkHandling}\label{NetworkHandling}
+As remarked previously a key part to this project is the process
+of extracting the video URL from YouTube so it can be previewed
+and the sound be downloaded. This section describes this process.
+The series of diagrams below illustrate how I plan to complete this
+objective.
+
+The are a few functions or procedures that I will clarify here. The overall
+object of all of these subroutines is to assign the appropriate format to a
+link and evaluate a signature for each video and audio URL. The signature is required
+as without it being added to the URL YouTube will reject the request
+as it will not be authorised. In order to extract the necessary JavaScript code
+to generate the signature the "parseJS" subroutine is called which the goes on
+to call the "extractJSMethod" subroutine. Since there are multiple formats of
+audio and video available there are multiple URLs and these two subroutines extract each
+JavaScript method for each URL and adds them to the "jsMethods" property. When this
+is originally called the URLs for each quality and format have not been found. It is only later
+when "getFmtLink" and "getUrlFromFmtLink" is called the JavaScript method is
+execute in the "parseSignature" function, returning the signature which is then
+added to the URL.
+
+\begin{figure}[H]
+    \begin{tikzpicture}[node distance=6cm]
+        \node (start) [startstop] {Start to ParseVideo};
+        %This is for ifHtml if statement
+        \node (ifHtml) [decision, below of=start] {empty or is html};
+        \node (ifSigparse) [decision, below of=ifHtml] {signature parsing needed};
+        \node (ifJs) [decision, right of=ifHtml] {Is it the html5 player response};
+        \draw [arrow] (start) -- node {} (ifHtml);
+        \draw [arrow] (ifHtml) -- node[anchor=west] {True} (ifSigparse);
+        \draw [arrow] (ifHtml) -- node[anchor=north] {False} (ifJs);
+        \node (getHtmlPlayer) [process, yshift=1.5cm, below of=ifSigparse] {
+                Extract the html5 player using one of the following regexs:\newline
+                \verb!html5player.+\\.js!\newline
+                \verb!//[^"]*html5player[^"]*\\.js!\newline
+                \verb!(//?)[^"]*player[^"]*\\/base\\.js!\newline
+        };
+        \draw [arrow] (ifSigparse) -- node[anchor=east] {True} (getHtmlPlayer);
+        %This is the ifHtmlPlayer if statement
+        \node (ifHtmlPlayer) [decision, right of=getHtmlPlayer] {has html5 player been found};
+        \node (html5PlayerFalsetFound) [process, yshift=3cm, below of=ifHtmlPlayer] {emit error};
+        \node (html5PlayerFound) [process, yshift=-3cm, above of=ifHtmlPlayer] {add player URL to requiredDownload};
+        \draw [arrow] (getHtmlPlayer) -- node {} (ifHtmlPlayer);
+        \draw [arrow] (ifHtmlPlayer) -- node[anchor=west] {True} (html5PlayerFound);
+        \draw [arrow] (ifHtmlPlayer) -- node[anchor=east] {False} (html5PlayerFalsetFound);
+        %js player if statement
+        \node (parseJs) [process, hyperlink node=parseJs, fill=purple!60, above of=ifJs] {parseJs function};
+        \draw [arrow] (ifJs) -- node[anchor=west] {True} (parseJs);
+        \node (continue) [process, yshift=-4.5cm, hyperlink node=parseVideo2, fill=purple!60, above of=parseJs] {Continue};
+        \draw [arrow] (parseJs) -- node {} (continue);
+        \draw [arrow] (html5PlayerFound) -- +(5,0) |- node {} (continue);
+        \draw [arrow] (ifJs)  -- +(4,0) |- node[anchor=south west] {False} (continue);
+        \draw [arrow] (ifSigparse) -- +(10.5,0) |- node[anchor=east] {} (continue);
+    \end{tikzpicture}
+    \caption{Start of parse Video} \label{fig:parseVideoStart}
+\end{figure}
+\begin{figure}[H]
+    \begin{tikzpicture}[node distance=6cm]
+        \node (start) [startstop] {\hypertarget{parseVideo2}{Continue parseVideo}};
+        \node (checkForRequiredDownloads) [decision, below of=start] {Check if requiredDownloads is empty};
+        \node (checkIfRequiredDownloadsHasJs) [decision, below of=checkForRequiredDownloads] {
+            Check if required Downloads has the player URL};
+        \node (jsIsTrue) [process, below of=checkIfRequiredDownloadsHasJs] {set the key and URL
+            to js and the player URL respectivaly};
+        \node (jsIsFalse) [process, xshift=2cm, right of=checkIfRequiredDownloadsHasJs] {set the key and URL
+            to the first value of requiredDownloads};
+        \node (addDownload) [process, below of=jsIsFalse] {remove the set key from
+            required downloads and add a Download to the HttpHandler object (send a get request)};
+        \node (return) [startstop, yshift=4cm, below of=addDownload] {Return and exit from the
+            function};
+        \node (titleRegex) [process, above of=jsIsFalse] {create the following regular expression
+                to extract the video title:\newline
+            \verb!<meta name=\"title\" content=\"(.*)\"!};
+        \node (continue) [process, hyperlink node=parseVideo3, fill=purple!60,
+            above of=titleRegex] {Continue};
+        \draw [arrow] (start) -- node {} (checkForRequiredDownloads);
+        \draw [arrow] (checkForRequiredDownloads) -- node[anchor=west] {True}
+            (checkIfRequiredDownloadsHasJs);
+        \draw [arrow] (checkForRequiredDownloads) -- node[anchor=north] {False} (titleRegex);
+        \draw [arrow] (checkIfRequiredDownloadsHasJs) -- node[anchor=west] {True} (jsIsTrue);
+        \draw [arrow] (checkIfRequiredDownloadsHasJs) -- node[anchor=north] {False} (jsIsFalse);
+        \draw [arrow] (jsIsFalse) -- node {} (addDownload);
+        \draw [arrow] (jsIsTrue) -- node {} (addDownload);
+        \draw [arrow] (addDownload) -- node {} (return);
+        \draw [arrow] (titleRegex) -- node {} (continue);
+    \end{tikzpicture}
+\end{figure}
+\begin{figure}[H]
+    \begin{tikzpicture}[node distance=6cm]
+        \node (start) [startstop] {\hypertarget{parseVideo3}{Continuation of parseVideo}};
+        \node (ifFoundTitle) [decision, below of=start] {Has any text been extract};
+        \node (setTitle) [process, below of=ifFoundTitle] {set the title to extracted content};
+        \node (qualityLinkRegex) [process, minimum width=9cm, below of=setTitle] {Create the
+            following regexes to extract different video links with quality:\newline
+            \verb!"\adaptive_fmts\": ?\"(.*)\"!\newline
+            \verb!"\URL_encoded_fmt_stream_map\": ?\"(.*)\"!};
+        \node (ifQualityLinksFound) [decision, xshift=2cm, right of=qualityLinkRegex] {If any
+            quality Links Found};
+        \node (QualityLinksFound) [process, above of=ifQualityLinksFound] {extract the links
+            found and add them to a list called "qualityLinks"};
+        \node (ifQualityLinksIsNotEmpty) [decision, above of=QualityLinksFound] {If
+            qualityLinks and dashQualityLinks not Empty};
+        \node (alternativeMethod) [process, yshift=-3cm, xshift=5cm, hyperlink node=parseVideo7, fill=purple!60,
+            above left =of ifQualityLinksIsNotEmpty] {Use aletnative algorithm};
+        \node (qualityHasItems) [process, above of=ifQualityLinksIsNotEmpty] {Add possible
+            format qualitys to "fmtQualites" in the form of the fmtQuality struct fig
+            ~\ref{fig:Struct layout}};
+        \node (error) [startstop, xshift=3cm, yshift=2cm,
+            below left =of ifQualityLinksIsNotEmpty] {emit Error!};
+        \node (continue) [process, yshift=-3cm, hyperlink node=parseVideo4, fill=purple!60,
+            above of=qualityHasItems] {Continue};
+        \draw [arrow] (start) -- node {} (ifFoundTitle);
+        \draw [arrow] (ifFoundTitle) -- node[anchor=west] {True} (setTitle);
+        \draw [arrow] (ifFoundTitle) -| node[anchor=south] {False} (error);
+        \draw [arrow] (setTitle) -- node {} (qualityLinkRegex);
+        \draw [arrow] (qualityLinkRegex) -- node {} (ifQualityLinksFound);
+        \draw [arrow] (ifQualityLinksFound) -- node[anchor=west] {True} (QualityLinksFound);
+        \draw [arrow] (ifQualityLinksFound) -- +(4,0) |- node[anchor=south east] {True}
+            (ifQualityLinksIsNotEmpty);
+        \draw [arrow] (QualityLinksFound) -- node {} (ifQualityLinksIsNotEmpty);
+        \draw [arrow] (ifQualityLinksIsNotEmpty) -- node[anchor=south west] {False} (alternativeMethod);
+        \draw [arrow] (ifQualityLinksIsNotEmpty) -- node[anchor=west] {True} (qualityHasItems);
+        \draw [arrow] (qualityHasItems) -- node {} (continue);
+    \end{tikzpicture}
+\end{figure}
+\begin{figure}[H]
+    \begin{tikzpicture}[node distance=6cm]
+        \node (start) [startstop] {\hypertarget{parseVideo7}{Start of alternative Method}};
+        \node (regex) [process, below of=start] {Create the following two regexes:\newline
+            \verb!\"t\": \"(.*)\"!\newline
+            \verb!\"video_id\": \"(.*)\"\!\newline};
+        \node (ifRegex) [decision, below of=regex] {If the regex has found anything in html};
+        \node (error) [startstop, right of=ifRegex] {Error!};
+        \node (initVideoQuality) [process, below of=ifRegex] {Create a new videoQality object and
+            set the quality to normal and the videoUrl to the found values};
+        \node (append) [process, yshift=3cm, below of=initVideoQuality] {add the created videoQuality to the
+           supportedQualities property};
+        \node (end) [process, xshift=3cm, hyperlink node=endOfAltMethod, fill=purple!60,
+            right of=append] {End of alternative method};
+        \draw [arrow] (start) -- node {} (regex);
+        \draw [arrow] (regex) -- node {} (ifRegex);
+        \draw [arrow] (ifRegex) -- node[anchor=west] {True} (initVideoQuality);
+        \draw [arrow] (ifRegex) -- node[anchor=north] {False} (error);
+        \draw [arrow] (initVideoQuality) -- node {} (append);
+        \draw [arrow] (append) -- node {} (end);
+    \end{tikzpicture}
+\end{figure}
+\begin{figure}[H]
+    \begin{tikzpicture}[node distance=6cm]
+        \node (start) [startstop] {\hypertarget{parseVideo4}{Continuation of parseVideo}};
+        \node (whileLoop) [decision, fill=cyan!60, below of=start] {\hypertarget{whileLoop}
+            {While there is an item in fmtQualities}};
+        \node (createVideoLink) [process, hyperlink node=getFmtLink,
+            fill=purple!60, below of=whileLoop] {Call "getFmtLink" with qualityLinks and
+            the video property of the current fmtQuality and set that as the videoLink};
+        \node (setAudioLink) [process, hyperlink node=getFmtLink,
+            fill=purple!60, below of=createVideoLink] {if the audio property of fmtQuality is not
+                empty call getFmtlink with qualityLinks and audio property};
+        \node (ifAudioCouldNotBeFound) [decision, xshift=3cm, right of=setAudioLink] {If audio of
+            the fmtQuality still could not be found};
+        \node (manuallySetAudio) [process, yshift=2cm, above of=ifAudioCouldNotBeFound] {Set
+            audio link to the result of getFmtLink with qualityLinks and either "140" or "171" as
+            arguments};
+        \node (ifQualityFound) [decision, above of=manuallySetAudio] {If both video and audio
+            qualities have been found};
+        \node (continue) [process, yshift=-1.5cm, hyperlink node=parseVideo5, fill=purple!60,
+            above of=ifQualityFound] {Continue};
+        \draw [arrow] (start) -- node {} (whileLoop);
+        \draw [arrow] (whileLoop) -- node[anchor=west] {True} (createVideoLink);
+        \draw [arrow] (createVideoLink) -- node {} (setAudioLink);
+        \draw [arrow] (setAudioLink) -- node {} (ifAudioCouldNotBeFound);
+        \draw [arrow] (ifAudioCouldNotBeFound) -- node {} (manuallySetAudio);
+        \draw [arrow] (manuallySetAudio) -- node {} (ifQualityFound);
+        \draw [arrow] (ifQualityFound) -- node[anchor=west] {True} (continue);
+    \end{tikzpicture}
+\end{figure}
+\begin{figure}[H]
+    \begin{tikzpicture}[node distance=6cm]
+        \node (start) [startstop] {\hypertarget{parseVideo5}{Continuation of parseVideo}};
+        \node (initVideoQuality) [process, below of=start] {Create an instance of VideoQuality
+            which is show in figure ~\ref{fig:Struct layout}};
+        \node (createRegex) [process, below of=initVideoQuality] {Set the containerName to mp4
+            and set the resolution to the qualityLinks resolution for the videoQuality.
+            Also create the following regex: \verb!webm|flv!};
+        \node (ifFoundContainer) [decision, below of=createRegex] {if the format is found in
+            videoLink};
+        \node (foundContainer) [process, yshift=3cm, below of=ifFoundContainer] {set the
+            containerName on videoQuality to the found format};
+        \node (setQuality) [process, xshift=3cm, right of=ifFoundContainer] {set the quality of
+            videoQuality to that of qualityLinks};
+        \node (ifQualityIsDefault) [decision, above of=setQuality] {if quality is the default
+            value};
+        \node (qualityIsDefault) [process, hyperlink node=getQualityFromFmtLink, fill=purple!60,
+            above of=ifQualityIsDefault] {call getQualityFromFmyLink with VideoLink as an
+            argument and set the videoQuality quality property to the result};
+        \node (continue) [process, hyperlink node=parseVideo6, fill=purple!60,
+            above of=qualityIsDefault] {Continue};
+        \draw [arrow] (start) -- node {} (initVideoQuality);
+        \draw [arrow] (initVideoQuality) -- node {} (createRegex);
+        \draw [arrow] (createRegex) -- node {} (ifFoundContainer);
+        \draw [arrow] (ifFoundContainer) -- node[anchor=west] {True} (foundContainer);
+        \draw [arrow] (ifFoundContainer) -- node[anchor=north] {False} (setQuality);
+        \draw [arrow] (foundContainer) -| node {} (setQuality);
+        \draw [arrow] (setQuality) -- node {} (ifQualityIsDefault);
+        \draw [arrow] (ifQualityIsDefault) -- node[anchor=west] {True} (qualityIsDefault);
+        \draw [arrow] (qualityIsDefault) -- node {} (continue);
+        \draw [arrow] (ifQualityIsDefault) -- +(-4,0) |- node[anchor=south east] {False}
+            (continue);
+    \end{tikzpicture}
+\end{figure}
+\begin{figure}[H]
+    \begin{tikzpicture}[node distance=6cm]
+        \node (start) [startstop] {\hypertarget{parseVideo6}{Continuation of parseVideo}};
+        \node (setVideoUrl) [process, hyperlink node=getUrlFromFmtLink, fill=purple!60,
+            below of=start] {Set the video URL property of videoQuality to the result
+            of getUrlFromFmtLink with the current video URL as an argument and do the
+            same with the auido link};
+        \node (appendToSupportedQualities) [process, below of=setVideoUrl] {add the videoQuality
+            to the to the supportedQualities property};
+        \node (endOfWhileLoop) [process, hyperlink node=whileLoop, fill=purple!60,
+            below of=appendToSupportedQualities] {End of the while loop iteration (click this
+            to go back to the start)};
+        \node (emitFinish) [startstop, yshift=3cm, right of=endOfWhileLoop] {emit the signal analysingFinished};
+        \node (altMethod) [process, above of=emitFinish] {\hypertarget{endOfAltMethod}{Continuation of alternative method}};
+        \draw [arrow] (start) -- node {} (setVideoUrl);
+        \draw [arrow] (setVideoUrl) -- node {} (appendToSupportedQualities);
+        \draw [arrow] (appendToSupportedQualities) -- node {} (endOfWhileLoop);
+        \draw [arrow] (endOfWhileLoop) -- node {} (emitFinish);
+        \draw [arrow] (altMethod) -- node {} (emitFinish);
+    \end{tikzpicture}
+\end{figure}
+\begin{figure}[H]
+    \begin{tikzpicture}[node distance=6cm]
+        \node (start) [startstop] {\hypertarget{getUrlFromFmtLink}{start of
+            getQualityFromFmtLink}};
+        \node (regex1) [process, below of=start] {Create two regular expression: urlExpression
+            and sigExpression which are respectively:\newline
+            \verb!(http[s]?[^,]+)!\newline
+            \verb!(?:^|[^a-zA-Z])[,]?s(ig)?=([^,]+)!\newline};
+        \node (extractUrl) [process, below of=regex] {Extract the URL and signature
+            from the link parameter};
+        \node (checkSig) [process, hyperlink node=parseSignature, fill=purple!60,
+            below of=extractUrl] {if the signature does not equal "ig" then call parseSignature
+            with signature as a argument};
+        \node (return) [startstop, yshift=-3cm, xshift=-3cm, above right =of checkSig] {append the signature to URL and return
+            the URL};
+        \draw [arrow] (start) -- node {} (regex1);
+        \draw [arrow] (regex1) -- node {} (extractUrl);
+        \draw [arrow] (extractUrl) -- node {} (checkSig);
+        \draw [arrow] (checkSig) -| node {} (return);
+    \end{tikzpicture}
+\end{figure}
+\begin{figure}[H]
+    \begin{tikzpicture}[node distance=6cm]
+        \node (start) [startstop] {\hypertarget{parseSignature}{start of parseSignature}};
+        \node (runJs) [process, below of=start] {Run the relvant javascript to process the signature};
+        \node (return) [startstop, below of=runJs] {Return the result of the javascript};
+        \draw [arrow] (start) -- node {} (runJs);
+        \draw [arrow] (runJs) -- node {} (return);
+    \end{tikzpicture}
+\end{figure}
+\begin{figure}[H]
+    \begin{tikzpicture}[node distance=6cm]
+        \node (start) [startstop] {\hypertarget{getQualityFromFmtLink}{start of
+            getQualityFromFmtLink}};
+        \node (regex) [process, below of=start] {Create the following regex:\newline
+           \verb!quality_label=([^,]+)!\newline};
+        \node (ifFound) [decision, below of=regex] {If quality has been found by regex};
+        \node (foundTrue) [startstop, below of=ifFound] {return the relevant quality found by regex};
+        \node (foundFalse) [startstop, right of=ifFound] {return an empty string};
+        \draw [arrow] (start) -- node {} (regex);
+        \draw [arrow] (regex) -- node {} (ifFound);
+        \draw [arrow] (ifFound) -- node[anchor=west] {True} (foundTrue);
+        \draw [arrow] (ifFound) -- node[anchor=south] {False} (foundFalse);
+    \end{tikzpicture}
+\end{figure}
+\begin{figure}[H]
+    \begin{tikzpicture}[node distance=6cm]
+        \node (start) [startstop] {\hypertarget{getFmtLink}{start of getFmtLink}};
+        \node (regex) [process, below of=start] {create the two following regexes:\newline
+            \verb!(http[s]?[^,]+)!\newline
+            \verb![,]?itag=([^,]+)!\newline};
+        \node (forLoop) [decision, fill=cyan!60, below of=regex] {for quality in qualityLinks};
+        \node (ifFound) [decision, xshift=3cm, right of=forLoop] {if both regexes match the quality and itag
+            expression result matches the fmt argument};
+        \node (foundTrue) [startstop, below of=ifFound] {return the quality};
+        \node (foundFalse) [process, above of=ifFound] {continue Loop};
+        \node (return) [startstop, minimum width=1cm, below of=forLoop] {return empty string};
+        \draw [arrow] (start) -- node {} (regex);
+        \draw [arrow] (regex) -- node {} (forLoop);
+        \draw [arrow] (forLoop) -- node[anchor=south] {True} (ifFound);
+        \draw [arrow] (ifFound) -- node[anchor=west] {True} (foundTrue);
+        \draw [arrow] (ifFound) -- node[anchor=east] {False} (foundFalse);
+        \draw [arrow] (foundFalse) -- node[anchor=east] {} (forLoop);
+        \draw [arrow] (forLoop) -- node[anchor=east] {False} (return);
+    \end{tikzpicture}
+\end{figure}
+\begin{figure}[H]
+    \begin{tikzpicture}[node distance=6cm]
+        \node (start) [startstop] {\hypertarget{parseJs}{start to parse js}};
+        \node (regexExpression) [process, below of=start, minimum width=10cm] {
+                Extract the js method name using the regex expression
+                \verb!signature=|set\\(\"signature\",([$\\w]+)\\(!
+            };
+        \node (ifFound) [decision, below of=regexExpression] {If method name found};
+        \node (methodCall) [process, fill=purple!60, hyperlink node=extractJSMethod, below of=ifFound] {extrack JS Method};
+        \draw [arrow] (start) -- node {} (regexExpression);
+        \draw [arrow] (regexExpression) -- node {} (ifFound);
+        \draw [arrow] (ifFound) -- node[anchor=east] {True} (methodCall);
+    \end{tikzpicture}
+\end{figure}
+\begin{figure}[H]
+    \begin{tikzpicture}[node distance=6cm]
+        \node (start) [startstop] {\hypertarget{extractJSMethod}{Start to extract js method}};
+        \node (checkIfCompleted) [decision, fill=cyan!60, below of=start] {for method in js
+            Method};
+        \node (ifComplete) [decision, right of=checkIfCompleted] {if method name equals name};
+        \node (isCompleted) [startstop, above of=ifComplete] {return};
+        \draw [arrow] (start) -- node (CheckCompleteforarrow) {} (checkIfCompleted);
+        \draw [arrow] (checkIfCompleted) -- node[anchor=north] {True} (ifComplete);
+        \draw [arrow] (ifComplete) -- node[anchor=west] {True} (isCompleted);
+        \draw [arrow] (ifComplete) -- node[anchor=east] {False} (CheckCompleteforarrow);
+        \node (firstFunctionRegex) [process, below of=checkIfCompleted] {Use the folowing regex to get the content
+        of the function that has the same name as the paremeter. The regex is as follows where escapedName is the
+        name of the function:
+        \verb!((?:function\\s*" + escapedName!\newline
+        \verb!+ "|(var\\s*|,\\s*|\\n)" + escapedName +!\newline
+        \verb!"\\s*=(?:\\s*function)?)\\s*(\\([\\w,!\newline
+        \verb!\\s]*\\))?\\s*)(\\{.*\\})!};
+        \draw [arrow] (checkIfCompleted) -- node[anchor=east] {False} (firstFunctionRegex);
+        \node (checkIfContentMatchParam) [decision, right of=firstFunctionRegex] {Does the contest extract found in the js param};
+        \node (extractJsContinued) [process, hyperlink node=extractJS2, fill=purple!60, below of=checkIfContentMatchParam] {Continue};
+        \draw [arrow] (checkIfContentMatchParam) -- node {} (extractJsContinued);
+    \end{tikzpicture}
+\end{figure}
+\begin{figure}[H]
+    \begin{tikzpicture}[node distance=6cm]
+        \node (start) [startstop] {\hypertarget{extractJS2}{extractJS method part 2}};
+        \node (createObject) [process, below of=start] {Initializes a object of type jsMethod (Fig ~\ref{fig:Struct layout})};
+        \node (setProperties) [process, below of=createObject] {Set the name, code properties of jsMethod and add to jsMethods
+                                                                property};
+        \node (ifMethodCodeNotEmpty) [decision, right of=setProperties] {Is the object code empty};
+        \node (regex) [process, above of=ifMethodCodeNotEmpty, yshift=-1.5cm] {Use the follow regex:
+            \verb!([\\w\\$]+)(?:[\\w\\.\\$])*\\s*!\newline
+            \verb!(\\([\\w\\s,\"\\$]*)\\)!};
+        \node (recursive) [process, above of=regex, yshift=-1.5cm] {The regex should find functions called inside. After finding these functions
+        call \hypertarget{extractJSMethod}{extractJS} with the name and code as arguments};
+        \node (stop) [startstop, above of=recursive] {Finish};
+        \draw [arrow] (start) -- node {} (createObject);
+        \draw [arrow] (createObject) -- node {} (setProperties);
+        \draw [arrow] (setProperties) -- node {} (ifMethodCodeNotEmpty);
+        \draw [arrow] (ifMethodCodeNotEmpty) -- node[anchor=east] {False} (regex);
+        \draw [arrow] (regex) -- node {} (recursive);
+        \draw [arrow] (recursive) -- node {} (stop);
+        \node (escapeRegex) [process, below of=checkIfCompleted] {Find the contents of the
+            method from the name using a regular expression};
+    \end{tikzpicture}
+\end{figure}
+\pagebreak
+\subsection{Burning the audio CD}
+Due to one of my original requirements I need to ensure that this program is cross-platform
+which raises a problem when it comes to the cd burning process as different platforms have
+different methods to burning an audio data to a cd. To resolve this problem I decide that
+I would run 3rd party software that would be able to run on all platforms from my own
+program. There are a few out there but the one that seemed best supported and had good
+documentation was the cdrtools collection. The program in this collection that is relevant
+to this project is "cdrecord". This program allows data to be burnt to a cd of your choosing.
+unfortunately running this within the program normally will cause it to freeze until it finishes.
+Because of this I think it will be best to use another thread to run this process in. Luckily
+Qt has a class call QThread which allow threading in qt.
+I was also unsure whether the program could be called multiple times with a different track
+and CD as this would be the best approach to burning music to the CDs for two reasons. The
+first is that if there is an error burning one track the others should still be able be burnt
+onto the cd. The second is that I can update the progress bar with each successful burning operation.
+I thought the best way for me to figure this out was to test the executable with various options.
+After testing the cdrecord program, I found that the following arguments are required to perform the
+desired behaviour: -dev, -pad, -multi and -tao. The dev option is use to set the id of the
+cd drive you wish to use. You can find out this device id by running the program with the -scanbus
+option. unfortunately on Linux this does required root permission, when I tried using it with a
+USB cd, which generally is a bad idea and could cause problems in other areas of my program. The
+only solution to this permission issue is to edit the sudoers file to make an exception for this
+command. The next option, -pad, is used to make the audio data from the downloaded file a multiple
+of 2352 bytes. This is a required standard for audio CDs. the "-multi" option does exactly what
+I want to do in regards to burning each track in separate commands. Finally the "-tao" option is
+actually something that is enabled by default by cdrecord but by explicitly specifying the option
+it will speed up the execution process by not doing a count down.
+\subsection{Data flow and data types}
+In this section I will define all of the data requirements for this project which will include
+the information imputed by the user and the final output. The database and the converted audio
+files are all stored in the downloads folder. This is a directory created by the DataHandler
+class where it create a new folder from the builds current path called downloads. Before being
+converted the audio data is saved in the temporary folder of the current OS it is running on.
+For example on Linux this is "/tmp". The reasoning behind this is that the download may get
+interrupted and become corrupted making it difficult to deal with. If it save in the temporary
+folder the OS deals with it automatically and will clean up any mess left.
+\subsubsection{Data diagram}
+\begin{figure}[H]
+    \begin{tikzpicture}[node distance=6cm]
+        \node (start) [startstop] {User Enters search Term};
+        \node (downloadTemp) [process, below of=start] {start downloading the audio into temp file};
+        \node (convert) [process, below of=downloadTemp] {Convert audio from temp file and save it
+            into the downloads folder};
+        \node (database) [process, below of=convert] {Store the name, genere, artist and duration
+            for the video into the database};
+        \node (burn) [startstop, right of=database] {Burn the data onto a CD};
+        \draw [arrow] (start) -- node {} (downloadTemp);
+        \draw [arrow] (downloadTemp) -- node {} (convert);
+        \draw [arrow] (convert) -- node {} (database);
+        \draw [arrow] (database) -- node {} (burn);
+    \end{tikzpicture}
+    \caption{Data flow diagram} \label{fig:Data flow diagram}
+    This diagram illustrates the basic data flow of the application.
+\end{figure}
+\subsubsection{Data Structures used}
+There are many data structures that are introduced by the qt framework. You can usually distinguish
+these data structures from the normal c++ data structures by the fact they have a "Q" affixed to
+the start of their name. These data structures are described in figure ~\ref{fig:qtDataStructs}.
+\begin{figure}[H]
+    \begin{center}
+        \begin{tabular} {| c | c |}
+            \hline
+            \textbf{Name}        &         \textbf{Desciption}                               \\ \hline
+            QString              &This acts the same as a normal string type but has methods \\
+                                 &that help interaction with it. These methods are described  \\
+                                 &\href{https://doc.qt.io/qt-5/qstring.html}{here}           \\ \hline
+            QList                &This acts the same as a normal list but has additional     \\
+                                 &properties and methods to interact with it. You can find   \\
+                                 &more information about these extended features             \\
+                                 &\href{https://doc.qt.io/qt-5/qlist.html}{here}             \\ \hline
+            QHash                &This is a hash table type that you can use like a          \\
+                                 &dictionary/map. There is a similar Qt data structure called\\
+                                 &QMap but this type has a higher algorithmic complexity     \\
+                                 &making it slower that QHash. Because of this I have only   \\
+                                 &used the QHash type and not QMap. You can find more        \\
+                                 &information \href{https://doc.qt.io/qt-5/qhash.html}{here} \\ \hline
+            QStringList          &This is a type derived from QList and is design to only    \\
+                                 &house QStrings and nothing else. More information can be   \\
+                                 &\href{http://doc.qt.io/qt-5/qstringlist.html}{here}        \\ \hline
+            qint64               &This is an integer type that have 64 bytes of memory      \\
+                                 &allocated to it. This will likely only be used for the     \\
+                                 &progress bars and nothing else. Data about this type can be\\
+                                 &found                                                      \\
+                                 &\href{https://doc.qt.io/qt-5/qtglobal.html#qint64-typedef}{here} \\ \hline
+        \end{tabular}
+    \end{center}
+    \caption{qt data structures} \label{fig:qtDataStructs}
+\end{figure}
+\begin{figure}[H]
+    \begin{center}
+        \begin{tabular} { | c | c | c |}
+            \hline
+            \multicolumn{3} {| c |}{\textbf{Main data types in Window.cpp}}                   \\ \hline
+            \textbf{Variable Name}&\textbf{Type}&           \textbf{Summary}                  \\ \hline
+            app               &  QApplication& This is part of the Qt api and is              \\
+                                             &&used to initialize the necessary               \\
+                                             &&things                                         \\ \hline
+            mainWidget        &  Object of   & This is the only object of the                 \\
+                              &  MainWidget  &MainWidget class which is use as a canvas to    \\
+                                             &&place other widgets on top of it. It is        \\
+                                             && defined in Window.cpp                         \\ \hline
+            downloadWidget    &  Object of   & This is the only object of the                 \\
+                              &  DownloadTab &DownloadWidget class that is one of             \\
+                                             &&the main tab classes. It's                     \\
+                                             &&functionality is described here at             \\
+                                             &&Fig ~\ref{fig:DownloadTab Diagram}             \\
+                                             &&It is defined in the DownloadTab.cpp           \\ \hline
+            libraryTab        &  Object of   & This is the only object of the                 \\
+                              &  LibraryTab  &libraryTab class. It is described               \\
+                                             &&here in Fig ~\ref{fig:LibraryTab class layout} \\
+                                             &&It is defined in LibraryTab.cpp                \\ \hline
+            \multicolumn{3} {| c |}{\textbf{Main data types in DownloadTab class}}            \\ \hline
+            \textbf{Variable Name}&\textbf{Type}&           \textbf{Summary}                  \\ \hline
+            videoList         &  Object of   &This is an object of the SearchList in          \\
+                              &  SearchList  &DownloadTab and is used to get and display the  \\
+                                             &&the results of the search.                     \\
+                                             &&. It is defined in                             \\
+                                             &&DownloadTab.cpp and is a variable in           \\
+                                             &&DownloadWidget.                                \\ \hline
+            preview          &   Object of   &This is an object of PlayerWindow which is      \\
+                             &  PlayerWindow &defined in PlayerWindow.cpp and is used to      \\
+                                             &&preview videos after they have been selected in\\
+                                             &&videoList. It is displayed graphically on      \\
+                                             &&LibraryTab and therefore it is a variable in   \\
+                                             && LibraryTab.cpp. It is describe here in fig    \\
+                                             &&~\ref{fig:PlayWindow class layout}             \\ \hline
+            currentVideo     &   Object of   &This is an object of VideoYouTube and is used   \\
+                             &  VideoYouTube &to get and store information of the current      \\
+                                             &&selected video. It also interacts with preview \\
+                                             &&to set the URL to stream from. There is only   \\
+                                             &&one object of VideoYouTube as the information  \\
+                                             &&can be changed with setUrl and analyse         \\
+                                             &&procedures. It is defined in VideoYouTube.cpp  \\
+                                             &&and describe in more here at figure            \\
+                                             &&~\ref{fig:VideoYouTube class layout}           \\ \hline
+        \end{tabular}
+    \end{center}
+    \caption{Data table} \label{fig:dataTable}
+\end{figure}
+\newpage
+\begin{figure}[H]
+    \begin{center}
+        \begin{tabular} { | c | c | c |}
+            \hline
+            \multicolumn{3} {| c |}{\textbf{Main data types in SearchList class}}             \\ \hline
+            \textbf{Variable Name}&\textbf{Type}&           \textbf{Summary}                  \\ \hline
+            networkManger     &  Object of   &This is an instance of the QNetworkAccessManager\\
+                              & QNetworkAces-&and is used to send a get request with the      \\
+                              & sManager     &search term used to get URLs to the webpages    \\
+                                             &&containing the videos.                         \\ \hline
+            \multicolumn{3} {| c |}{\textbf{Main data types in VideoYouTube class}}           \\ \hline
+            \textbf{Variable Name}&\textbf{Type}&           \textbf{Summary}                  \\ \hline
+            handler           &  Object of   &This is an object to handler the necessary      \\
+                              & HttpHandler  &networking to extract video links and download  \\
+                                             &&them. After a finished get request it calls    \\
+                                             &&parseVideo with the response. It is defined in \\
+                                             &&HttpHandler.cpp and described here at figure    \\
+                                             &&\ref{fig:HttpHandler class layout}             \\ \hline
+            downloading       &  QString     &This contains a brief description about what has\\
+                                             &&most recently been downloaded and is use in    \\
+                                             &&parseVideo to control the program flow which is\\
+                                             &&described in the flowchart at ~\ref{fig:parseVideoStart}\\ \hline
+            supportedQualities&   QList      &This is a list that has a series of videoQuality\\
+                                             &&structs in it which are described at figure    \\
+                                             &&~\ref{fig:Struct layout}. Essentially this     \\
+                                             &&variable is use to contain the different       \\
+                                             &&qualities available.                          \\ \hline
+            expression        &   QRegExp    &This variable is use to store the regex that is \\
+                                             && is use to extract the information. It changes \\
+                                             && frequently as it changes to extract different \\
+                                             &&pieces of information.                         \\ \hline
+            title             &   QString    &This is use to contain the title of the video   \\
+                                             && downloaded and is inserted into the database  \\
+                                             &&as the title of the song after the download.   \\
+                                             &&It is also used to save the name of the file   \\ \hline
+            step              &     int      &This is used to store the current step in the   \\
+                                             &&program flow.                                  \\ \hline
+            html              &    QString   &This contains the response of the most recent   \\
+                                             &&download.                                      \\ \hline
+            \multicolumn{3} {| c |}{\textbf{Main data types in PlayerWindow and AudioPlayer class}}\\ \hline
+            \textbf{Variable Name}&\textbf{Type}&           \textbf{Summary}                  \\ \hline
+            player            &  AVplayer    &This is part of QtAv and is used to display the \\
+                                             &&video and play the audio for the preview. Most \\
+                                             &&of the interaction for the preview will be done\\
+                                             &&through this class.                            \\ \hline
+        \end{tabular}
+    \end{center}
+    \caption{Data table fig 2} \label{fig:dataTable2}
+\end{figure}
+\begin{figure}[H]
+    \begin{center}
+        \begin{tabular} { | c | c | c |}
+            \hline
+            playBtn           & QPushButton  &This is a button that the user can both pause   \\
+                                             &&and play the select media                      \\ \hline
+            slider            & QSlider      &This is used to create a slider so that the user\\
+                                             &&can skip forward or backward in the media      \\ \hline
+            progressBar       & QProgressBar &This is used to display the progress of either  \\
+                                             &&the download progress if it is an instance of  \\
+                                             &&PlayerWindow or the burn progress if it is an  \\
+                                             &&instance of AudioPlayer                        \\ \hline
+            \multicolumn{3} {| c |}{\textbf{Main data types in PlayerWindow class}}           \\ \hline
+            \textbf{Variable Name}&\textbf{Type}&           \textbf{Summary}                  \\ \hline
+            videoOutput       & VideoOutput  &This is used to render the video data for player\\
+                                             &&variable and is part of the QtAv libary        \\ \hline
+            currentVideo      &VideoYouTube  &This is use to hold the current video currently \\
+                                             &&selected to access properties like the video   \\
+                                             &&URL needed to stream the data                  \\
+            downloadBtn       & QPushButton  &This is a button used to initate the download   \\
+                                             &&process for the currently selected video       \\ \hline
+            quality           & QComboBox    &This is a drop down box that is used to select  \\
+                                             &&the quality that you want to download.         \\
+            \multicolumn{3} {| c |}{\textbf{Main data types in AudioPlayer class}}            \\ \hline
+            \textbf{Variable Name}&\textbf{Type}&           \textbf{Summary}                  \\ \hline
+            trackList         &QList&This is used to store all of the tracks in the  \\
+                                             &&currently selected playlist so that the tracks \\
+                                             &&can be burned to disc and player.              \\ \hline
+            burnBtn           & QPushButton  &This is a button used to imitate the burn       \\
+                                             &&process for the tracks in the select playlist  \\
+            forwardBtn        & QPushButton  &This skips forward a single track and plays it  \\ \hline
+            backBtn           & QPushButton  &This skips back a single track and plays it     \\ \hline
+            burnerThread      & QThread      &This will be the thread to burn music to a CD   \\ \hline
+            \multicolumn{3} {| c |}{\textbf{Main data types in LibraryTab class}}             \\ \hline
+            \textbf{Variable Name}&\textbf{Type}&           \textbf{Summary}                  \\ \hline
+            playlistView      & QListWidget  &This is used to display the playlists that are  \\
+                                             &&stored in the database so that the use user    \\
+                                             &&can select them.                               \\ \hline
+            dataHandler      &DatabaseHandler&This is a custom class that is describe in fig  \\
+                                             &&~\ref{fig:DatabaseHandler class layout} .      \\
+                                             &&It is used in this class retrieve the necessary \\
+                                             &&data and display it to the user                \\ \hline
+            tableView         &QStackWidget  &This contains multiple instances of PlaylistView\\
+                                             &&and displays the one that the user has         \\
+                                             &¤tly selected in playlistView.            \\ \hline
+            playlistAdder     & PlaylistAdder&This is used to create playlists that are then  \\
+                                             &&added to playlistView                          \\ \hline
+        \end{tabular}
+    \end{center}
+    \caption{Data table fig 3} \label{fig:dataTable3}
+\end{figure}
+\begin{figure}[H]
+    \begin{center}
+        \begin{tabular} { | c | c | c |}
+            \hline
+            \multicolumn{3} {| c |}{\textbf{Main data types in DataHandler class}}            \\ \hline
+            \textbf{Variable Name}&\textbf{Type}&           \textbf{Summary}                  \\ \hline
+            dbName            &   QString    &This is the name of the database file that all  \\
+                                             &&the data is save to. Since the database is saved\\
+                                             &&in the downloads folder it is prefixed with    \\
+                                             &&"Downloads/"                                   \\ \hline
+            db                &QSqlDatabase  &This is used as an interface for the database   \\
+                                             &&file meaning all queries are executed by this  \\
+                                             &&object.                                        \\ \hline
+            playlists         &QList         &This list is used to store all playlists that   \\
+                              &are created \\
+                              &Playlist> >   &during runtime                                  \\ \hline
+            allSongs          &shared\_ptr   &This holds a pointer to a playlist object which \\
+                              &    &holds the allSongs table. This will be used to  \\
+                                             &&update the view after songs have been inserted \\
+                                             &&into allSongs                                  \\ \hline
+            \multicolumn{3} {| c |}{\textbf{Main data types in PlaylistView class}}           \\ \hline
+            \textbf{Variable Name}&\textbf{Type}&           \textbf{Summary}                  \\ \hline
+            isDragging        &   bool       &This is will be used to determine whether the   \\
+                                             &&user is current dragging a track or is just    \\
+                                             &&clicking.                                      \\ \hline
+            yPos              &QList    &This is a list of the y coordinates of the rows \\
+                                             &&of tables in the table view. This will be used \\
+                                             &&to find out the which track the user is        \\
+                                             &&currently dragging                             \\ \hline
+            \multicolumn{3} {| c |}{\textbf{Main data types in Playlist class}}               \\ \hline
+            \textbf{Variable Name}&\textbf{Type}&           \textbf{Summary}                  \\ \hline
+            name              &  QString     &This will be the name of the table the playlist \\
+                                             &&object represents.                             \\ \hline
+            view              & PlalistView  &This will be used to create a view of the table \\
+                                             &&selected.                                      \\ \hline
+                              &              &                                                \\
+        \end{tabular}
+    \end{center}
+    \caption{Data table fig 4} \label{fig:dataTable4}
+\end{figure}
+\section{Technical and coding styles}
+\subsection{Guide table}
+The table below shown in figure \ref{fig:guideTable} shows the objectives
+and points of reference where the objective has been met in the code.
+
+
+\begin{figure}[H]
+    \begin{tabular} {| p{2cm} | p{10cm} |}
+        \hline
+        \textbf{Objective}   &         \textbf{Description and reference}   \\ \hline
+        1(a)                 &This is achieved at listing \ref{lst:download}\
+                              at the "searchYouTube" method of the          \
+                              "Searchlist" class                            \\ \hline
+        1(b)                 &Again this was fulfilled in listing          \
+                              \ref{lst:download} with the "requestReceived" \
+                              method. This method is triggered after a      \
+                              response from a get request. It adds the      \
+                              titles of the videos to the parent which is a \
+                              "QListWidget" allowing the user to select a   \
+                              title.                                        \\ \hline
+        1(c)                 & In listing \ref{lst:download} there is the   \
+                              "itemSelectionChanged" method which is called \
+                              when ever the user selects an item from the   \
+                              "videoList". This method calls  the "analyse" \
+                              and "setUrl" functions of the "VideoYouTube"  \
+                              class to extract the video and audio URLs.    \
+                              Once this is complete the "showVideo" method  \
+                              is called causing the "PlayerWindow" class in \
+                              listing \ref{lst:player} to play the video.   \\ \hline
+        1(d)                &The controls for the preview are shown in      \
+                             listing \ref{lst:player}. The methods          \
+                             "seekBySlider", "playPause", "stop" and        \
+                             "changeQuality" implement the controls to      \
+                             complete this objective.                       \\ \hline
+        1(e)                &This is acheived with a combination of listing \
+                             \ref{lst:player} and \ref{lst:http}. As in     \
+                             listing \ref{lst:player} a download button is  \
+                             created which triggers the "startDownload"     \
+                             method. This method calls the "download" method\
+                             of the "VideoYouTube" class which in turn uses \
+                             the "HttpHandler" class in listing             \
+                             \ref{lst:http} to download the audio.          \\ \hline
+        2(a)                &This is achieved in listing \ref{lst:library}  \
+                             in the "PlayerlistAdder" class. Once a name has\
+                             been typed into the text field and the button  \
+                             has been pressed it triggers the               \
+                             "createPlaylist" method of the "DataHandler"   \
+                             class in listing \ref{lst:data}. This then     \
+                             creates a playlist table in the database.      \\ \hline
+        2(b)                &This is done in listing \ref{lst:library} in the\
+                             "dropEvent" method in the "PlayListView" class.\
+                             This method is triggered every time the user    \
+                             performs drop action on this widget. The       \
+                             inserts the song into the database and then    \
+                             updates the database.                          \\ \hline
+        2(c)                &This is achieved in listing \ref{lst:data} in the\
+                             "keyPressEvent" method of the "PlaylistView"   \
+                             class. Every time a key is pressed it is        \
+                             triggered. It checks whether the pressed key is\
+                             the delete button. If it is it deletes the      \
+                             selected row from the database by calling the  \
+                             "removeRow" method in "Playlist".              \\ \hline
+        2(d)                &This is achieved in listing \ref{lst:data} in  \
+                             the "reorderRow" method in the "Playlist"      \
+                             class.                                         \\ \hline
+        2(e)                &Multiple methods and properties needed to be   \
+                             created to achieve this objective. The majority\
+                             of them are found in listing \ref{lst:data},   \
+                             there are a few however in listing             \
+                             \ref{lst:library}. The main properties that had\
+                             to be set are returned in the "flags" method   \
+                             found in classes like "Playlist". The methods  \
+                             like "dragMoveEvent" and "dropEvent" where then\
+                             used to respond to the drag and drop actions   \\ \hline
+    \end{tabular}
+    \caption{Guide table} \label{fig:guideTable}
+\end{figure}
+
+\begin{figure}[H]
+    \begin{tabular} {| p{2cm} | p{10cm} |}
+        \hline
+        \textbf{Objective}   &         \textbf{Description and reference}   \\ \hline
+        3(a)                 &This has been completed in listing            \
+                              \ref{lst:library} in the "changePlaylist"     \
+                              method in the "PlayListView" class. This      \
+                              method is triggered whenever the selection has\
+                              changed to a different playlist. This method  \
+                              changes the "tableview" to the playlist that  \
+                              is currently selected and then sends the songs\
+                              in the playlist to the "AudioPlayer" class in \
+                              listing \ref{lst:player}.                     \\ \hline
+        3(b)                 &This is achieved in listing \ref{lst:player}  \
+                              in the "AudioPlayer" class in the             \
+                              "burnPlaylist" method. This method is called  \
+                              every time a button called "burnBtn" is clicked\
+                              . When this method is called it creates a new \
+                              instance of the class called "BurnerThread"   \
+                              which is shown in listing \ref{lst:process}.  \
+                              This object then starts the burn process.     \\ \hline
+        3(c)                 &Fortunately the format that the songs needed to\
+                              be burnt onto disk with to be compatible with \
+                              the old cd player is the default behaviour of \
+                              the external application I am calling to burn \
+                              the music in listing \ref{lst:process} in the \
+                              "BurnerThread" class.                         \\ \hline
+        3(d)                 &This to was achieved in the "BurnerThread"    \
+                               class in the listing \ref{lst:process}. To   \
+                               ensure the songs where burnt in the right    \
+                               order, the application burns each song       \
+                               individually in order. This is possible      \
+                               due to the "-multi" argument.                \\ \hline
+    \end{tabular}
+    \caption{Guide table} \label{fig:guideTable}
+\end{figure}
+
+\subsection{Window.cpp}
+\renewcommand\mylstcaption{Contents of Window.cpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:window]{../Window.cpp}
+\end{mdlisting}
+\renewcommand\mylstcaption{Contents of Window.hpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../Window.hpp}
+\end{mdlisting}
+\subsection{DownloadTab.cpp}
+\renewcommand\mylstcaption{Contents of DownloadTab.cpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:download]{../DownloadTab.cpp}
+\end{mdlisting}
+\renewcommand\mylstcaption{Contents of DownloadTab.hpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../DownloadTab.hpp}
+\end{mdlisting}
+\subsection{LibraryTab.cpp}
+\renewcommand\mylstcaption{Contents of LibraryTab.cpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:library]{../LibraryTab.cpp}
+\end{mdlisting}
+\renewcommand\mylstcaption{Contents of LibraryTab.hpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../LibraryTab.hpp}
+\end{mdlisting}
+\subsection{DataHandler.cpp}
+\renewcommand\mylstcaption{Contents of DataHandler.cpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:data]{../DataHandler.cpp}
+\end{mdlisting}
+\renewcommand\mylstcaption{Contents of DataHandler.hpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../DataHandler.hpp}
+\end{mdlisting}
+\subsection{HttpHandler.cpp}
+\renewcommand\mylstcaption{Contents of HttpHandler.cpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:http]{../HttpHandler.cpp}
+\end{mdlisting}
+\renewcommand\mylstcaption{Contents of HttpHandler.hpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../HttpHandler.hpp}
+\end{mdlisting}
+\subsection{PlayerWindow.cpp}
+\renewcommand\mylstcaption{Contents of PlayerWindow.cpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:player]{../PlayerWindow.cpp}
+\end{mdlisting}
+\renewcommand\mylstcaption{Contents of PlayerWindow.hpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../PlayerWindow.hpp}
+\end{mdlisting}
+\subsection{ExternalProcess.cpp}
+\renewcommand\mylstcaption{Contents of ExternalProcess.cpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:process]{../ExternalProcess.cpp}
+\end{mdlisting}
+\renewcommand\mylstcaption{Contents of ExternalProcess.hpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../ExternalProcess.hpp}
+\end{mdlisting}
+\subsection{VideoYouTube.cpp}
+\renewcommand\mylstcaption{Contents of VideoYouTube.cpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../VideoYouTube.cpp}
+\end{mdlisting}
+\renewcommand\mylstcaption{Contents of VideoYouTube.hpp}
+\begin{mdlisting}
+    \lstinputlisting[language=C++, caption=\mylstcaption, label=lst:c1]{../VideoYouTube.hpp}
+\end{mdlisting}
+\section{Testing}
+In this section I will test my built application against the objectives that I originally stated and make sure
+that my applications fulfils the purpose it is meant to. The table in figure \ref{fig:testTable1} shows the list
+of tests that I performed and whether the program pass the test or not. The table references numerous pictures
+in \ref{fig:tSample} to show proof of the test. Finally below that I create a references section that gives
+additional information about each of the fail tests. Since one of my main objectives was to make sure the app
+was cross-platform I have tested these scenarios on both windows and Linux.
+\begin{figure}[H]
+    \begin{center}
+        \begin{tabular} { | c | p{5cm} | c | c | c | c |}
+            \hline
+            \textbf{Test Id}&         \textbf{TestDescription}         &   \textbf{Data type}   &\textbf{Pass/Fail}& \textbf{Cross reference}\\ \hline
+            1               &Can type into the search bar and search   \
+                             . This is to test one of the first        \
+                             where the user enters a search and        \
+                             application should return a list of all   \
+                             of the YouTube videos relevant to the     \
+                             search term.                              &      Normal            &       Pass       & Fig ~\ref{fig:tSample}a \\ \hline
+            2               &Tried to repeatedly search for a video
+                             with the same search term in the search   \
+                             bar. This is to ensure that the app does  \
+                             not give duplicate results                &      Errounous         &       Pass       & Fig ~\ref{fig:tSample}a \\ \hline
+            3               &Preview a video and setting a different   \
+                             quality. This is to make sure that all of \
+                             qualitys and formats have valid URLs      \
+                             proving that the URL extraction process is\
+                             stable                                    &      Normal            &       Pass       & Fig ~\ref{fig:tSample}b \\ \hline
+            4               &Able to download   audio with the progress\
+                             bar being updated periodically. This is to\
+                             test one of the main objectives.          &      Normal            &       Pass       & Fig ~\ref{fig:tSample}c \\ \hline
+            5               &Download a video with multiple special    \
+                             characters in it. This is to test the     \
+                             string handling and the file saving in the\
+                             app.                                      &      Erroneous         &       Pass       & Fig ~\ref{fig:tSample}d \\ \hline
+            6               &Able to switch entries in the database    \
+                            .This was One of the objectives set out by \
+                            the client.                                &      Normal            &       Pass       &Fig ~\ref{fig:tSample}e\&f\\ \hline
+            7               &Able to delete items in playlists and     \
+                             and remove them from the database,        \
+                             fullfilling one of the objectives set out \
+                             by the user.                              &      Normal            &       Pass       & Fig ~\ref{fig:tSample}g \\ \hline
+            8               &Buttons do not raise an error in any state\
+                             .This is to test the error handling in the\
+                             app as crashes can occur if the buttons   \
+                             are not set up properly.                  &      Erroneous\cite{e1}&       Fail       & Fig ~\ref{fig:tSample}h \\ \hline
+            9               &The burning process runs on Linux without \
+                            permission errors.                         &      Erroneous\cite{e2}&       Fail       & Fig ~\ref{fig:tSample}i \\ \hline
+            10              &The burning process       on windows      \
+                             and on Linux when being run with sudo     &      Erroneous         &       Pass       & Fig ~\ref{fig:tSample2}a\\ \hline
+            11              &Can play songs on a playlist and switch   \
+                             between them after downloading them.      &      Normal            &       Pass       & Fig ~\ref{fig:tSample2}b\\ \hline
+        \end{tabular}
+    \end{center}
+    \caption{Testing table 1} \label{fig:testTable1}
+\end{figure}
+\begin{figure}[H]
+    \begin{center}
+        \begin{tabular} {ccc}
+            \subfloat[Test id 1 and 2]{\includegraphics[width = 2in]{testPhotos/t1.png}} &
+            \subfloat[Test id 3]{\includegraphics[width = 2in]{testPhotos/t3.png}} &
+            \subfloat[Test id 4]{\includegraphics[width = 2in]{testPhotos/t4.png}} \\
+            \subfloat[Test id 5]{\includegraphics[width = 2in]{testPhotos/t5.png}} &
+            \subfloat[Test id 6 and 7 before]{\includegraphics[width = 2in]{testPhotos/t6-1.png}} &
+            \subfloat[Test id 6 after]{\includegraphics[width = 2in]{testPhotos/t6-2.png}} \\
+            \subfloat[Test id 7 after]{\includegraphics[width = 2in]{testPhotos/t7.png}} &
+            \subfloat[Test id 8]{\includegraphics[width = 2in]{testPhotos/t8.png}} &
+            \subfloat[Test id 9]{\includegraphics[width = 2in]{testPhotos/t9.png}} \\
+        \end{tabular}
+    \end{center}
+    \caption{Testing Sample 1} \label{fig:tSample}
+\end{figure}
+\begin{figure}[H]
+    \begin{center}
+        \begin{tabular} {ccc}
+            \subfloat[Test id 10]{\includegraphics[width = 2in]{testPhotos/t10.png}} &
+            \subfloat[Test id 11]{\includegraphics[width = 2in]{testPhotos/t11.png}}
+        \end{tabular}
+    \end{center}
+    \caption{Testing Sample 2} \label{fig:tSample2}
+\end{figure}
+\begin{thebibliography}{9}
+\bibitem{e1}
+    Test id 8,
+    This test fails due to accessing an index in a list that was not available. This fail when trying to
+    go to the next song when before selecting a playlist so it is likely caused by not having either index
+    or tracklist properties set in PlayerWindow.cpp
+\bibitem{e2}
+    Test id 9,
+    This test fails from not being able to access the CD drive on Linux due to insufficient permissions. Their
+    is little I can do to resolve this issue apart from attempting to make an exception in the sudoers file for
+    cdrecord.
+\end{thebibliography}
+\section{Evaluation}
+I believe that the final program achieves the main objectives but work could be done to improve the stability
+and reliability of the program. The final product also differs from my original design in many ways, particularly
+with the burning process where I used a QProcess instead of a QThread. Another major change is the way that I
+store the filename of the downloaded audio. I found that using the original file caused issues when I either
+tried to convert it or burn it to a CD due to special characters acting in unpredictable ways. To get around this
+issue I hashed the filename and store it in the database with the filename. This was so I could still present
+a readable name to the user while still being able to find which hash belonged to which file.
+
+I do belive that the system is effective as it can find copy right free content and download it at a decent
+speed while avoiding things like ads and malware which the user would experience if she wanted to download
+music off the web. Due to the drag and drop interaction the system is easy to learn. How long this solution
+will last for however might be a problem as YouTube is likely to change and update in the future which
+might make the current method of getting the music broken.
+
+I am quite please with the success of completing objectives 1(a) to 1(e). I do however believe that the
+the process could be made more stable and reliable given more time to work on it. The search bar
+in the download tab allows the user to enter the search term to search for YouTube videos achieving
+objective 1(a). The application then substitutes this into a URL and then performs a get request
+on this URL which returns a list of copyright-free videos, completing objective 1(b). The user then
+can select any one of these return videos from the list to preview the video and audio, achieving 1(c).
+The user can then play, pause and seek forward in this preview by the controls under the preview window,
+completing the objective 1(d). Finally the user can then click the download button under the controls to
+download the audio of the video which fulfils the last objective 1(e).
+
+The next set of objectives was to allow the user to create and organise playlists. Although I did meet these
+objectives the solution is not as complete as it was for the previous set. This was mostly because time was
+starting to become an issue and to fulfil some the objectives required unconventional use of databases
+like swapping rows and deleting rows based on how many rows down they were rather than a  single property.
+Allowing the user to create a named playlist was the first and easiest objective to complete as I only had
+to create a button that would create a table and a playlist object. The next objective 1(b) was more complex
+as to ensure that the object 1(e) was fulfilled I needed to implement a drag and drop to add songs to a
+playlist. Once this system was complete it added a basis to complete objective 1(d). All I needed to do
+to complete object 1(d) was to then add a series of select and delete queries based on the row that the
+user select. Unfortunately this raised a problem as there was not in built way in Qt to find the row
+that the user dropped on. To solve this I created an algorithm to find the how that the user mouse is
+currently hovering over and triggered this algorithm every time the user performed the drop action.
+Finally the delete option for objective 1(c) needed to be built. I managed to complete this by using a
+single SQL statement to find a row based on how may rows down it was and then deleting that row. The
+problem however is that the song is never delete from the computer's storage only the database.
+So although this does meet the clients needs and the objectives I set out to complete it is not
+an efficient solution in terms of storage.
+
+The next two main objectives, three and four, are interlinked as many of the problems I encountered
+while trying to complete objective three was caused by objective four. This because I was using an
+external program called "cdrecord" to perform the actual burning. This meant that the app had to
+choose the correct version of the program as Linux would not be able to run a .exe executable and
+vice versa with windows. Additional permissions caused issues as Unix based systems like Linux require
+admin privileges to read and write to a disk drive. This was very problematic as for burning process
+to work on Linux the application had to be launch as a root user which is generally bad practice and
+caused other areas of the application to fail. There is little I can do about this as this is the way
+the Linux kernel is built. There is a work around however by editing the sudoers file you can make
+an exception for the application making it work perfectly. I do not think this is a issue for the
+client. The reasoning behind this is that the only computer where the client does not have the
+permissions to run the app as root is on here work laptop. Fortunately this work laptop does and will
+for the foreseeable future run windows where the permission problems do not occur. The only instance
+where she may not be running windows will be on her personal laptop where she will have the appropriate
+permissions.
+
+With the exception of the problems mention in the previous paragraph the objectives in question three
+were reasonably easy to meet. The first 3(a) was solved by adding an additional mouse event to the
+drag and drop system allowing the user to select and highlight the intended playlist. Adding
+a button to initiate the burn process was fairly straightforward and achieved with Qt, completing
+objective 3(b). Fortunately objective 3(c) raised no problems as the default behaviour of "cdrecord"
+allowed the music burnt onto the cd to be played with the cd player. The last objective, 3(d), was
+easily completed by feeding songs into "cdrecord" individually with the "-multi" argument as planned
+in the design stage of this project.
+
+
+\subsection{User feedback}
+This section shows some quotes from the user and my thoughts on how I can act upon this feedback.
+
+\begin{itemize}
+    \item "I like the search feature but the result returned seems limited"
+    \begin{itemize}
+        \item I'm glad the user likes the search feature and can understand the issue
+            she has with the limited results. This is caused by app only getting the results
+            from the first page of results from the search on YouTube. A possible solution
+            to this would be to get the next page of results from YouTube when the scroll bar
+            reaches the bottom of the list. Additionally if the user can find the video
+            on YouTube but not with the application perhaps it would make more sense to
+            add a text bar where the user can paste the YouTube URL into it.
+    \end{itemize}
+    \item While the user used the application I observed that she sometimes got confused with the
+        table she was currently looking at. Perhaps it would be better to make it clearer
+        about what table was being used by have the table name in bold above the table
+        view along with some colouring.
+    \item "While I am previewing a video it sometimes buffers"
+    \begin{itemize}
+        \item The user said this as a passing comment but I think it may be possible to act upon
+            by changing the default quality of the preview to the lowest possible one. This
+            makes a lot of sense as the video quality is largely unimportant but the sound
+            quality is. Additional the preview is to simply check that the video select
+            is the one you want.
+    \end{itemize}
+    \item "I like that you can group the songs so I can choose what I burn"
+    \begin{itemize}
+        \item This was some positive feedback that the client gave about the ability to
+            organise the songs into different playlists.
+    \end{itemize}
+    \item "It's easy, the interface is very user-friendly"
+    \begin{itemize}
+        \item This is another piece of positive feedback from the client. I'm glad that
+            she finds it easy to navigate as it gives her the independence to do it on her
+            own which was one of the key things that she wanted from the project.
+    \end{itemize}
+    \item "Would be useful to know how many songs I can fit on a CD"
+    \begin{itemize}
+        \item This is some constructive criticism that the client gave about the application.
+            Since there is limited space on a CD she did not know how many songs could be burnt
+            to a CD and therefore how many are allowed on a single playlist. This makes a lot of
+            sense and I think it would be useful to add a memory counter which would determine
+            the size of all the songs in the playlist and warn the user if it goes over 700Mb
+            which is the storage size of a CD.
+    \end{itemize}
+    \item "a share option to put the music on other computers would be useful"
+    \begin{itemize}
+        \item This is another piece of constructive criticism. The user would want a function
+            that would allow songs to be shared to another computer. I think this could be a
+            useful feature to have an export button which would save the songs to a external
+            folder.
+    \end{itemize}
+\end{itemize}
+
+Overall the client seemed pleased with the result and I think with some minor tweeks it could
+be a valuable tool.
+
+\end{document}
